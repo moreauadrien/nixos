@@ -14,9 +14,14 @@
   ];
 
   # Bootloader.
-  boot.loader.grub.enable = true;
-  boot.loader.grub.device = "/dev/sda";
-  boot.loader.grub.useOSProber = true;
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+  boot.initrd.luks.devices = {
+    root = {
+      device = "/dev/nvme0n1p2";
+      preLVM = true;
+    };
+  };
 
   nix.settings.experimental-features = ["nix-command" "flakes"];
 
