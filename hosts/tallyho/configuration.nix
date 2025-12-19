@@ -12,6 +12,7 @@
     ../../modules/nixos/desktop-environment.nix
     ../../modules/nixos/wireless.nix
     ../../modules/nixos/bluetooth.nix
+    ../../modules/nixos/sound.nix
     inputs.home-manager.nixosModules.default
   ];
 
@@ -47,7 +48,7 @@
 
   console.keyMap = "fr";
 
-# Configure keymap for loggin screen
+  # Configure keymap for loggin screen
   services.xserver.xkb = {
     layout = "fr";
     variant = "azerty";
@@ -77,7 +78,6 @@
       "adrien" = import ./home.nix;
     };
   };
-
 
   environment.systemPackages = with pkgs; [
     gnutar

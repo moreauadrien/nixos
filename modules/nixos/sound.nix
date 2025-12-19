@@ -1,7 +1,5 @@
-{ pkgs, ...}: {
-  sound.enable = true;
-
-  software.pulseaudio.enable = false;
+{pkgs, ...}: {
+  services.pulseaudio.enable = false;
 
   security.rtkit.enable = true;
 
@@ -17,4 +15,15 @@
   environment.systemPackages = with pkgs; [
     alsa-tools
   ];
+
+  systemd.services.hda-verb-setup = {
+    description = "Configure HDA verbs";
+    wantedBy = ["multi-user.target"];
+    after = ["sound.target"];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    script = builtins.readFile ./hda-verb-setup;
+  };
 }
