@@ -13,6 +13,7 @@
     ../../modules/nixos/wireless.nix
     ../../modules/nixos/bluetooth.nix
     ../../modules/nixos/sound.nix
+    ../../modules/nixos/webcam.nix
     inputs.home-manager.nixosModules.default
   ];
 

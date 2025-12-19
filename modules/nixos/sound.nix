@@ -24,6 +24,7 @@
       Type = "oneshot";
       RemainAfterExit = true;
     };
+    path = [ pkgs.alsa-tools ];
     script = builtins.readFile ./hda-verb-setup;
   };
 }
