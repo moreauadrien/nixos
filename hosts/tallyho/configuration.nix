@@ -13,7 +13,6 @@
     ../../modules/nixos/wireless.nix
     ../../modules/nixos/bluetooth.nix
     ../../modules/nixos/sound.nix
-    ../../modules/nixos/webcam.nix
     inputs.home-manager.nixosModules.default
   ];
 
@@ -27,7 +26,13 @@
     };
   };
 
+  boot.initrd.systemd.enable = true;
+  boot.plymouth.enable = true;
+  boot.kernelParams = ["quiet"];
+
   nix.settings.experimental-features = ["nix-command" "flakes"];
+
+
 
   networking.hostName = "tallyho";
 
@@ -83,10 +88,14 @@
   environment.systemPackages = with pkgs; [
     gnutar
     curl
+    brightnessctl
   ];
+
+  services.udisks2.enable = true;
 
   programs.tmux.enable = true;
   programs.firefox.enable = true;
+  programs.gnome-disks.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];

@@ -31,6 +31,7 @@
     alejandra
     libnotify
     nerd-fonts.jetbrains-mono
+    signal-desktop
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
@@ -81,6 +82,15 @@
   #
   #  /etc/profiles/per-user/adrien/etc/profile.d/hm-session-vars.sh
   #
+
+  services.udiskie = {
+    enable = true;
+    settings = {
+      program_options = {
+        file_manager = "${pkgs.nautilus}/bin/nautilus";
+      };
+    };
+  };
 
   programs.zsh = {
     enable = true;

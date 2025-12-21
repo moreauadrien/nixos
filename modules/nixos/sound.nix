@@ -14,6 +14,7 @@
 
   environment.systemPackages = with pkgs; [
     alsa-tools
+    wiremix
   ];
 
   systemd.services.hda-verb-setup = {
@@ -24,7 +25,7 @@
       Type = "oneshot";
       RemainAfterExit = true;
     };
-    path = [ pkgs.alsa-tools ];
+    path = [pkgs.alsa-tools];
     script = builtins.readFile ./hda-verb-setup;
   };
 }
