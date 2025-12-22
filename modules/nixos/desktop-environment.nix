@@ -10,7 +10,6 @@
     portalPackage = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
   };
 
-
   #services.displayManager.sddm = {
   #  enable = true;
   #  wayland.enable = true;
@@ -24,7 +23,6 @@
       wayland.enable = true;
     };
   };
-
 
   programs.hyprlock.enable = true;
 
@@ -41,6 +39,7 @@
     slurp
     grim
 
+    hyprcursor
     xcursor-themes
     bibata-cursors
   ];

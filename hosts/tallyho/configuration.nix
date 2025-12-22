@@ -32,8 +32,6 @@
 
   nix.settings.experimental-features = ["nix-command" "flakes"];
 
-
-
   networking.hostName = "tallyho";
 
   time.timeZone = "Europe/Paris";
@@ -89,6 +87,7 @@
     gnutar
     curl
     brightnessctl
+    jq
   ];
 
   services.udisks2.enable = true;
