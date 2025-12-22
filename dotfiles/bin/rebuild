@@ -30,12 +30,14 @@ echo "NixOS Rebuilding..."
 sudo nixos-rebuild switch --flake /home/adrien/nixos#tallyho &>nixos-switch.log || (cat nixos-switch.log | grep --color error && exit 1)
 
 # Get current generation metadata
-current=$(nixos-rebuild list-generations --json | jq '.[] | select(.current == true) | .generation')
+current_generation=$(nixos-rebuild list-generations --json | jq '.[] | select(.current == true) | .generation')
 
-echo $current
+default_commit_message="Generation $current_generation"
+read -p "Commit message [${default_commit_message}]: " commit_message
+commit_message=${commit_message:-$default_commit_message}
 
-# Commit all changes witih the generation metadata
-git commit -am "Generation $current"
+# Commit all changes
+git commit -am "$commit_message"
 
 # Back to where you were
 popd
