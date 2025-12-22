@@ -5,6 +5,8 @@
 }: {
   imports = [
     ../../modules/home-manager/hyprland.nix
+    ../../modules/home-manager/waybar.nix
+    ../../modules/home-manager/rofi.nix
     ../../modules/home-manager/neovim.nix
     ../../modules/home-manager/alacritty.nix
     ../../modules/home-manager/git.nix

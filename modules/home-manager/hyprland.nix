@@ -3,8 +3,8 @@
   pkgs,
   ...
 }: {
-  #xdg.configFile."hypr" = {
-  #  source = ../../dotfiles/hypr;
-  #  recursive = true;
-  #};
+  xdg.configFile."hypr" = {
+    source = ../../dotfiles/hypr;
+    recursive = true;
+  };
 }
