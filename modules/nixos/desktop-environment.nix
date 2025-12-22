@@ -1,4 +1,5 @@
 {
+  config,
   inputs,
   pkgs,
   lib,
@@ -26,21 +27,25 @@
 
   programs.hyprlock.enable = true;
 
-  environment.systemPackages = with pkgs; [
-    alacritty
-    hyprpolkitagent
-    hyprpaper
-    dunst
-    rofi
-    nautilus
-    xdg-desktop-portal-hyprland
-    waybar
-    wl-clipboard
-    slurp
-    grim
+  environment.systemPackages = with pkgs;
+    [
+      alacritty
+      hyprpolkitagent
+      hyprpaper
+      dunst
+      rofi
+      nautilus
+      xdg-desktop-portal-hyprland
+      waybar
+      wl-clipboard
+      slurp
+      grim
 
-    hyprcursor
-    xcursor-themes
-    bibata-cursors
-  ];
+      hyprcursor
+      xcursor-themes
+      bibata-cursors
+    ]
+    ++ lib.optionals config.services.tailscale.enable [
+      pkgs.trayscale
+    ];
 }
