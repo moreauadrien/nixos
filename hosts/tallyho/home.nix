@@ -33,10 +33,12 @@
     nerd-fonts.jetbrains-mono
     signal-desktop
     zsh
-    fzf
   ];
 
-  programs.fzf.enableZshIntegration = true;
+  programs.fzf = {
+    enable = true;
+    enableZshIntegration = true;
+  };
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
   # plain files is through 'home.file'.
