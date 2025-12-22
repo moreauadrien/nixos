@@ -33,6 +33,7 @@
     nerd-fonts.jetbrains-mono
     signal-desktop
     zsh
+    fzf
   ];
 
   programs.fzf.enableZshIntegration = true;
