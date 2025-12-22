@@ -11,11 +11,6 @@
     portalPackage = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
   };
 
-  #services.displayManager.sddm = {
-  #  enable = true;
-  #  wayland.enable = true;
-  #};
-
   services.displayManager = {
     autoLogin.user = "adrien";
     autoLogin.enable = true;
@@ -26,6 +21,7 @@
   };
 
   programs.hyprlock.enable = true;
+  services.hypridle.enable = true;
 
   environment.systemPackages = with pkgs;
     [
