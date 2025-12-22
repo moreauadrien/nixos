@@ -98,6 +98,10 @@
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
 
+    initExtra = ''
+      bindkey -s ^f "tmux-sessionizer\n"
+    '';
+
     oh-my-zsh = {
       enable = true;
       theme = "robbyrussell";
