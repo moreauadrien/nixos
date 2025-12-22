@@ -98,7 +98,7 @@
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
 
-    initExtra = ''
+    initContent = ''
       bindkey -s ^f "tmux-sessionizer\n"
     '';
 
