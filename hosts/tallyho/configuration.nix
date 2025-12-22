@@ -72,7 +72,7 @@
     isNormalUser = true;
     shell = pkgs.zsh;
     description = "Adrien";
-    extraGroups = ["wheel" "libvirt"];
+    extraGroups = ["wheel" "libvirt" "libvirtd"];
     packages = with pkgs; [
       btop
       fastfetch
