@@ -40,6 +40,9 @@
       hyprcursor
       xcursor-themes
       bibata-cursors
+
+      vlc
+      eog
     ]
     ++ lib.optionals config.services.tailscale.enable [
       pkgs.trayscale
