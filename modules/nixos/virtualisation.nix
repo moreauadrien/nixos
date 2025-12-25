@@ -5,4 +5,6 @@
   virtualisation.docker = {
     enable = true;
   };
+
+  users.users.adrien.extraGroups = ["docker"];
 }
