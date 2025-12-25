@@ -13,6 +13,7 @@
     ../../modules/nixos/wireless.nix
     ../../modules/nixos/bluetooth.nix
     ../../modules/nixos/sound.nix
+    ../../modules/nixos/virtualization.nix
     inputs.home-manager.nixosModules.default
   ];
 
@@ -103,13 +104,8 @@
   services.udisks2.enable = true;
 
   programs.tmux.enable = true;
-  programs.firefox.enable = true;
-  programs.gnome-disks.enable = true;
 
   services.tailscale.enable = true;
-
-  programs.virt-manager.enable = true;
-  virtualisation.libvirtd.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
