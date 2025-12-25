@@ -13,7 +13,7 @@
     ../../modules/nixos/wireless.nix
     ../../modules/nixos/bluetooth.nix
     ../../modules/nixos/sound.nix
-    ../../modules/nixos/virtualization.nix
+    ../../modules/nixos/virtualisation.nix
     inputs.home-manager.nixosModules.default
   ];
 
