@@ -100,7 +100,7 @@
     brightnessctl
     jq
 
-    vesktop
+    discord
   ];
 
   services.udisks2.enable = true;
