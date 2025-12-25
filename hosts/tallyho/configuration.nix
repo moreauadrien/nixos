@@ -99,6 +99,8 @@
     curl
     brightnessctl
     jq
+
+    vesktop
   ];
 
   services.udisks2.enable = true;
