@@ -109,6 +109,8 @@
 
   services.tailscale.enable = true;
 
+  services.tlp.enable = true;
+
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
