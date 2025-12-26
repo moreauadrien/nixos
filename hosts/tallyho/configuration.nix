@@ -101,6 +101,8 @@
     jq
 
     discord
+
+    go
   ];
 
   services.udisks2.enable = true;
