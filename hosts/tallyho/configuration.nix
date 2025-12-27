@@ -103,6 +103,7 @@
     discord
 
     go
+    cyberchef
   ];
 
   services.udisks2.enable = true;
@@ -130,7 +131,19 @@
     };
   };
 
-  services.printing.enable = true;
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;
+    openFirewall = true;
+  };
+
+  services.printing = {
+    enable = true;
+    drivers = with pkgs; [
+      cups-filters
+      cups-browsed
+    ];
+  };
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
