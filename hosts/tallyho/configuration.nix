@@ -105,6 +105,7 @@
     go
     cyberchef
     file-roller
+    papers
   ];
 
   services.udisks2.enable = true;
