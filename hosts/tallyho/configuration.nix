@@ -105,7 +105,7 @@
     go
     cyberchef
     file-roller
-    papers
+    evince
   ];
 
   services.udisks2.enable = true;
