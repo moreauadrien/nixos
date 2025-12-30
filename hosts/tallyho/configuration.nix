@@ -109,6 +109,7 @@
 
     onlyoffice-desktopeditors
     bun
+    nodejs_24
   ];
 
   services.udisks2.enable = true;
