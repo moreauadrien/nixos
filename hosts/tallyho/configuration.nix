@@ -108,6 +108,7 @@
     evince
 
     onlyoffice-desktopeditors
+    bun
   ];
 
   services.udisks2.enable = true;
