@@ -106,6 +106,8 @@
     cyberchef
     file-roller
     evince
+
+    onlyoffice-desktopeditors
   ];
 
   services.udisks2.enable = true;
