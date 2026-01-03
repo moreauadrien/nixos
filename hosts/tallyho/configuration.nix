@@ -110,6 +110,9 @@
     onlyoffice-desktopeditors
     bun
     nodejs_24
+
+    sqlc
+    air
   ];
 
   services.udisks2.enable = true;
