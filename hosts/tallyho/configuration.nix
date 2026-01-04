@@ -113,6 +113,8 @@
 
     sqlc
     air
+
+    mpv
   ];
 
   services.udisks2.enable = true;
