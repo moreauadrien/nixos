@@ -3,9 +3,7 @@
   pkgs,
   lib,
   ...
-}: let
-  browser = lib.getExe pkgs.firefox;
-in {
+}: {
   imports = [
     ../../modules/home-manager/hyprland.nix
     ../../modules/home-manager/waybar.nix
@@ -91,12 +89,6 @@ in {
   home.sessionPath = [
     "$HOME/.local/bin"
   ];
-
-  xdg.desktopEntries.slack = {
-    name = "Whatsapp";
-    exec = "${browser} --app=https://web.whatsapp.com";
-  };
-
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 }
