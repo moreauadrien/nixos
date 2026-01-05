@@ -13,7 +13,9 @@
     ../../modules/home-manager/git.nix
     ../../modules/home-manager/scripts.nix
     ../../modules/home-manager/cursor.nix
-    #../../modules/home-manager/whatsapp.nix
+    ../../modules/home-manager/whatsapp.nix
+    #../../modules/home-manager/discord.nix
+    #../../modules/home-manager/spotify.nix
   ];
 
   home.username = "adrien";
