@@ -115,6 +115,8 @@
     air
 
     mpv
+
+    walker
   ];
 
   services.udisks2.enable = true;
