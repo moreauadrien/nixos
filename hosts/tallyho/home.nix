@@ -87,6 +87,13 @@
     "$HOME/.local/bin"
   ];
 
+  home.file.".icons/Notwaita-Black" = {
+    source = pkgs.fetchurl {
+      url = "https://github.com/ful1e5/notwaita-cursor/releases/download/v1.0.0-alpha1/Notwaita-Black.tar.xz";
+      sha256 = "1ky7czkbjsi8isx9cxabdryavnk1ii1aizyznfbgxkva20spiw9z";
+    };
+  };
+
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 }
