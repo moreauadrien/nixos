@@ -38,7 +38,6 @@
       grim
 
       hyprcursor
-      xcursor-themes
       bibata-cursors
 
       vlc
