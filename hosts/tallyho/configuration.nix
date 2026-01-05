@@ -6,7 +6,10 @@
   pkgs,
   inputs,
   ...
-}: {
+}: let
+  system = "x86_64-linux";
+  unstable = inputs.nixpkgs-unstable.legacyPackages.${system};
+in {
   imports = [
     ./hardware-configuration.nix
     ../../modules/nixos/desktop-environment.nix
@@ -150,6 +153,7 @@
 
   services.printing = {
     enable = true;
+    package = unstable.cups;
     drivers = with pkgs; [
       cups-filters
       cups-browsed
