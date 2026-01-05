@@ -16,9 +16,9 @@
 in {
   home.packages = [notwaita-cursor];
 
-  #home.pointerCursor = {
-  #  package = notwaita-cursor;
-  #  name = "Notwaita-Black";
-  #  size = 24;
-  #};
+  home.pointerCursor = {
+    package = notwaita-cursor;
+    name = "Notwaita-Black";
+    size = 20;
+  };
 }
