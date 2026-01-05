@@ -115,7 +115,6 @@
     air
 
     mpv
-    chromium
   ];
 
   services.udisks2.enable = true;
@@ -155,20 +154,6 @@
       cups-filters
       cups-browsed
     ];
-  };
-
-  programs.chromium = {
-    enable = true;
-    extraOpts = {
-      "WebAppInstallForceList" = [
-        {
-          "custom_name" = "Twitch";
-          "create_desktop_shortcut" = false;
-          "default_launch_container" = "window";
-          "url" = "https://twitch.tv";
-        }
-      ];
-    };
   };
 
   # Open ports in the firewall.
