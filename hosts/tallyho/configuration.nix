@@ -115,6 +115,7 @@
     air
 
     mpv
+    chromium
   ];
 
   services.udisks2.enable = true;
