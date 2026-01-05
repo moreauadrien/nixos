@@ -16,10 +16,9 @@
 in {
   home.packages = [notwaita-cursor];
 
-  # Optionnel : configurer le thème de curseur
-  home.pointerCursor = {
-    package = notwaita-cursor;
-    name = "Notwaita-Black";
-    size = 24;
-  };
+  #home.pointerCursor = {
+  #  package = notwaita-cursor;
+  #  name = "Notwaita-Black";
+  #  size = 24;
+  #};
 }
