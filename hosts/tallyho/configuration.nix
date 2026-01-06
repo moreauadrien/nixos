@@ -118,6 +118,8 @@ in {
     air
 
     mpv
+
+    unstable.ollama
   ];
 
   services.udisks2.enable = true;
