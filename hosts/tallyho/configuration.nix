@@ -120,6 +120,8 @@ in {
     mpv
 
     unstable.ollama
+
+    typst
   ];
 
   services.ollama = {
