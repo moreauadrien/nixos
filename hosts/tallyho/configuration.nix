@@ -34,6 +34,8 @@ in {
   boot.plymouth.enable = true;
   boot.kernelParams = ["quiet"];
 
+  services.logind.powerKey = "poweroff";
+
   nix.settings.experimental-features = ["nix-command" "flakes"];
 
   networking.hostName = "tallyho";
@@ -122,6 +124,7 @@ in {
     unstable.ollama
 
     typst
+    librecad
   ];
 
   services.ollama = {
