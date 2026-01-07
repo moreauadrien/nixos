@@ -6,6 +6,13 @@
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     hyprland.url = "github:hyprwm/Hyprland";
 
+    elephant.url = "github:abenz1267/elephant";
+
+    walker = {
+      url = "github:abenz1267/walker";
+      inputs.elephant.follows = "elephant";
+    };
+
     home-manager = {
       url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
