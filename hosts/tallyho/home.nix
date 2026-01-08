@@ -1,4 +1,5 @@
 {
+  #inputs,
   config,
   pkgs,
   lib,
@@ -14,6 +15,7 @@
     ../../modules/home-manager/scripts.nix
     ../../modules/home-manager/cursor.nix
     ../../modules/home-manager/whatsapp.nix
+    #inputs.walker.homeManagerModules.default
     #../../modules/home-manager/discord.nix
     #../../modules/home-manager/spotify.nix
   ];
@@ -91,6 +93,8 @@
   home.sessionPath = [
     "$HOME/.local/bin"
   ];
+
+  #programs.walker.enable = true;
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 }
