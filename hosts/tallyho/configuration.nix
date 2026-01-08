@@ -123,6 +123,8 @@ in {
 
     typst
     librecad
+
+    kdePackages.okular
   ];
 
   services.ollama = {
@@ -169,20 +171,6 @@ in {
       cups-browsed
     ];
   };
-
-  services.printing.package = let
-    oldnixpkgs =
-      import
-      (builtins.fetchTarball {
-        url = "https://github.com/NixOS/nixpkgs/archive/c8cfcd6ccd422e41cc631a0b73ed4d5a925c393d.tar.gz";
-        sha256 = "1fdjh5jd5jx246fhfq13q5752nw9il5dwv36nqbcj4pa6kzwq9fy";
-      })
-      {
-        config = config.nixpkgs.config;
-        system = pkgs.stdenv.hostPlatform.system;
-      };
-  in
-    oldnixpkgs.cups;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
