@@ -47,6 +47,5 @@
       pkgs.trayscale
     ];
 
-  programs.firefox.enable = true;
   programs.gnome-disks.enable = true;
 }

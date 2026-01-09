@@ -29,16 +29,6 @@ in {
 
   networking.hostName = "tallyho";
 
-  # Automatic updating
-  system.autoUpgrade.enable = true;
-  system.autoUpgrade.dates = "weekly";
-
-  # Automatic cleanup
-  nix.gc.automatic = true;
-  nix.gc.dates = "daily";
-  nix.gc.options = "--delete-older-than 10d";
-  nix.settings.auto-optimise-store = true;
-
   time.timeZone = "Europe/Paris";
 
   i18n.defaultLocale = "en_US.UTF-8";
@@ -75,26 +65,15 @@ in {
     ];
   };
 
-  programs.zsh.enable = true;
-
   nixpkgs.config.allowUnfree = true;
 
-  programs.localsend.enable = true;
-
-  home-manager = {
-    extraSpecialArgs = {inherit inputs;};
-    users = {
-      "adrien" = import ./home.nix;
-    };
-  };
+  programs.zsh.enable = true;
 
   environment.systemPackages = with pkgs; [
     gnutar
     curl
     brightnessctl
     jq
-
-    discord
 
     go
     cyberchef
@@ -116,7 +95,6 @@ in {
   programs.tmux.enable = true;
 
   services.tailscale.enable = true;
-
 
   services.gvfs.enable = true;
 
