@@ -1,7 +1,12 @@
 {pkgs, ...}: {
   programs.virt-manager.enable = true;
-  virtualisation.libvirtd.enable = true;
-  virtualisation.libvirtd.qemu.swtpm.enable = true;
+  virtualisation.libvirtd = {
+    enable = true;
+    qemu = {
+      vhostUserPackages = with pkgs; [virtiofsd];
+      swtpm.enable = true;
+    };
+  };
 
   virtualisation.docker = {
     enable = true;
