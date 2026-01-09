@@ -90,6 +90,7 @@ in {
     typst
 
     claude-code
+    uv
   ];
 
   services.udisks2.enable = true;
