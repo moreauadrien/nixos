@@ -91,6 +91,8 @@ in {
 
     claude-code
     uv
+
+    google-chrome
   ];
 
   services.udisks2.enable = true;
