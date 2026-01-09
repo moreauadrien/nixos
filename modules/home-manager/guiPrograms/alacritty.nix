@@ -4,7 +4,7 @@
   ...
 }: {
   xdg.configFile."alacritty" = {
-    source = ../../dotfiles/alacritty;
+    source = ../../../dotfiles/alacritty;
     recursive = true;
   };
 }

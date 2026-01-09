@@ -5,21 +5,6 @@
   lib,
   ...
 }: {
-  imports = [
-    ../../modules/home-manager/hyprland.nix
-    ../../modules/home-manager/waybar.nix
-    ../../modules/home-manager/rofi.nix
-    ../../modules/home-manager/neovim.nix
-    ../../modules/home-manager/alacritty.nix
-    ../../modules/home-manager/git.nix
-    ../../modules/home-manager/scripts.nix
-    ../../modules/home-manager/cursor.nix
-    ../../modules/home-manager/whatsapp.nix
-    #inputs.walker.homeManagerModules.default
-    #../../modules/home-manager/discord.nix
-    #../../modules/home-manager/spotify.nix
-  ];
-
   home.username = "adrien";
   home.homeDirectory = "/home/adrien";
 

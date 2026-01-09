@@ -30,8 +30,9 @@
       modules = [
         ./hosts/tallyho/configuration.nix
         ./modules/nixos
-        inputs.home-manager.nixosModules.default
       ];
     };
+
+    homeManagerModules.default = ./modules/home-manager;
   };
 }
