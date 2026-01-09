@@ -12,11 +12,6 @@
 in {
   imports = [
     ./hardware-configuration.nix
-    ../../modules/nixos/desktop-environment.nix
-    ../../modules/nixos/wireless.nix
-    ../../modules/nixos/bluetooth.nix
-    ../../modules/nixos/sound.nix
-    ../../modules/nixos/virtualisation.nix
     inputs.home-manager.nixosModules.default
   ];
 
@@ -29,10 +24,6 @@ in {
       preLVM = true;
     };
   };
-
-  boot.initrd.systemd.enable = true;
-  boot.plymouth.enable = true;
-  boot.kernelParams = ["quiet"];
 
   nix.settings.experimental-features = ["nix-command" "flakes"];
 
@@ -117,18 +108,8 @@ in {
     sqlc
     air
 
-    mpv
-
-    unstable.ollama
-
     typst
   ];
-
-  services.ollama = {
-    enable = true;
-    # Optional: preload models, see https://ollama.com/library
-    loadModels = ["deepseek-r1:1.5b"];
-  };
 
   services.udisks2.enable = true;
 
@@ -136,46 +117,8 @@ in {
 
   services.tailscale.enable = true;
 
-  services.tlp = {
-    enable = true;
-    settings = {
-      CPU_SCALING_GOVERNOR_ON_AC = "performance";
-      CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
-
-      CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
-      CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
-
-      CPU_MIN_PERF_ON_AC = 0;
-      CPU_MAX_PERF_ON_AC = 100;
-      CPU_MIN_PERF_ON_BAT = 0;
-      CPU_MAX_PERF_ON_BAT = 20;
-
-      START_CHARGE_THRESH_BAT0 = 40; # 40 and below it starts to charge
-      STOP_CHARGE_THRESH_BAT0 = 80; # 80 and above it stops charging
-    };
-  };
-
-  services.avahi = {
-    enable = true;
-    nssmdns4 = true;
-    openFirewall = true;
-  };
-
-  services.printing = {
-    enable = true;
-    drivers = with pkgs; [
-      cups-filters
-      cups-browsed
-    ];
-  };
 
   services.gvfs.enable = true;
-
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
 
   system.stateVersion = "25.11"; # Do not edit
 }
