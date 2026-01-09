@@ -88,6 +88,8 @@ in {
     air
 
     typst
+
+    claude-code
   ];
 
   services.udisks2.enable = true;
