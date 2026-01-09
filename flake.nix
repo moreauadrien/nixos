@@ -29,6 +29,7 @@
       specialArgs = {inherit inputs;};
       modules = [
         ./hosts/tallyho/configuration.nix
+        ./modules/nixos
         inputs.home-manager.nixosModules.default
       ];
     };
