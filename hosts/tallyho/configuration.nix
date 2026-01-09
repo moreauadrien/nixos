@@ -122,9 +122,6 @@ in {
     unstable.ollama
 
     typst
-    librecad
-
-    kdePackages.okular
   ];
 
   services.ollama = {
