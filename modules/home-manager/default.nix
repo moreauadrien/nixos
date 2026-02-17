@@ -12,5 +12,7 @@
     ./guiPrograms/discord.nix
     ./guiPrograms/localsend.nix
     ./guiPrograms/firefox.nix
+    ./guiPrograms/rustdesk.nix
+    ./guiPrograms/moonlight.nix
   ];
 }
