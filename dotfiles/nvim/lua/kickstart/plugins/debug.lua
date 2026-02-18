@@ -67,6 +67,16 @@ return {
     local dap = require 'dap'
     local dapui = require 'dapui'
 
+    dap.configurations.go = {
+      {
+        type = "delve",
+        name = "Debug",
+        request = "launch",
+        program = "${file}",
+        outputMode = "remote",
+      },
+    }
+
     require('mason-nvim-dap').setup {
       -- Makes a best effort to setup the various debuggers with
       -- reasonable debug configurations
