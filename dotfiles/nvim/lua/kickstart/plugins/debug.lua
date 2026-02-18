@@ -6,6 +6,16 @@
 -- be extended to other languages as well. That's why it's called
 -- kickstart.nvim and not kitchen-sink.nvim ;)
 
+local function get_arguments()
+  return coroutine.create(function(dap_run_co)
+    local args = {}
+    vim.ui.input({ prompt = "Args: " }, function(input)
+      args = vim.split(input or "", " ")
+      coroutine.resume(dap_run_co, args)
+    end)
+  end)
+end
+
 return {
   -- NOTE: Yes, you can install new plugins here!
   'mfussenegger/nvim-dap',
@@ -22,7 +32,7 @@ return {
     'jay-babu/mason-nvim-dap.nvim',
 
     -- Add your own debuggers here
-    -- 'leoluz/nvim-dap-go',
+    'leoluz/nvim-dap-go',
   },
   keys = {
     -- Basic debugging keymaps, feel free to change to your liking!
@@ -69,18 +79,19 @@ return {
 
     dap.configurations.go = {
       {
-        type = "delve",
-        name = "Debug",
-        request = "launch",
-        program = "${file}",
-        outputMode = "remote",
+        type = 'go',
+        name = 'Debug main',
+        request = 'launch',
+        args = get_arguments,
+        program = '${workspaceFolder}',
+        outputMode = 'remote',
       },
     }
 
     require('mason-nvim-dap').setup {
       -- Makes a best effort to setup the various debuggers with
       -- reasonable debug configurations
-      automatic_installation = true,
+      automatic_installation = false,
 
       -- You can provide additional configuration to the handlers,
       -- see mason-nvim-dap README for more information
@@ -93,6 +104,8 @@ return {
         'delve',
       },
     }
+
+
 
     -- Dap UI setup
     -- For more information, see |:help nvim-dap-ui|
@@ -128,9 +141,32 @@ return {
     --   vim.fn.sign_define(tp, { text = icon, texthl = hl, numhl = hl })
     -- end
 
-    dap.listeners.after.event_initialized['dapui_config'] = dapui.open
-    dap.listeners.before.event_terminated['dapui_config'] = dapui.close
-    dap.listeners.before.event_exited['dapui_config'] = dapui.close
+    dap.listeners.after.event_initialized['dapui_config'] = function()
+      vim.opt.mouse = 'nv'
+      dapui.open()
+    end
+
+    dap.listeners.before.event_terminated['dapui_config'] = function()
+      vim.opt.mouse = ''
+      dapui.close()
+    end
+
+    dap.listeners.before.event_exited['dapui_config'] = function() 
+      vim.opt.mouse = ''
+      dapui.close()
+    end
+
+    require('dap-go').setup()
+
+    -- Disable delve entrys
+    vim.defer_fn(function()
+      local dap = require("dap")
+      if dap.configurations.go then
+        dap.configurations.go = vim.tbl_filter(function(config)
+          return not vim.startswith(config.name, "Delve:")
+        end, dap.configurations.go)
+      end
+    end, 100)
 
     -- Install golang specific config
     -- require('dap-go').setup {
