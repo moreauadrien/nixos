@@ -76,7 +76,6 @@ in {
     jq
 
     go
-    delve
 
     cyberchef
     file-roller
