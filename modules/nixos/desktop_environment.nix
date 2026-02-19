@@ -36,9 +36,10 @@
       nautilus
       xdg-desktop-portal-hyprland
       waybar
-      wl-clipboard
+
       slurp
       grim
+      gradia
 
       hyprcursor
       bibata-cursors

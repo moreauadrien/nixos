@@ -89,8 +89,6 @@ in {
     air
 
     typst
-
-    claude-code
     uv
 
     google-chrome
