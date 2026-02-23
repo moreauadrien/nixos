@@ -64,11 +64,15 @@
         PROMPT="%F{cyan}[$NIX_SHELL_NAME]%f $PROMPT"
       fi
 
-      chpwd() {
+      function _auto_nix_develop() {
         if [[ -f flake.nix ]] && [[ -z "$IN_NIX_SHELL" ]]; then
           nix develop
         fi
       }
+
+      chpwd() { _auto_nix_develop }
+
+      _auto_nix_develop
     '';
 
     oh-my-zsh = {
