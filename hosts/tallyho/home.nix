@@ -59,6 +59,10 @@
 
     initContent = ''
       bindkey -s ^f "tmux-sessionizer\n"
+
+      if [[ -n "$NIX_SHELL_NAME" ]]; then
+        PROMPT="%F{cyan}[$NIX_SHELL_NAME]%f $PROMPT"
+      fi
     '';
 
     oh-my-zsh = {
