@@ -75,8 +75,6 @@ in {
     brightnessctl
     jq
 
-    go
-
     cyberchef
     file-roller
     evince
@@ -84,9 +82,6 @@ in {
     onlyoffice-desktopeditors
     bun
     nodejs_24
-
-    sqlc
-    air
 
     typst
     uv
