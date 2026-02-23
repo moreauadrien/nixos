@@ -61,7 +61,7 @@
       bindkey -s ^f "tmux-sessionizer\n"
 
       if [[ -n "$NIX_SHELL_NAME" ]]; then
-        PROMPT="%F{cyan}[$NIX_SHELL_NAME]%f $PROMPT"
+        PROMPT="%F{cyan}[$NIX_SHELL_NAME]%f\n$PROMPT"
       fi
     '';
 
