@@ -13,5 +13,6 @@ template=$(
 [[ -z "$template" ]] && exit 0
 
 nix flake init -t "${FLAKE}#${template}"
-nix develop
 echo "✓ Template '$template' copied."
+
+nix develop
