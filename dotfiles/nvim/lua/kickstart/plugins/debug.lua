@@ -86,6 +86,14 @@ return {
         program = '${workspaceFolder}',
         outputMode = 'remote',
       },
+      {
+        type = 'go',
+        name = 'cmd/main.go',
+        request = 'launch',
+        args = get_arguments,
+        program = '${workspaceFolder}/cmd/main.go',
+        outputMode = 'remote',
+      },
     }
 
     require('mason-nvim-dap').setup {
