@@ -92,6 +92,7 @@ return {
         request = 'launch',
         args = get_arguments,
         program = '${workspaceFolder}/cmd/main.go',
+        buildFlags = "-O",
         outputMode = 'remote',
       },
     }
