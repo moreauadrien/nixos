@@ -80,11 +80,8 @@ in {
     evince
 
     onlyoffice-desktopeditors
-    bun
-    nodejs_24
 
     typst
-    uv
 
     google-chrome
   ];
