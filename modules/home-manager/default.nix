@@ -14,5 +14,8 @@
     ./guiPrograms/firefox.nix
     ./guiPrograms/rustdesk.nix
     ./guiPrograms/moonlight.nix
+    ./guiPrograms/bruno.nix
+    ./guiPrograms/obsidian.nix
+    ./cliPrograms/opencode.nix
   ];
 }

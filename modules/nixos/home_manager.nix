@@ -1,7 +1,14 @@
-{inputs, ...}: {
+{
+  inputs,
+  pkgs-unstable,
+  ...
+}: {
   home-manager = {
     useGlobalPkgs = true;
-    extraSpecialArgs = {inherit inputs;};
+    extraSpecialArgs = {
+      inherit inputs;
+      inherit pkgs-unstable;
+    };
     users = {
       "adrien" = {
         imports = [
