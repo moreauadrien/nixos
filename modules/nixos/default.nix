@@ -12,5 +12,6 @@
     ./home_manager.nix
     ./update.nix
     ./garbage_collector.nix
+    ./notifications.nix
   ];
 }

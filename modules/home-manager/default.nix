@@ -16,6 +16,7 @@
     ./guiPrograms/moonlight.nix
     ./guiPrograms/bruno.nix
     ./guiPrograms/obsidian.nix
+    ./guiPrograms/mako.nix
     ./cliPrograms/opencode.nix
   ];
 }
