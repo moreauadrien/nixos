@@ -31,7 +31,6 @@
       alacritty
       hyprpolkitagent
       hyprpaper
-      dunst
       rofi
       nautilus
       xdg-desktop-portal-hyprland
