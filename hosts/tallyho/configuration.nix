@@ -18,6 +18,10 @@ in {
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+
+  # Early KMS pour écran externe USB-C
+  boot.initrd.kernelModules = ["i915"];
+
   boot.initrd.luks.devices = {
     root = {
       device = "/dev/nvme0n1p2";
