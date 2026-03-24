@@ -17,6 +17,7 @@
     ./guiPrograms/bruno.nix
     ./guiPrograms/obsidian.nix
     ./guiPrograms/mako.nix
+    ./guiPrograms/mpv.nix
     ./cliPrograms/opencode.nix
   ];
 }
