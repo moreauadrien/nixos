@@ -35,6 +35,7 @@
       nautilus
       xdg-desktop-portal-hyprland
       waybar
+      xwayland
 
       slurp
       grim
@@ -43,7 +44,6 @@
       hyprcursor
       bibata-cursors
 
-      vlc
       eog
     ]
     ++ lib.optionals config.services.tailscale.enable [
