@@ -18,6 +18,7 @@
     ./guiPrograms/obsidian.nix
     ./guiPrograms/mako.nix
     ./guiPrograms/mpv.nix
+    ./guiPrograms/foliate.nix
     ./cliPrograms/opencode.nix
   ];
 }
