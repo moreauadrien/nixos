@@ -20,5 +20,6 @@
     ./guiPrograms/mpv.nix
     ./guiPrograms/foliate.nix
     ./cliPrograms/opencode.nix
+    #./cliPrograms/clangd.nix
   ];
 }
