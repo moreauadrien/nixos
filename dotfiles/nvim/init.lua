@@ -1,6 +1,8 @@
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
+--vim.env.PATH = vim.fn.expand("$HOME/.nix-profile/bin") .. ":" .. vim.env.PATH
+
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
 
@@ -542,7 +544,9 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        -- clangd = {},
+        clangd = {
+          cmd = { vim.fn.exepath("clangd") },
+        },
         -- gopls = {},
         -- pyright = {},
         -- rust_analyzer = {},
@@ -593,6 +597,12 @@ require('lazy').setup({
       require('mason-lspconfig').setup {
         handlers = {
           function(server_name)
+            if server_name == "clangd" then
+              require('lspconfig').clangd.setup({
+                cmd = { vim.fn.exepath("clangd") },
+              })
+              return
+            end
             local server = servers[server_name] or {}
             -- This handles overriding only values explicitly passed
             -- by the server configuration above. Useful when disabling
