@@ -6,5 +6,3 @@ if echo "$LID_STATE" | grep -q "closed"; then
     sleep 1
     hyprctl keyword monitor "eDP-1,disable"
 fi
-
-notify-send "test"
