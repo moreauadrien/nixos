@@ -58,6 +58,8 @@
       "warning": 20,
       "critical": 10
     }
+
+    "on-click": "powermenu"
   },
   "bluetooth": {
     "format": "",
