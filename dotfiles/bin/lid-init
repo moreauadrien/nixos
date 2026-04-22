@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+for i in $(seq 1 20); do
+    hyprctl monitors &>/dev/null && break
+    sleep 0.5
+done
+
 LID_STATE=$(cat /proc/acpi/button/lid/*/state 2>/dev/null | head -1)
 
 if echo "$LID_STATE" | grep -q "closed"; then
