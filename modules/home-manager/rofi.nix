@@ -3,9 +3,13 @@
   pkgs,
   ...
 }: {
-  home.packages = with pkgs; [
-    rofi
-  ];
+  programs.rofi = {
+    enable = true;
+    package = pkgs.rofi;
+    plugins = with pkgs; [
+      rofi-calc
+    ];
+  };
 
   xdg.configFile."rofi" = {
     source = ../../dotfiles/rofi;
