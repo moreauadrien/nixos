@@ -19,6 +19,7 @@
     ./guiPrograms/mako.nix
     ./guiPrograms/mpv.nix
     ./guiPrograms/foliate.nix
+    ./guiPrograms/mailspring.nix
     ./cliPrograms/opencode.nix
     #./cliPrograms/clangd.nix
   ];
