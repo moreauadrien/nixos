@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
 
-rofi -show combi -combi-modi "drun,window" -modi combi -combi-hide-mode-prefix -display-combi ">>" -theme "$HOME/.config/rofi/launchers/type-4/style-5"
+#rofi -show combi -combi-modi "drun,window" -modi combi -combi-hide-mode-prefix -display-combi ">>" -theme "$HOME/.config/rofi/launchers/type-4/style-5"
+
+walker
