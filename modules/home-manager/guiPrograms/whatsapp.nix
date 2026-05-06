@@ -5,7 +5,7 @@
 }: let
   whatsappIcon = pkgs.fetchurl {
     url = "https://cdn-icons-png.flaticon.com/512/124/124034.png";
-    hash = lib.fakeHash;  # Remplacer par le vrai hash après la première exécution
+    hash = "sha256-dM+E8278XoHzXWSyvYJ4Bvo+X59cr8fCPSdTg2UEkLs=";
   };
 
   whatsappLauncher = pkgs.makeDesktopItem {
