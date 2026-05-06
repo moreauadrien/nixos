@@ -7,6 +7,7 @@
     ./git.nix
     ./scripts.nix
     ./cursor.nix
+    ./walker.nix
     ./guiPrograms/alacritty.nix
     ./guiPrograms/whatsapp.nix
     ./guiPrograms/discord.nix

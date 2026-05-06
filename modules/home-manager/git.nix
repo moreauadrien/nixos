@@ -4,7 +4,7 @@
     settings = {
       user = {
         name = "Adrien Moreau";
-        email = "moreauadrien92@gmail.com";
+        email = "adrienmoreau@ik.me";
       };
       init = {
         defaultBranch = "main";
