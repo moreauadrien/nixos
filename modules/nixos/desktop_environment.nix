@@ -12,11 +12,14 @@
   };
 
   services.displayManager = {
-    autoLogin.user = "adrien";
-    autoLogin.enable = true;
-    gdm = {
+    sddm = {
       enable = true;
-      wayland = true;
+      wayland.enable = true;
+    };
+
+    autoLogin = {
+      enable = true;
+      user = "adrien";
     };
   };
 
