@@ -18,6 +18,14 @@
     zsh
   ];
 
+  gtk = {
+    enable = true;
+    iconTheme = {
+      name = "Papirus"; # ou ton thème d'avant
+      package = pkgs.papirus-icon-theme;
+    };
+  };
+
   programs.fzf = {
     enable = true;
     enableZshIntegration = true;
