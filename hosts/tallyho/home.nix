@@ -21,7 +21,7 @@
   gtk = {
     enable = true;
     iconTheme = {
-      name = "Papirus"; # ou ton thème d'avant
+      name = "Papirus";
       package = pkgs.papirus-icon-theme;
     };
   };

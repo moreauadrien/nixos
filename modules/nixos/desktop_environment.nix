@@ -39,6 +39,8 @@
       waybar
       xwayland
 
+      hyprdynamicmonitors
+
       slurp
       grim
       gradia
