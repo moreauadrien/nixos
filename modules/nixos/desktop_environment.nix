@@ -46,7 +46,6 @@
       gradia
 
       hyprcursor
-      bibata-cursors
 
       eog
     ]
