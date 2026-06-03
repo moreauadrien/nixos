@@ -16,6 +16,7 @@
     nerd-fonts.jetbrains-mono
     signal-desktop
     zsh
+    devenv
   ];
 
   gtk = {
@@ -66,6 +67,8 @@
     syntaxHighlighting.enable = true;
 
     initContent = ''
+      eval "$(devenv hook zsh)"
+
       bindkey -s ^f "tmux-sessionizer\n"
     '';
 
