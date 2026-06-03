@@ -34,7 +34,6 @@
         };
       };
       modules = [
-        inputs.home-manager.nixosModules.home-manager
         ./hosts/tallyho/configuration.nix
         ./modules/nixos
       ];

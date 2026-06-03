@@ -29,6 +29,8 @@ in {
     };
   };
 
+  services.upower.enable = true;
+
   nix.settings.experimental-features = ["nix-command" "flakes"];
 
   networking.hostName = "tallyho";
