@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-LOCK=" Lock"
-REBOOT=" Reboot"
-SHUTDOWN=" Shutdown"
+LOCK=" Lock"
+REBOOT="󰜉 Reboot"
+SHUTDOWN="󰐥 Shutdown"
  
 choice=$(printf "%s\n%s\n%s" "$LOCK" "$REBOOT" "$SHUTDOWN" | walker --dmenu --nosearch --height 1)
  
