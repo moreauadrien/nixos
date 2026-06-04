@@ -2,7 +2,6 @@
   imports = [
     ./hyprland.nix
     ./waybar.nix
-    ./rofi.nix
     ./scripts.nix
     ./cursor.nix
     ./walker.nix

@@ -33,7 +33,6 @@
       alacritty
       hyprpolkitagent
       hyprpaper
-      rofi
       nautilus
       xdg-desktop-portal-hyprland
       waybar
