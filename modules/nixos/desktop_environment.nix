@@ -36,6 +36,7 @@
       xdg-desktop-portal-hyprland
       waybar
       xwayland
+      hyprsunset
 
       hyprdynamicmonitors
 
