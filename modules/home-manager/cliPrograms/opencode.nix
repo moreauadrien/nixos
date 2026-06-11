@@ -1,9 +1,5 @@
-{
-  pkgs,
-  pkgs-unstable,
-  ...
-}: {
-  home.packages = with pkgs-unstable; [
-    opencode
-  ];
+{...}: {
+  programs.opencode = {
+    enable = true;
+  };
 }
