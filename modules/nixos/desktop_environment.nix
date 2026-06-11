@@ -37,6 +37,7 @@
       waybar
       xwayland
       hyprsunset
+      wl-clipboard
 
       hyprdynamicmonitors
 
