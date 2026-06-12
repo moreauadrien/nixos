@@ -1,0 +1,59 @@
+[general]
+destination = "$HOME/.config/hypr/monitors.conf"
+debounce_time_ms = 500
+
+[power_events]
+
+[power_events.dbus_query_object]
+path = "/org/freedesktop/UPower/devices/line_power_ADP1"
+
+[[power_events.dbus_signal_match_rules]]
+object_path = "/org/freedesktop/UPower/devices/line_power_ADP1"
+
+[notifications]
+disabled = true
+
+
+[profiles.docked]
+config_file = "/etc/xdg/hyprdynamicmonitors/hyprconfigs/docked.go.tmpl"
+config_file_type = "template"
+post_apply_exec = "notify-send 'HyprDynamicMonitors' 'Profile \"docked\" applied successfully'"
+[profiles.docked.conditions]
+lid_state = "Closed"
+
+[[profiles.docked.conditions.required_monitors]]
+description = "Samsung Display Corp. 0x4186"
+monitor_tag = "monitor0"
+
+[[profiles.docked.conditions.required_monitors]]
+description = "Samsung Electric Company LS27D60xU HK2XA07588"
+monitor_tag = "monitor1"
+
+
+[profiles.dual_screen]
+config_file = "/etc/xdg/hyprdynamicmonitors/hyprconfigs/dual_screen.go.tmpl"
+config_file_type = "template"
+post_apply_exec = "notify-send 'HyprDynamicMonitors' 'Profile \"dual_screen\" applied successfully'"
+[profiles.dual_screen.conditions]
+lid_state = "Opened"
+
+[[profiles.dual_screen.conditions.required_monitors]]
+description = "Samsung Display Corp. 0x4186"
+monitor_tag = "monitor0"
+
+[[profiles.dual_screen.conditions.required_monitors]]
+description = "Samsung Electric Company LS27D60xU HK2XA07588"
+monitor_tag = "monitor1"
+
+
+[profiles.lid_only]
+config_file = "/etc/xdg/hyprdynamicmonitors/hyprconfigs/lid_only.go.tmpl"
+config_file_type = "template"
+post_apply_exec = "notify-send 'HyprDynamicMonitors' 'Profile \"lid_only\" applied successfully'"
+
+[profiles.lid_only.conditions]
+lid_state = "Opened"
+
+[[profiles.lid_only.conditions.required_monitors]]
+description = "Samsung Display Corp. 0x4186"
+monitor_tag = "monitor0"

@@ -19,6 +19,7 @@
     };
   };
 
+
   programs.hyprlock.enable = true;
 
   services.gnome.gnome-keyring.enable = true;
@@ -50,4 +51,20 @@
     ];
 
   programs.gnome-disks.enable = true;
+
+
+  services.hyprdynamicmonitors = {
+    enable = true;
+    mode = "user";
+
+    configFile = ../../dotfiles/hyprdynamicmonitors/config.toml;
+
+    extraFiles = {
+      "xdg/hyprdynamicmonitors/hyprconfigs" = ../../dotfiles/hyprdynamicmonitors/hyprconfigs;
+    };
+
+    extraFlags = [ "--enable-lid-events" "--debug" ];
+  };
+
+  services.upower.enable = true;
 }
