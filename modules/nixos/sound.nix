@@ -1,6 +1,4 @@
-{pkgs, ...}: let
-  speakerSetupScript = import ./internal_speaker_setup_script.nix {inherit pkgs;};
-in {
+{pkgs, ...}: {
   services.pulseaudio.enable = false;
 
   security.rtkit.enable = true;
@@ -13,19 +11,6 @@ in {
   };
 
   environment.systemPackages = with pkgs; [
-    alsa-tools
     wiremix
-    speakerSetupScript
   ];
-
-  systemd.services.hda-verb-setup = {
-    description = "Initialize internal speaker";
-    wantedBy = ["multi-user.target"];
-    after = ["sound.target"];
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = "${speakerSetupScript}/bin/internal_speaker_setup";
-      RemainAfterExit = true;
-    };
-  };
 }
