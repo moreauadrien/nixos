@@ -2,7 +2,6 @@
   programs.opencode = {
     enable = true;
     extraPackages = with pkgs; [
-      wl-clipboard
     ];
 
     settings = {
