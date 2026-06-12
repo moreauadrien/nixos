@@ -7,6 +7,7 @@
 }: {
   programs.hyprland = {
     enable = true;
+    withUWSM = true;
   };
 
   services.displayManager = {
@@ -20,7 +21,6 @@
       user = "adrien";
     };
   };
-
 
   programs.hyprlock.enable = true;
 
@@ -53,7 +53,6 @@
     ];
 
   programs.gnome-disks.enable = true;
-
 
   services.hyprdynamicmonitors = {
     enable = true;
