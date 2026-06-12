@@ -5,7 +5,9 @@
   lib,
   ...
 }: {
-  programs.hyprland.enable = true;
+  programs.hyprland = {
+    enable = true;
+  };
 
   services.displayManager = {
     sddm = {
@@ -62,8 +64,6 @@
     extraFiles = {
       "xdg/hyprdynamicmonitors/hyprconfigs" = ../../dotfiles/hyprdynamicmonitors/hyprconfigs;
     };
-
-    extraFlags = [ "--enable-lid-events" "--debug" ];
   };
 
   services.upower.enable = true;
