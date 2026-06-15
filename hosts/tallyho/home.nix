@@ -76,10 +76,6 @@
       enable = true;
       theme = "robbyrussell";
     };
-
-    shellAliases = {
-      vim = "nvim";
-    };
   };
 
   home.sessionVariables = {
