@@ -17,7 +17,7 @@
     ./guiPrograms/mako.nix
     ./guiPrograms/mpv.nix
     ./guiPrograms/foliate.nix
-    ./guiPrograms/brave.nix
+    #./guiPrograms/brave.nix
     ./cliPrograms/opencode.nix
     ./cliPrograms/neovim.nix
     ./cliPrograms/git.nix

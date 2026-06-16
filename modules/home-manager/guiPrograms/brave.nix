@@ -2,4 +2,4 @@
   home.packages = [
     pkgs.brave-origin
   ];
-};
+}

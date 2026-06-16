@@ -38,10 +38,14 @@
         hyprdynamicmonitors.nixosModules.default
         ./hosts/tallyho/configuration.nix
         ./modules/nixos
-        ({ config, pkgs, ... }: {
+        ({
+          config,
+          pkgs,
+          ...
+        }: {
           nixpkgs.overlays = [
             (final: prev: {
-              brave-origin = prev.callPackage ./pkgs/brave-origin.nix { };
+              brave-origin = prev.callPackage ./pkgs/brave-origin.nix {};
             })
           ];
         })
