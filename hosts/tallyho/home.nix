@@ -17,6 +17,7 @@
     signal-desktop
     zsh
     devenv
+    asciinema
   ];
 
   gtk = {
