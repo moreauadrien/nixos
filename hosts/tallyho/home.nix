@@ -33,6 +33,17 @@
     enableZshIntegration = true;
   };
 
+  programs.ssh = {
+    enable = true;
+    settings = {
+      "bicycle" = {
+        header = "Host 192.168.1.4";
+        user = "deploy";
+        identityFile = "~/.ssh/colmena";
+      };
+    };
+  };
+
   home.file.".tmux.conf".source = ../../dotfiles/tmux.conf;
 
   # Home Manager can also manage your environment variables through
