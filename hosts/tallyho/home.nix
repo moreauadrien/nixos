@@ -38,6 +38,12 @@
     settings = {
       "bicycle" = {
         header = "Host 192.168.1.4";
+        user = "adrien";
+        identityFile = "~/.ssh/id_ed25519";
+      };
+
+      "bicycle-deploy" = {
+        header = "Host 192.168.1.4";
         user = "deploy";
         identityFile = "~/.ssh/colmena";
       };
