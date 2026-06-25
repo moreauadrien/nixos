@@ -547,9 +547,6 @@ require('lazy').setup({
         clangd = {
           cmd = { vim.fn.exepath("clangd") },
         },
-        nil_ls = {
-          cmd = { vim.fn.exepath("nil") },
-        },
         -- gopls = {},
         -- pyright = {},
         -- rust_analyzer = {},
@@ -616,6 +613,10 @@ require('lazy').setup({
         },
       }
     end,
+    require('lspconfig').nil_ls.setup({
+      cmd = { vim.fn.exepath("nil") },
+      capabilities = capabilities,
+    })
   },
 
   { -- Autoformat
