@@ -547,7 +547,7 @@ require('lazy').setup({
         clangd = {
           cmd = { vim.fn.exepath("clangd") },
         },
-        "nil" = {
+        nil = {
           cmd = { vim.fn.exepath("nil") },
         },
         -- gopls = {},
