@@ -547,6 +547,9 @@ require('lazy').setup({
         clangd = {
           cmd = { vim.fn.exepath("clangd") },
         },
+        nil_ls = {
+          cmd = { vim.fn.exepath("nil") },
+        }
         -- gopls = {},
         -- pyright = {},
         -- rust_analyzer = {},
