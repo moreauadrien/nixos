@@ -612,11 +612,12 @@ require('lazy').setup({
           end,
         },
       }
+
+	    require('lspconfig').nil_ls.setup({
+	      cmd = { vim.fn.exepath("nil") },
+	      capabilities = capabilities,
+	    })
     end,
-    require('lspconfig').nil_ls.setup({
-      cmd = { vim.fn.exepath("nil") },
-      capabilities = capabilities,
-    })
   },
 
   { -- Autoformat
