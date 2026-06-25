@@ -613,11 +613,11 @@ require('lazy').setup({
         },
       }
 
-      vim.lsp.config['nil_ls'] = {
-        cmd = { vim.fn.exepath("nil") },
+      vim.lsp.config['nixd'] = {
+        cmd = { vim.fn.exepath("nixd") },
         capabilities = capabilities,
       }
-      vim.lsp.enable('nil_ls')
+      vim.lsp.enable('nixd')
     end,
   },
 
