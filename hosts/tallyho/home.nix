@@ -18,6 +18,7 @@
     zsh
     devenv
     asciinema
+    nil
   ];
 
   gtk = {
