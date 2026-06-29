@@ -8,8 +8,10 @@
   services.printing = {
     enable = true;
     drivers = [
-      pkgs.hplip
-      pkgs.gutenprint
+      pkgs.hplipWithPlugin
     ];
   };
+
+  hardware.sane.enable = true;
+  hardware.sane.extraBackends = [pkgs.hplipWithPlugin];
 }
