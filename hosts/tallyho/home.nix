@@ -46,6 +46,7 @@
 
   programs.ssh = {
     enable = true;
+    enableDefaultConfig = false;
     settings = {
       "bicycle" = {
         header = "Host 192.168.1.4";
