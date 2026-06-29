@@ -86,7 +86,7 @@ in {
     file-roller
     evince
 
-    onlyoffice-desktopeditors
+    libreoffice
 
     typst
   ];
