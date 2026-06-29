@@ -6,8 +6,6 @@
   ...
 }:
 {
-  environment.pathsToLink = [ "/share/nautilus-python" ];
-
   programs.hyprland = {
     enable = true;
     withUWSM = true;
@@ -28,6 +26,11 @@
   programs.hyprlock.enable = true;
 
   services.gnome.gnome-keyring.enable = true;
+
+  programs.nautilus-open-any-terminal = {
+    enable = true;
+    terminal = "alacritty";
+  };
 
   environment.systemPackages =
     with pkgs;
