@@ -19,6 +19,7 @@
     devenv
     asciinema
     nixd
+    nixfmt
   ];
 
   gtk = {
