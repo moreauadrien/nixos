@@ -88,6 +88,8 @@ in {
 
     libreoffice
 
+    android-studio
+
     typst
   ];
 
