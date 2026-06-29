@@ -19,39 +19,64 @@
     };
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    nixpkgs-unstable,
-    hyprdynamicmonitors,
-    ...
-  } @ inputs: {
-    nixosConfigurations.tallyho = nixpkgs.lib.nixosSystem {
-      specialArgs = {
-        inherit inputs;
-        pkgs-unstable = import nixpkgs-unstable {
-          system = "x86_64-linux";
-          config.allowUnfree = true;
-        };
+  outputs =
+    {
+      self,
+      nixpkgs,
+      nixpkgs-unstable,
+      hyprdynamicmonitors,
+      ...
+    }@inputs:
+    let
+      system = "x86_64-linux";
+      pkgs = import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+        overlays = [
+          (final: prev: {
+            brave-origin = prev.callPackage ./pkgs/brave-origin.nix { };
+            greywall = final.callPackage ./pkgs/greywall.nix { };
+            greyproxy = final.callPackage ./pkgs/greyproxy.nix { };
+          })
+        ];
       };
-      modules = [
-        hyprdynamicmonitors.nixosModules.default
-        ./hosts/tallyho/configuration.nix
-        ./modules/nixos
-        ({
-          config,
-          pkgs,
-          ...
-        }: {
-          nixpkgs.overlays = [
-            (final: prev: {
-              brave-origin = prev.callPackage ./pkgs/brave-origin.nix {};
-            })
-          ];
-        })
-      ];
-    };
+    in
+    {
+      packages.${system} = {
+        inherit (pkgs) greywall greyproxy brave-origin;
+      };
 
-    homeManagerModules.default = ./modules/home-manager;
-  };
+      nixosConfigurations.tallyho = nixpkgs.lib.nixosSystem {
+        specialArgs = {
+          inherit inputs;
+          pkgs-unstable = import nixpkgs-unstable {
+            system = "x86_64-linux";
+            config.allowUnfree = true;
+          };
+        };
+        modules = [
+          hyprdynamicmonitors.nixosModules.default
+          ./hosts/tallyho/configuration.nix
+          ./modules/nixos
+          (
+            {
+              config,
+              pkgs,
+              ...
+            }:
+            {
+              nixpkgs.overlays = [
+                (final: prev: {
+                  brave-origin = prev.callPackage ./pkgs/brave-origin.nix { };
+                  greywall = final.callPackage ./pkgs/greywall.nix { };
+                  greyproxy = final.callPackage ./pkgs/greyproxy.nix { };
+                })
+              ];
+            }
+          )
+        ];
+      };
+
+      homeManagerModules.default = ./modules/home-manager;
+    };
 }

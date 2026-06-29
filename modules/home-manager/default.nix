@@ -21,6 +21,7 @@
     ./cliPrograms/opencode.nix
     ./cliPrograms/neovim.nix
     ./cliPrograms/git.nix
+    ./cliPrograms/greywall.nix
 
     ./kde_connect.nix
     #./cliPrograms/clangd.nix
