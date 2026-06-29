@@ -23,6 +23,14 @@
     nixfmt
   ];
 
+  dconf.enable = true;
+  dconf.settings = {
+    "org/gnome/desktop/default-applications/terminal" = {
+      exec = "alacritty";
+      exec-arg = "-e";
+    };
+  };
+
   gtk = {
     enable = true;
     iconTheme = {

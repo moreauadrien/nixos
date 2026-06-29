@@ -4,7 +4,10 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
+  environment.pathsToLink = [ "/share/nautilus-python" ];
+
   programs.hyprland = {
     enable = true;
     withUWSM = true;
@@ -26,12 +29,14 @@
 
   services.gnome.gnome-keyring.enable = true;
 
-  environment.systemPackages = with pkgs;
+  environment.systemPackages =
+    with pkgs;
     [
       alacritty
       hyprpolkitagent
       hyprpaper
       nautilus
+      xdg-terminal-exec
       xdg-desktop-portal-hyprland
       waybar
       xwayland
