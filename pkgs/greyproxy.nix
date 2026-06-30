@@ -3,7 +3,6 @@
   buildGoModule,
   fetchFromGitHub,
 }:
-
 buildGoModule rec {
   pname = "greyproxy";
   version = "0.4.5";
@@ -17,7 +16,7 @@ buildGoModule rec {
 
   vendorHash = "sha256-R6E5T8gYIFd87PgdKDFoE1w/Dhmb6or/mMH0Y48XoLA=";
 
-  subPackages = [ "cmd/greyproxy" ];
+  subPackages = ["cmd/greyproxy"];
 
   ldflags = [
     "-s"
@@ -34,6 +33,6 @@ buildGoModule rec {
     license = licenses.mit;
     mainProgram = "greyproxy";
     platforms = platforms.linux ++ platforms.darwin;
-    maintainers = [ ];
+    maintainers = [];
   };
 }

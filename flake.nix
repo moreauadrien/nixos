@@ -17,6 +17,8 @@
       url = "github:abenz1267/walker";
       inputs.elephant.follows = "elephant";
     };
+
+    diceware-fr.url = "github:moreauadrien/diceware-fr";
   };
 
   outputs =
