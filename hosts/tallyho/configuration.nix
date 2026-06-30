@@ -91,6 +91,8 @@ in {
     android-studio
 
     typst
+
+    inputs.diceware-fr.packages.${system}.default
   ];
 
   services.udisks2.enable = true;
