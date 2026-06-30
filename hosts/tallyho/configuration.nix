@@ -32,7 +32,10 @@ in {
 
   services.upower.enable = true;
 
-  nix.settings.experimental-features = ["nix-command" "flakes"];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   networking.hostName = "tallyho";
 
@@ -64,7 +67,12 @@ in {
     isNormalUser = true;
     shell = pkgs.zsh;
     description = "Adrien";
-    extraGroups = ["wheel" "libvirt" "libvirtd" "dialout"];
+    extraGroups = [
+      "wheel"
+      "libvirt"
+      "libvirtd"
+      "dialout"
+    ];
     packages = with pkgs; [
       btop
       fastfetch
