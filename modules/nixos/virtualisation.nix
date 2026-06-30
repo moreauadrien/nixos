@@ -1,9 +1,9 @@
-{pkgs, ...}: {
+{ pkgs, ... }: {
   programs.virt-manager.enable = true;
   virtualisation.libvirtd = {
     enable = true;
     qemu = {
-      vhostUserPackages = with pkgs; [virtiofsd];
+      vhostUserPackages = with pkgs; [ virtiofsd ];
       swtpm.enable = true;
     };
   };
@@ -14,8 +14,8 @@
 
   systemd.services.libvirt-default-network = {
     description = "Start libvirt default network";
-    after = ["libvirtd.service"];
-    wantedBy = ["multi-user.target"];
+    after = [ "libvirtd.service" ];
+    wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
@@ -25,5 +25,5 @@
     };
   };
 
-  users.users.adrien.extraGroups = ["docker"];
+  users.users.adrien.extraGroups = [ "docker" ];
 }

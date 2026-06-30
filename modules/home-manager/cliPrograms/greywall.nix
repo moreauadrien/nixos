@@ -3,32 +3,33 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   cfg = config.programs.greywall;
-in {
+in
+{
   options.programs.greywall = {
     enable = lib.mkEnableOption "Greywall sandbox for AI coding agents";
-    package = lib.mkPackageOption pkgs "greywall" {};
-    greyproxyPackage = lib.mkPackageOption pkgs "greyproxy" {};
+    package = lib.mkPackageOption pkgs "greywall" { };
+    greyproxyPackage = lib.mkPackageOption pkgs "greyproxy" { };
   };
 
   config = lib.mkIf cfg.enable {
-    home.packages =
-      [
-        cfg.package
-        cfg.greyproxyPackage
-      ]
-      ++ lib.optionals pkgs.stdenv.isLinux [
-        pkgs.bubblewrap
-        pkgs.socat
-        pkgs.xdg-dbus-proxy
-        pkgs.libsecret
-      ];
+    home.packages = [
+      cfg.package
+      cfg.greyproxyPackage
+    ]
+    ++ lib.optionals pkgs.stdenv.isLinux [
+      pkgs.bubblewrap
+      pkgs.socat
+      pkgs.xdg-dbus-proxy
+      pkgs.libsecret
+    ];
 
     systemd.user.services.greyproxy = {
       Unit = {
         Description = "Greyproxy - network proxy and dashboard for Greywall";
-        After = ["network.target"];
+        After = [ "network.target" ];
       };
       Service = {
         ExecStart = "${cfg.greyproxyPackage}/bin/greyproxy serve";
@@ -36,7 +37,7 @@ in {
         RestartSec = 5;
       };
       Install = {
-        WantedBy = ["default.target"];
+        WantedBy = [ "default.target" ];
       };
     };
   };

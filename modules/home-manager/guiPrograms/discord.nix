@@ -1,3 +1,3 @@
-{...}: {
+{ ... }: {
   programs.discord.enable = true;
 }
