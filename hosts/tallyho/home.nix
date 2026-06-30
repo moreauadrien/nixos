@@ -117,8 +117,6 @@
     "$HOME/.local/bin"
   ];
 
-  services.ollama.enable = true;
-
   #programs.walker.enable = true;
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
