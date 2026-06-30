@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{ pkgs, ... }: {
   services.avahi = {
     enable = true;
     nssmdns4 = true;
@@ -13,5 +13,5 @@
   };
 
   hardware.sane.enable = true;
-  hardware.sane.extraBackends = [pkgs.hplipWithPlugin];
+  hardware.sane.extraBackends = [ pkgs.hplipWithPlugin ];
 }

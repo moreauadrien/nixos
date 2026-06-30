@@ -1,4 +1,5 @@
-{pkgs, ...}: let
+{ pkgs, ... }:
+let
   notwaita-cursor = pkgs.stdenv.mkDerivation {
     pname = "notwaita-cursor";
     version = "1.0.0-alpha1";
@@ -13,8 +14,9 @@
       tar -xf $src -C $out/share/icons/
     '';
   };
-in {
-  home.packages = [notwaita-cursor];
+in
+{
+  home.packages = [ notwaita-cursor ];
 
   home.pointerCursor = {
     package = notwaita-cursor;
