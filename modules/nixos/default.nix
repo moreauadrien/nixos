@@ -13,6 +13,7 @@
     ./update.nix
     ./garbage_collector.nix
     ./notifications.nix
+    ./webcam.nix
   ];
 
   # programs.kdeconnect.enable = true;
