@@ -4,8 +4,7 @@
   pkgs,
   lib,
   ...
-}:
-{
+}: {
   programs.hyprland = {
     enable = true;
     withUWSM = true;
@@ -32,8 +31,7 @@
     terminal = "alacritty";
   };
 
-  environment.systemPackages =
-    with pkgs;
+  environment.systemPackages = with pkgs;
     [
       alacritty
       hyprpolkitagent

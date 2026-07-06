@@ -4,8 +4,7 @@
   pkgs,
   lib,
   ...
-}:
-{
+}: {
   home.username = "adrien";
   home.homeDirectory = "/home/adrien";
 
@@ -49,15 +48,21 @@
     enableDefaultConfig = false;
     settings = {
       "bicycle" = {
-        header = "Host 192.168.1.4";
+        header = "Host 192.168.1.5";
         user = "adrien";
         identityFile = "~/.ssh/id_ed25519";
       };
 
       "bicycle-deploy" = {
-        header = "Host 192.168.1.4";
+        header = "Host 192.168.1.5";
         user = "deploy";
         identityFile = "~/.ssh/colmena";
+      };
+
+      "*" = {
+        ServerAliveInterval = 15;
+        ServerAliveCountMax = 3;
+        TCPKeepAlive = "yes";
       };
     };
   };

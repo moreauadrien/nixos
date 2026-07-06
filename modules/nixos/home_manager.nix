@@ -2,8 +2,7 @@
   inputs,
   pkgs-unstable,
   ...
-}:
-{
+}: {
   home-manager = {
     useGlobalPkgs = true;
     extraSpecialArgs = {
