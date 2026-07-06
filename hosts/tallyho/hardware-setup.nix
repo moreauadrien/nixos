@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-let
+{pkgs, ...}: let
   speakerSetupScript = pkgs.writeShellScriptBin "internal_speaker_setup" ''
       echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! IMPORTANT NOTE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
       echo "!!! This script should only be used for troubleshooting and as a temporary solution while !!!"
@@ -605,8 +604,7 @@ let
       ${pkgs.alsa-tools}/bin/hda-verb /dev/snd/hwC0D0 0x20 0x400 0x01
       ${pkgs.alsa-tools}/bin/hda-verb /dev/snd/hwC0D0 0x20 0x4B0 0x11
   '';
-in
-{
+in {
   environment.systemPackages = [
     pkgs.alsa-tools
     speakerSetupScript
@@ -614,8 +612,8 @@ in
 
   systemd.services.hda-verb-setup = {
     description = "Initialize internal speaker";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "sound.target" ];
+    wantedBy = ["multi-user.target"];
+    after = ["sound.target"];
     serviceConfig = {
       Type = "oneshot";
       ExecStart = "${speakerSetupScript}/bin/internal_speaker_setup";

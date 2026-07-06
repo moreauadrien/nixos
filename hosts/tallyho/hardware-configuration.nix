@@ -7,8 +7,7 @@
   pkgs,
   modulesPath,
   ...
-}:
-{
+}: {
   imports = [
     (modulesPath + "/installer/scan/not-detected.nix")
   ];
@@ -20,9 +19,9 @@
     "usb_storage"
     "sd_mod"
   ];
-  boot.initrd.kernelModules = [ "dm-snapshot" ];
-  boot.kernelModules = [ "kvm-intel" ];
-  boot.extraModulePackages = [ ];
+  boot.initrd.kernelModules = ["dm-snapshot"];
+  boot.kernelModules = ["kvm-intel"];
+  boot.extraModulePackages = [];
 
   fileSystems."/" = {
     device = "/dev/mapper/nixos--vg-root";
@@ -41,7 +40,7 @@
   };
 
   swapDevices = [
-    { device = "/dev/mapper/nixos--vg-swap"; }
+    {device = "/dev/mapper/nixos--vg-swap";}
   ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
