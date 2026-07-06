@@ -43,30 +43,6 @@
     enableZshIntegration = true;
   };
 
-  programs.ssh = {
-    enable = true;
-    enableDefaultConfig = false;
-    settings = {
-      "bicycle" = {
-        header = "Host 192.168.1.5";
-        user = "adrien";
-        identityFile = "~/.ssh/id_ed25519";
-      };
-
-      "bicycle-deploy" = {
-        header = "Host 192.168.1.5";
-        user = "deploy";
-        identityFile = "~/.ssh/colmena";
-      };
-
-      "*" = {
-        ServerAliveInterval = 15;
-        ServerAliveCountMax = 3;
-        TCPKeepAlive = "yes";
-      };
-    };
-  };
-
   home.file.".tmux.conf".source = ../../dotfiles/tmux.conf;
 
   # Home Manager can also manage your environment variables through
