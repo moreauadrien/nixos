@@ -77,6 +77,7 @@ in {
       btop
       fastfetch
       spotify
+      gimp
     ];
   };
 
