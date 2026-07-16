@@ -102,8 +102,6 @@ in {
     typst
 
     inputs.diceware-fr.packages.${system}.default
-
-    unifi
   ];
 
   services.udisks2.enable = true;
