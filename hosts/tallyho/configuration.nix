@@ -72,6 +72,7 @@ in {
       "libvirt"
       "libvirtd"
       "dialout"
+      "wireshark"
     ];
     packages = with pkgs; [
       btop
@@ -102,7 +103,13 @@ in {
     typst
 
     inputs.diceware-fr.packages.${system}.default
+    rustdesk
   ];
+
+  programs.wireshark = {
+    enable = true;
+    package = pkgs.wireshark;
+  };
 
   services.udisks2.enable = true;
 
