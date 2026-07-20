@@ -9,7 +9,5 @@
     # Support VDPAU
     libvdpau
     libvdpau-va-gl
-
-    intel-media-driver
   ];
 }
