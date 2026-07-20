@@ -14,6 +14,8 @@
     ./garbage_collector.nix
     ./notifications.nix
     ./webcam.nix
+    ./hardware-acceleration.nix
+    ./steam.nix
   ];
 
   # programs.kdeconnect.enable = true;

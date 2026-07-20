@@ -79,6 +79,7 @@ in {
       fastfetch
       spotify
       gimp
+      python3
     ];
   };
 
