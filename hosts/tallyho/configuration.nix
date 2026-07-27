@@ -5,10 +5,10 @@
   config,
   pkgs,
   inputs,
+  pkgs-unstable,
   ...
 }: let
   system = "x86_64-linux";
-  unstable = inputs.nixpkgs-unstable.legacyPackages.${system};
 in {
   imports = [
     ./hardware-configuration.nix
@@ -74,14 +74,17 @@ in {
       "dialout"
       "wireshark"
     ];
-    packages = with pkgs; [
-      btop
-      fastfetch
-      spotify
-      gimp
-      python3
-      pi-coding-agent
-    ];
+    packages = with pkgs;
+      [
+        btop
+        fastfetch
+        spotify
+        gimp
+        python3
+      ]
+      ++ [
+        pkgs-unstable.pi-coding-agent
+      ];
   };
 
   nixpkgs.config.allowUnfree = true;
