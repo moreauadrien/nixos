@@ -80,6 +80,7 @@ in {
       spotify
       gimp
       python3
+      pi-coding-agent
     ];
   };
 
