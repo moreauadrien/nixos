@@ -84,6 +84,7 @@ in {
       ]
       ++ [
         pkgs-unstable.pi-coding-agent
+        pkgs-unstable.fence
       ];
   };
 
