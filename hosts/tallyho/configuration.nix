@@ -75,6 +75,7 @@ in
       "libvirtd"
       "dialout"
       "wireshark"
+      "battery"
     ];
     packages =
       with pkgs;
@@ -84,7 +85,6 @@ in
         spotify
         gimp
         python3
-        powertop
       ]
       ++ [
         pkgs-unstable.pi-coding-agent

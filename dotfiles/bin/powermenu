@@ -1,11 +1,30 @@
 #!/usr/bin/env bash
 
+BATTERY="BAT1"
+THRESHOLD_FILE="/sys/class/power_supply/$BATTERY/charge_control_end_threshold"
+
 LOCK=" Lock"
 REBOOT="󰜉 Reboot"
 SHUTDOWN="󰐥 Shutdown"
- 
-choice=$(printf "%s\n%s\n%s" "$LOCK" "$REBOOT" "$SHUTDOWN" | walker --dmenu --nosearch --height 1)
- 
+
+if [ -r "$THRESHOLD_FILE" ]; then
+    current=$(cat "$THRESHOLD_FILE")
+    if [ "$current" = "100" ]; then
+        CHARGE_OPT="󰂄 Restore 80% charge limit"
+    else
+        CHARGE_OPT="󰂅 Charge to 100% (until reboot)"
+    fi
+    HAS_CHARGE_OPT=true
+else
+    HAS_CHARGE_OPT=false
+fi
+
+if [ "$HAS_CHARGE_OPT" = true ]; then
+    choice=$(printf "%s\n%s\n%s\n%s" "$LOCK" "$REBOOT" "$SHUTDOWN" "$CHARGE_OPT" | walker --dmenu --nosearch --height 1)
+else
+    choice=$(printf "%s\n%s\n%s" "$LOCK" "$REBOOT" "$SHUTDOWN" | walker --dmenu --nosearch --height 1)
+fi
+
 case "$choice" in
     "$LOCK")
         hyprlock
@@ -17,4 +36,12 @@ case "$choice" in
         systemctl poweroff
         ;;
 esac
+
+if [ "$choice" = "$CHARGE_OPT" ]; then
+    if [ "$current" = "100" ]; then
+        printf '%s' 80 > "$THRESHOLD_FILE" && notify-send "🔋 Batterie" "Charge limitée à 80%"
+    else
+        printf '%s' 100 > "$THRESHOLD_FILE" && notify-send "🔋 Batterie" "Charge à 100% (jusqu'au prochain redémarrage)"
+    fi
+fi
  

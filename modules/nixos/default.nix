@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{ pkgs, ... }: {
   imports = [
     ./plymouth.nix
     ./desktop_environment.nix
@@ -7,7 +7,7 @@
     ./sound.nix
     ./printing.nix
     ./virtualisation.nix
-    ./tlp.nix
+    ./power-management.nix
     ./firewall.nix
     ./home_manager.nix
     ./update.nix
