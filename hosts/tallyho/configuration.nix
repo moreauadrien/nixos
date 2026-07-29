@@ -7,11 +7,9 @@
   inputs,
   pkgs-unstable,
   ...
-}:
-let
+}: let
   system = "x86_64-linux";
-in
-{
+in {
   imports = [
     ./hardware-configuration.nix
     ./hardware-setup.nix
@@ -23,7 +21,7 @@ in
   boot.loader.efi.canTouchEfiVariables = true;
 
   # Early KMS pour écran externe USB-C
-  boot.initrd.kernelModules = [ "i915" ];
+  boot.initrd.kernelModules = ["i915"];
 
   boot.initrd.luks.devices = {
     root = {
@@ -77,8 +75,7 @@ in
       "wireshark"
       "battery"
     ];
-    packages =
-      with pkgs;
+    packages = with pkgs;
       [
         btop
         fastfetch
