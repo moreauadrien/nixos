@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-let
+{pkgs, ...}: let
   set-battery-threshold = pkgs.writeShellScriptBin "set-battery-threshold" ''
     set -e
     if [ "$#" -ne 1 ] || { [ "$1" != "80" ] && [ "$1" != "100" ]; }; then
@@ -10,8 +9,7 @@ let
   '';
 
   batteryGroup = "battery";
-in
-{
+in {
   powerManagement = {
     enable = true;
     powertop.enable = false;
@@ -34,7 +32,7 @@ in
     };
   };
 
-  users.groups.battery = { };
+  users.groups.battery = {};
 
   systemd.tmpfiles.rules = [
     "z /sys/class/power_supply/BAT1/charge_control_end_threshold 0664 root ${batteryGroup} - -"
@@ -42,8 +40,8 @@ in
 
   systemd.services.battery-charge-threshold = {
     description = "Set battery charge control end threshold to 80%";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "sysinit.target" ];
+    wantedBy = ["multi-user.target"];
+    after = ["sysinit.target"];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
@@ -51,5 +49,5 @@ in
     };
   };
 
-  environment.systemPackages = [ set-battery-threshold ];
+  environment.systemPackages = [set-battery-threshold];
 }
