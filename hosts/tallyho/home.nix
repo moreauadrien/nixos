@@ -4,7 +4,8 @@
   pkgs,
   lib,
   ...
-}: {
+}:
+{
   home.username = "adrien";
   home.homeDirectory = "/home/adrien";
 
@@ -88,8 +89,6 @@
       theme = "robbyrussell";
     };
   };
-
-  programs.greywall.enable = true;
 
   home.sessionVariables = {
     EDITOR = "nvim";
