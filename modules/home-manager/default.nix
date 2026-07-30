@@ -17,11 +17,11 @@
     ./guiPrograms/mako.nix
     ./guiPrograms/mpv.nix
     ./guiPrograms/foliate.nix
-    ./cliPrograms/opencode.nix
     ./cliPrograms/neovim.nix
     ./cliPrograms/git.nix
 
     ./kde_connect.nix
-    #./cliPrograms/clangd.nix
+
+    ./ai.nix
   ];
 }

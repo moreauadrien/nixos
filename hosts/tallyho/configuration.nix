@@ -75,18 +75,13 @@ in {
       "wireshark"
       "battery"
     ];
-    packages = with pkgs;
-      [
-        btop
-        fastfetch
-        spotify
-        gimp
-        python3
-      ]
-      ++ [
-        pkgs-unstable.pi-coding-agent
-        pkgs-unstable.fence
-      ];
+    packages = with pkgs; [
+      btop
+      fastfetch
+      spotify
+      gimp
+      python3
+    ];
   };
 
   nixpkgs.config.allowUnfree = true;
