@@ -1,0 +1,179 @@
+{
+  pkgs,
+  pkgs-unstable,
+  ...
+}: let
+  jsonFormat = pkgs.formats.json {};
+in {
+  programs.opencode = {
+    enable = true;
+    extraPackages = with pkgs; [
+      wl-clipboard
+      mcp-nixos
+    ];
+
+    settings = {
+      plugin = ["@mohak34/opencode-notifier@latest"];
+      mcp = {
+        nixos = {
+          type = "local";
+          command = ["${pkgs.mcp-nixos}/bin/mcp-nixos"];
+          enabled = true;
+        };
+      };
+    };
+  };
+
+  home.packages = with pkgs-unstable; [
+    pi-coding-agent
+    fence
+  ];
+
+  home.shellAliases = {
+    pi = "fence pi";
+  };
+
+  home.file.".config/fence/fence.json".source = jsonFormat.generate "fence.json" {
+    allowPty = true;
+    command = {
+      acceptSharedBinaryCannotRuntimeDeny = ["chroot"];
+      useDefaults = true;
+      deny = [
+        # Git commands that modify remote state
+        "git push"
+        "git reset"
+        "git clean"
+        "git checkout --"
+        "git rebase"
+        "git merge"
+
+        # Package publishing commands
+        "npm publish"
+        "pnpm publish"
+        "yarn publish"
+        "cargo publish"
+        "twine upload"
+        "gem push"
+
+        # Privilege escalation
+        "sudo"
+
+        # GitHub CLI commands that modify remote state
+        "gh pr create"
+        "gh pr merge"
+        "gh pr close"
+        "gh pr reopen"
+        "gh pr review"
+        "gh pr comment"
+        "gh release create"
+        "gh release delete"
+        "gh repo create"
+        "gh repo fork"
+        "gh repo delete"
+        "gh issue create"
+        "gh issue close"
+        "gh issue comment"
+        "gh gist create"
+        "gh workflow run"
+        "gh api"
+        "gh auth login"
+        "gh secret set"
+        "gh secret delete"
+        "gh variable set"
+        "gh variable delete"
+      ];
+    };
+    filesystem = {
+      allowRead = [
+        "/nix/store"
+        "."
+        "/tmp"
+        "~/.cache/**"
+        "~/.pi/**"
+      ];
+      denyWrite = [
+        # Protect environment files with secrets
+        "**/.env"
+        "**/.env.*"
+
+        # Protect key/certificate files
+        "**/*.key"
+        "**/*.pem"
+        "**/*.p12"
+        "**/*.pfx"
+
+        # SSH private keys and config
+        "~/.ssh/id_*"
+        "~/.ssh/config"
+        "~/.ssh/*.pem"
+      ];
+      denyRead = [
+        # SSH private keys and config
+        "~/.ssh/id_*"
+        "~/.ssh/config"
+        "~/.ssh/*.pem"
+
+        # GPG keys
+        "~/.gnupg/**"
+
+        # Cloud provider credentials
+        "~/.aws/**"
+        "~/.config/gcloud/**"
+        "~/.kube/**"
+
+        # Docker config (may contain registry auth)
+        "~/.docker/**"
+
+        # Package manager auth tokens
+        "~/.pypirc"
+        "~/.netrc"
+        "~/.git-credentials"
+        "~/.cargo/credentials"
+        "~/.cargo/credentials.toml"
+      ];
+    };
+    network = {
+      allowedDomains = [
+        # LLM API Provider
+        "opencode.ai"
+        "api.opencode.ai"
+
+        # Git hosting
+        "github.com"
+        "api.github.com"
+        "raw.githubusercontent.com"
+        "codeload.github.com"
+        "objects.githubusercontent.com"
+        "release-assets.githubusercontent.com"
+        "gitlab.com"
+
+        # Package registries
+        "registry.npmjs.org"
+        "*.npmjs.org"
+        "registry.yarnpkg.com"
+        "pypi.org"
+        "files.pythonhosted.org"
+        "crates.io"
+        "static.crates.io"
+        "index.crates.io"
+        "proxy.golang.org"
+        "sum.golang.org"
+        "formulae.brew.sh"
+
+        # Model registry
+        "models.dev"
+      ];
+
+      deniedDomains = [
+        # Cloud metadata APIs (prevent credential theft)
+        "169.254.169.254"
+        "metadata.google.internal"
+        "instance-data.ec2.internal"
+
+        # Telemetry
+        "statsig.anthropic.com"
+        "*.sentry.io"
+      ];
+    };
+  };
+}
