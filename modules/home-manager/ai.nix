@@ -30,14 +30,38 @@ in {
   ];
 
   home.shellAliases = {
-    pi = "fence pi";
+    fence = "fence --expose-host-path ~/.nix-profile";
+    pi = "fence --settings ~/.config/fence/pi.json pi";
+    pi-yolo = "${pkgs-unstable.pi-coding-agent}/bin/pi";
   };
 
   home.file.".config/fence/fence.json".source = jsonFormat.generate "fence.json" {
     allowPty = true;
+
     command = {
       acceptSharedBinaryCannotRuntimeDeny = ["chroot"];
       useDefaults = true;
+    };
+
+    filesystem = {
+      defaultDenyRead = true;
+      strictDenyRead = true;
+
+      allowRead = [
+        "/nix/store"
+        "/run"
+        "/etc"
+        "~/.nix-profile"
+      ];
+      denyRead = [
+        "~"
+      ];
+    };
+  };
+
+  home.file.".config/fence/pi.json".source = jsonFormat.generate "pi.json" {
+    extends = "@base";
+    command = {
       deny = [
         # Git commands that modify remote state
         "git push"
@@ -83,60 +107,12 @@ in {
         "gh variable delete"
       ];
     };
-    filesystem = {
-      allowRead = [
-        "/nix/store"
-        "."
-        "/tmp"
-        "~/.cache/**"
-        "~/.pi/**"
-      ];
-      denyWrite = [
-        # Protect environment files with secrets
-        "**/.env"
-        "**/.env.*"
-
-        # Protect key/certificate files
-        "**/*.key"
-        "**/*.pem"
-        "**/*.p12"
-        "**/*.pfx"
-
-        # SSH private keys and config
-        "~/.ssh/id_*"
-        "~/.ssh/config"
-        "~/.ssh/*.pem"
-      ];
-      denyRead = [
-        # SSH private keys and config
-        "~/.ssh/id_*"
-        "~/.ssh/config"
-        "~/.ssh/*.pem"
-
-        # GPG keys
-        "~/.gnupg/**"
-
-        # Cloud provider credentials
-        "~/.aws/**"
-        "~/.config/gcloud/**"
-        "~/.kube/**"
-
-        # Docker config (may contain registry auth)
-        "~/.docker/**"
-
-        # Package manager auth tokens
-        "~/.pypirc"
-        "~/.netrc"
-        "~/.git-credentials"
-        "~/.cargo/credentials"
-        "~/.cargo/credentials.toml"
-      ];
-    };
     network = {
-      allowedDomains = [
-        # LLM API Provider
+      allowDomains = [
+        # LLM API providers
+        "pi.dev"
         "opencode.ai"
-        "api.opencode.ai"
+        "openrouter.ai"
 
         # Git hosting
         "github.com"
@@ -158,22 +134,62 @@ in {
         "index.crates.io"
         "proxy.golang.org"
         "sum.golang.org"
-        "formulae.brew.sh"
-
-        # Model registry
-        "models.dev"
-      ];
-
-      deniedDomains = [
-        # Cloud metadata APIs (prevent credential theft)
-        "169.254.169.254"
-        "metadata.google.internal"
-        "instance-data.ec2.internal"
-
-        # Telemetry
-        "statsig.anthropic.com"
-        "*.sentry.io"
       ];
     };
+
+    filesystem = {
+      allowWrite = [
+        "."
+        "~/.pi/**"
+      ];
+
+      allowRead = [
+        "."
+        "~/.pi/**"
+      ];
+    };
+
+    # filesystem = {
+    #   allowWrite = [
+    #     "."
+    #     "/tmp"
+    #     "~/.pi/**"
+    #   ];
+
+    #   denyRead = [
+    #     # Protect environment files with secrets
+    #     "**/.env"
+    #     "**/.env.*"
+
+    #     # Protect key/certificate files
+    #     "**/*.key"
+    #     "**/*.pem"
+    #     "**/*.p12"
+    #     "**/*.pfx"
+
+    #     # SSH private keys and config
+    #     "~/.ssh/id_*"
+    #     "~/.ssh/config"
+    #     "~/.ssh/*.pem"
+
+    #     # GPG keys
+    #     "~/.gnupg/**"
+
+    #     # Cloud provider credentials
+    #     "~/.aws/**"
+    #     "~/.config/gcloud/**"
+    #     "~/.kube/**"
+
+    #     # Docker config (may contain registry auth)
+    #     "~/.docker/**"
+
+    #     # Package manager auth tokens
+    #     "~/.pypirc"
+    #     "~/.netrc"
+    #     "~/.git-credentials"
+    #     "~/.cargo/credentials"
+    #     "~/.cargo/credentials.toml"
+    #   ];
+    # };
   };
 }
