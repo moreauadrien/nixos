@@ -13,6 +13,8 @@
 
     elephant.url = "github:abenz1267/elephant";
 
+    openwhispr.url = "github:openwhispr/openwhispr";
+
     walker = {
       url = "github:abenz1267/walker";
       inputs.elephant.follows = "elephant";
