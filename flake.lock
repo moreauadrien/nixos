@@ -211,22 +211,6 @@
     },
     "nixpkgs_5": {
       "locked": {
-        "lastModified": 1779560665,
-        "narHash": "sha256-tpyBcxPpcQb8ukyNF7DoCwfSY3VPsxHoYwj00Cayv5o=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "64c08a7ca051951c8eae34e3e3cb1e202fe36786",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixos-unstable",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs_6": {
-      "locked": {
         "lastModified": 1775710090,
         "narHash": "sha256-ar3rofg+awPB8QXDaFJhJ2jJhu+KqN/PRCXeyuXR76E=",
         "owner": "NixOS",
@@ -241,24 +225,6 @@
         "type": "github"
       }
     },
-    "openwhispr": {
-      "inputs": {
-        "nixpkgs": "nixpkgs_5"
-      },
-      "locked": {
-        "lastModified": 1785449150,
-        "narHash": "sha256-NGY8LtFi19nFCdWt3tKkpgmvc+zjk0aDkTIO9FY4l8o=",
-        "owner": "openwhispr",
-        "repo": "openwhispr",
-        "rev": "bf8b7e0b4e1de0c9779c63f4752bd80bdd39ee2c",
-        "type": "github"
-      },
-      "original": {
-        "owner": "openwhispr",
-        "repo": "openwhispr",
-        "type": "github"
-      }
-    },
     "root": {
       "inputs": {
         "diceware-fr": "diceware-fr",
@@ -267,7 +233,6 @@
         "hyprdynamicmonitors": "hyprdynamicmonitors",
         "nixpkgs": "nixpkgs_4",
         "nixpkgs-unstable": "nixpkgs-unstable",
-        "openwhispr": "openwhispr",
         "walker": "walker"
       }
     },
@@ -321,7 +286,7 @@
         "elephant": [
           "elephant"
         ],
-        "nixpkgs": "nixpkgs_6",
+        "nixpkgs": "nixpkgs_5",
         "systems": "systems_3"
       },
       "locked": {
