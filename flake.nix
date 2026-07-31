@@ -28,6 +28,7 @@
     nixpkgs,
     nixpkgs-unstable,
     hyprdynamicmonitors,
+    openwhispr,
     ...
   } @ inputs: {
     nixosConfigurations.tallyho = nixpkgs.lib.nixosSystem {
@@ -40,6 +41,7 @@
       };
       modules = [
         hyprdynamicmonitors.nixosModules.default
+        openwhispr.nixosModules.default
         ./hosts/tallyho/configuration.nix
         ./modules/nixos
       ];
