@@ -1,4 +1,6 @@
 {pkgs, ...}: {
+  environment.systemPackages = [pkgs.smolvm];
+
   programs.virt-manager.enable = true;
   virtualisation.libvirtd = {
     enable = true;
@@ -25,5 +27,5 @@
     };
   };
 
-  users.users.adrien.extraGroups = ["docker"];
+  users.users.adrien.extraGroups = ["docker" "kvm"];
 }

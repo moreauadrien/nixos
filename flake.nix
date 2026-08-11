@@ -19,30 +19,37 @@
     };
 
     diceware-fr.url = "github:moreauadrien/diceware-fr";
+
+    smolvm.url = "github:smol-machines/smolvm";
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    nixpkgs-unstable,
-    hyprdynamicmonitors,
-    ...
-  } @ inputs: {
-    nixosConfigurations.tallyho = nixpkgs.lib.nixosSystem {
-      specialArgs = {
-        inherit inputs;
-        pkgs-unstable = import nixpkgs-unstable {
-          system = "x86_64-linux";
-          config.allowUnfree = true;
+  outputs =
+    {
+      self,
+      nixpkgs,
+      nixpkgs-unstable,
+      hyprdynamicmonitors,
+      ...
+    }@inputs:
+    {
+      nixosConfigurations.tallyho = nixpkgs.lib.nixosSystem {
+        specialArgs = {
+          inherit inputs;
+          pkgs-unstable = import nixpkgs-unstable {
+            system = "x86_64-linux";
+            config.allowUnfree = true;
+          };
         };
+        modules = [
+          hyprdynamicmonitors.nixosModules.default
+          {
+            nixpkgs.overlays = [ inputs.smolvm.overlays.default ];
+          }
+          ./hosts/tallyho/configuration.nix
+          ./modules/nixos
+        ];
       };
-      modules = [
-        hyprdynamicmonitors.nixosModules.default
-        ./hosts/tallyho/configuration.nix
-        ./modules/nixos
-      ];
-    };
 
-    homeManagerModules.default = ./modules/home-manager;
-  };
+      homeManagerModules.default = ./modules/home-manager;
+    };
 }
