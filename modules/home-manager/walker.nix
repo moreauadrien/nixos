@@ -16,6 +16,11 @@ in {
         default = true;
         url = "https://www.startpage.com/sp/search?prfe=${startpage_preferences}&query=%TERM%";
       }
+      {
+        name = "NixOS Packages";
+        prefix = "nix:";
+        url = "https://search.nixos.org/packages?channel=unstable&query=%TERM%";
+      }
     ];
   };
 }
