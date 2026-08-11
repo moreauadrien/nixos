@@ -1,4 +1,4 @@
-{...}: {
+{ ... }: {
   imports = [
     ./hyprland.nix
     ./waybar.nix
@@ -10,7 +10,7 @@
     ./guiPrograms/whatsapp.nix
     ./guiPrograms/discord.nix
     ./guiPrograms/localsend.nix
-    ./guiPrograms/firefox.nix
+    ./guiPrograms/librewolf.nix
     ./guiPrograms/moonlight.nix
     ./guiPrograms/bruno.nix
     ./guiPrograms/obsidian.nix
