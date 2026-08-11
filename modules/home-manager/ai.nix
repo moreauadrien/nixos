@@ -2,9 +2,11 @@
   pkgs,
   pkgs-unstable,
   ...
-}: let
-  jsonFormat = pkgs.formats.json {};
-in {
+}:
+let
+  jsonFormat = pkgs.formats.json { };
+in
+{
   programs.opencode = {
     enable = true;
     extraPackages = with pkgs; [
@@ -13,11 +15,11 @@ in {
     ];
 
     settings = {
-      plugin = ["@mohak34/opencode-notifier@latest"];
+      plugin = [ "@mohak34/opencode-notifier@latest" ];
       mcp = {
         nixos = {
           type = "local";
-          command = ["${pkgs.mcp-nixos}/bin/mcp-nixos"];
+          command = [ "${pkgs.mcp-nixos}/bin/mcp-nixos" ];
           enabled = true;
         };
       };
@@ -39,7 +41,7 @@ in {
     allowPty = true;
 
     command = {
-      acceptSharedBinaryCannotRuntimeDeny = ["chroot"];
+      acceptSharedBinaryCannotRuntimeDeny = [ "chroot" ];
       useDefaults = true;
     };
 
@@ -54,7 +56,7 @@ in {
         "~/.nix-profile"
       ];
       denyRead = [
-        "~"
+        "~/.npm"
       ];
     };
   };
@@ -108,7 +110,7 @@ in {
       ];
     };
     network = {
-      allowDomains = [
+      allowedDomains = [
         # LLM API providers
         "pi.dev"
         "opencode.ai"
