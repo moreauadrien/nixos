@@ -11,7 +11,14 @@
   };
 
   virtualisation.docker = {
+    enable = false;
+  };
+
+  # Rootless podman, used by the sandboxed "pi" agent container
+  virtualisation.podman = {
     enable = true;
+    dockerCompat = true;
+    defaultNetwork.settings.dns_enabled = true;
   };
 
   systemd.services.libvirt-default-network = {
@@ -27,5 +34,11 @@
     };
   };
 
-  users.users.adrien.extraGroups = ["docker" "kvm"];
+  users.users.adrien = {
+    extraGroups = [
+      "kvm"
+    ];
+    # subuid/subgid ranges required by rootless podman
+    autoSubUidGidRange = true;
+  };
 }

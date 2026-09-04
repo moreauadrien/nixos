@@ -1,0 +1,33 @@
+# Sandboxed pi coding agent (https://github.com/earendil-works/pi).
+#
+# Built and run rootless via the `pi` wrapper script (see pi.sh).
+# Rebuild with: pi --rebuild
+FROM docker.io/nixos/nix:latest
+
+# Nix: enable flakes, use the official and devenv binary caches.
+# The store itself lives in the persistent `pi-nix-store` volume at runtime,
+# so everything downloaded here or by devenv is cached across runs.
+RUN printf '%s\n' \
+      'experimental-features = nix-command flakes' \
+      'substituters = https://cache.nixos.org https://devenv.cachix.org' \
+      'trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gW6N7uU2W2nMqtWry2Z5z0K6BPKrQ= devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw=' \
+      'sandbox-fallback = true' \
+      >> /etc/nix/nix.conf
+
+# Toolchain available to the agent: git, node (pi runtime), devenv.
+# nixpkgs is pinned to the exact revision of the host's flake.lock so that
+# every package is already in cache.nixos.org — using the registry's rolling
+# `nixpkgs` would trigger hours of source builds at image build time.
+# Keep in sync with flake.lock (nixpkgs.rev) when updating the system.
+RUN nix profile install \
+      github:NixOS/nixpkgs/b5aa0fbd538984f6e3d201be0005b4463d8b09f8#git \
+      github:NixOS/nixpkgs/b5aa0fbd538984f6e3d201be0005b4463d8b09f8#nodejs_24 \
+      github:NixOS/nixpkgs/b5aa0fbd538984f6e3d201be0005b4463d8b09f8#devenv
+
+# pi coding agent. Installed with a custom prefix because the nix
+# profile is read-only and npm cannot install global packages into it.
+RUN npm install --global --prefix /usr/local @earendil-works/pi-coding-agent
+ENV PATH="/usr/local/bin:$PATH"
+
+WORKDIR /workspace
+ENTRYPOINT ["/usr/local/bin/pi"]
