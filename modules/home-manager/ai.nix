@@ -7,23 +7,28 @@
   piImage = pkgs-unstable.dockerTools.buildImage {
     name = "pi-agent";
     tag = "latest";
-    contents = with pkgs-unstable; [
-      bashInteractive
-      coreutils-full
-      pi-coding-agent
-      nix
-      devenv
-      git
-      curl
-      cacert
-      gnugrep
-      gnutar
-      gzip
-      xz
-    ];
+    copyToRoot = pkgs-unstable.buildEnv {
+      name = "pi-agent-root";
+      paths = with pkgs-unstable; [
+        bashInteractive
+        coreutils-full
+        pi-coding-agent
+        nix
+        devenv
+        git
+        curl
+        cacert
+        gnugrep
+        gnutar
+        gzip
+        xz
+      ];
+      pathsToLink = ["/bin" "/etc"];
+    };
     runAsRoot = ''
-      #!${pkgs-unstable.stdenv.shell}
+      #!${pkgs-unstable.runtimeShell}
       mkdir -p /work /tmp
+      chmod 1777 /tmp
     '';
     config = {
       Env = [
@@ -31,6 +36,7 @@
         "SSL_CERT_FILE=${pkgs-unstable.cacert}/etc/ssl/certs/ca-bundle.crt"
         "NIX_SSL_CERT_FILE=${pkgs-unstable.cacert}/etc/ssl/certs/ca-bundle.crt"
         "NIX_REMOTE=daemon"
+        "NIX_CONF_DIR=/etc/nix"
       ];
       WorkingDir = "/work";
       Entrypoint = ["pi"];
@@ -56,13 +62,13 @@
     exec docker run --rm -it \
       --name "pi-$$" \
       -v "$(pwd):/work" \
-      -v "/nix/var/nix/daemon-socket:/nix/var/nix/daemon-socket" \
+      -v "/nix:/nix:ro" \
       -v "$HOME/.cache/nix:/root/.cache/nix" \
       -v "$HOME/.cache/devenv:/root/.cache/devenv" \
       -e "HOME=/root" \
       -e "NIX_REMOTE=daemon" \
-      -e "SSL_CERT_FILE=/etc/ssl/certs/ca-bundle.crt" \
-      -e "NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-bundle.crt" \
+      -e "SSL_CERT_FILE=${pkgs-unstable.cacert}/etc/ssl/certs/ca-bundle.crt" \
+      -e "NIX_SSL_CERT_FILE=${pkgs-unstable.cacert}/etc/ssl/certs/ca-bundle.crt" \
       -e "PI_API_KEY" \
       -e "ANTHROPIC_API_KEY" \
       -e "OPENAI_API_KEY" \
@@ -102,7 +108,6 @@ in {
 
   # Clean up old fence-managed config files
   home.file = {
-    ".config/fence/fence.json".enable = false;
     ".config/fence/pi.json".enable = false;
   };
 }
