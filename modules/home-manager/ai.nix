@@ -3,7 +3,71 @@
   pkgs-unstable,
   ...
 }: let
-  jsonFormat = pkgs.formats.json {};
+  # Docker image with pi + nix + devenv for sandboxed agentic workflow
+  piImage = pkgs-unstable.dockerTools.buildLayeredImage {
+    name = "pi-agent";
+    tag = "latest";
+    maxLayers = 100;
+    contents = with pkgs-unstable; [
+      bashInteractive
+      coreutils-full
+      pi-coding-agent
+      nix
+      devenv
+      git
+      curl
+      cacert
+      gnugrep
+      gnutar
+      gzip
+      xz
+    ];
+    config = {
+      Env = [
+        "PATH=/bin"
+        "SSL_CERT_FILE=/etc/ssl/certs/ca-bundle.crt"
+        "NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-bundle.crt"
+        "NIX_REMOTE=daemon"
+      ];
+      WorkingDir = "/work";
+      Entrypoint = ["pi"];
+    };
+  };
+
+  pi-container = pkgs-unstable.writeShellScriptBin "pi-container" ''
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    IMAGE="${piImage}"
+    IMAGE_NAME="pi-agent:latest"
+
+    # Ensure cache directories exist
+    mkdir -p "$HOME"/.cache/nix "$HOME"/.cache/devenv
+
+    # Load image into Docker if not already present
+    if ! docker image inspect "$IMAGE_NAME" >/dev/null 2>&1; then
+      echo "Loading pi-agent container image..." >&2
+      docker load < "$IMAGE"
+    fi
+
+    exec docker run --rm -it \
+      --name "pi-$$" \
+      -v "$(pwd):/work" \
+      -v "/nix/var/nix/daemon-socket:/nix/var/nix/daemon-socket" \
+      -v "$HOME/.cache/nix:/root/.cache/nix" \
+      -v "$HOME/.cache/devenv:/root/.cache/devenv" \
+      -e "HOME=/root" \
+      -e "NIX_REMOTE=daemon" \
+      -e "SSL_CERT_FILE=/etc/ssl/certs/ca-bundle.crt" \
+      -e "NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-bundle.crt" \
+      -e "PI_API_KEY" \
+      -e "ANTHROPIC_API_KEY" \
+      -e "OPENAI_API_KEY" \
+      -e "OPENROUTER_API_KEY" \
+      --cap-drop=ALL \
+      --security-opt=no-new-privileges \
+      pi-agent "$@"
+  '';
 in {
   programs.opencode = {
     enable = true;
@@ -25,172 +89,17 @@ in {
   };
 
   home.packages = with pkgs-unstable; [
-    pi-coding-agent
-    fence
+    pi-container
     nodejs_24
   ];
 
   home.shellAliases = {
-    fence = "fence --expose-host-path ~/.nix-profile";
-    #pi = "fence --settings ~/.config/fence/pi.json pi";
-    pi-yolo = "${pkgs-unstable.pi-coding-agent}/bin/pi";
+    pi = "pi-container";
   };
 
-  home.file.".config/fence/fence.json".source = jsonFormat.generate "fence.json" {
-    allowPty = true;
-
-    command = {
-      acceptSharedBinaryCannotRuntimeDeny = ["chroot"];
-      useDefaults = true;
-    };
-
-    filesystem = {
-      defaultDenyRead = true;
-      strictDenyRead = true;
-
-      allowRead = [
-        "/nix/store"
-        "/run"
-        "/etc"
-        "~/.nix-profile"
-      ];
-      denyRead = [
-        "~/.npm"
-      ];
-    };
-  };
-
-  home.file.".config/fence/pi.json".source = jsonFormat.generate "pi.json" {
-    extends = "@base";
-    command = {
-      deny = [
-        # Git commands that modify remote state
-        "git push"
-        "git reset"
-        "git clean"
-        "git checkout --"
-        "git rebase"
-        "git merge"
-
-        # Package publishing commands
-        "npm publish"
-        "pnpm publish"
-        "yarn publish"
-        "cargo publish"
-        "twine upload"
-        "gem push"
-
-        # Privilege escalation
-        "sudo"
-
-        # GitHub CLI commands that modify remote state
-        "gh pr create"
-        "gh pr merge"
-        "gh pr close"
-        "gh pr reopen"
-        "gh pr review"
-        "gh pr comment"
-        "gh release create"
-        "gh release delete"
-        "gh repo create"
-        "gh repo fork"
-        "gh repo delete"
-        "gh issue create"
-        "gh issue close"
-        "gh issue comment"
-        "gh gist create"
-        "gh workflow run"
-        "gh api"
-        "gh auth login"
-        "gh secret set"
-        "gh secret delete"
-        "gh variable set"
-        "gh variable delete"
-      ];
-    };
-    network = {
-      allowedDomains = [
-        # LLM API providers
-        "pi.dev"
-        "opencode.ai"
-        "openrouter.ai"
-
-        # Git hosting
-        "github.com"
-        "api.github.com"
-        "raw.githubusercontent.com"
-        "codeload.github.com"
-        "objects.githubusercontent.com"
-        "release-assets.githubusercontent.com"
-        "gitlab.com"
-
-        # Package registries
-        "registry.npmjs.org"
-        "*.npmjs.org"
-        "registry.yarnpkg.com"
-        "pypi.org"
-        "files.pythonhosted.org"
-        "crates.io"
-        "static.crates.io"
-        "index.crates.io"
-        "proxy.golang.org"
-        "sum.golang.org"
-      ];
-    };
-
-    filesystem = {
-      allowWrite = [
-        "."
-        "~/.pi/**"
-      ];
-
-      allowRead = [
-        "."
-        "~/.pi/**"
-      ];
-    };
-
-    # filesystem = {
-    #   allowWrite = [
-    #     "."
-    #     "/tmp"
-    #     "~/.pi/**"
-    #   ];
-
-    #   denyRead = [
-    #     # Protect environment files with secrets
-    #     "**/.env"
-    #     "**/.env.*"
-
-    #     # Protect key/certificate files
-    #     "**/*.key"
-    #     "**/*.pem"
-    #     "**/*.p12"
-    #     "**/*.pfx"
-
-    #     # SSH private keys and config
-    #     "~/.ssh/id_*"
-    #     "~/.ssh/config"
-    #     "~/.ssh/*.pem"
-
-    #     # GPG keys
-    #     "~/.gnupg/**"
-
-    #     # Cloud provider credentials
-    #     "~/.aws/**"
-    #     "~/.config/gcloud/**"
-    #     "~/.kube/**"
-
-    #     # Docker config (may contain registry auth)
-    #     "~/.docker/**"
-
-    #     # Package manager auth tokens
-    #     "~/.pypirc"
-    #     "~/.netrc"
-    #     "~/.git-credentials"
-    #     "~/.cargo/credentials"
-    #     "~/.cargo/credentials.toml"
-    #   ];
-    # };
+  # Clean up old fence-managed config files
+  home.file = {
+    ".config/fence/fence.json".enable = false;
+    ".config/fence/pi.json".enable = false;
   };
 }
