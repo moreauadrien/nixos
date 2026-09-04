@@ -2,11 +2,9 @@
   pkgs,
   pkgs-unstable,
   ...
-}:
-let
-  jsonFormat = pkgs.formats.json { };
-in
-{
+}: let
+  jsonFormat = pkgs.formats.json {};
+in {
   programs.opencode = {
     enable = true;
     extraPackages = with pkgs; [
@@ -15,11 +13,11 @@ in
     ];
 
     settings = {
-      plugin = [ "@mohak34/opencode-notifier@latest" ];
+      plugin = ["@mohak34/opencode-notifier@latest"];
       mcp = {
         nixos = {
           type = "local";
-          command = [ "${pkgs.mcp-nixos}/bin/mcp-nixos" ];
+          command = ["${pkgs.mcp-nixos}/bin/mcp-nixos"];
           enabled = true;
         };
       };
@@ -33,7 +31,7 @@ in
 
   home.shellAliases = {
     fence = "fence --expose-host-path ~/.nix-profile";
-    pi = "fence --settings ~/.config/fence/pi.json pi";
+    #pi = "fence --settings ~/.config/fence/pi.json pi";
     pi-yolo = "${pkgs-unstable.pi-coding-agent}/bin/pi";
   };
 
@@ -41,7 +39,7 @@ in
     allowPty = true;
 
     command = {
-      acceptSharedBinaryCannotRuntimeDeny = [ "chroot" ];
+      acceptSharedBinaryCannotRuntimeDeny = ["chroot"];
       useDefaults = true;
     };
 

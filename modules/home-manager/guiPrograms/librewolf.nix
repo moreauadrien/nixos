@@ -1,8 +1,10 @@
-{ pkgs, config, ... }:
-let
-  startpage_preferences = import ../startpage-preferences.nix;
-in
 {
+  pkgs,
+  config,
+  ...
+}: let
+  startpage_preferences = import ../startpage-preferences.nix;
+in {
   programs.firefox = {
     enable = true;
     package = pkgs.librewolf;
@@ -54,6 +56,12 @@ in
         #UBlock-Origin
         "uBlock0@raymondhill.net" = {
           install_url = "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi";
+          installation_mode = "force_installed";
+        };
+
+        #Ophirofox
+        "{cfd3c5c2-31ec-4c1b-a28e-df38357d02d9}" = {
+          install_url = "https://addons.mozilla.org/firefox/downloads/latest/ophirofox/latest.xpi";
           installation_mode = "force_installed";
         };
       };
