@@ -17,7 +17,7 @@
 
       if ! podman image exists "$IMAGE" 2>/dev/null; then
         echo "Building image $IMAGE..."
-        podman build -t "$IMAGE" -f "$CONTAINERFILE" "$CONTAINERFILE"
+        podman build -t "$IMAGE" -f "$CONTAINERFILE" "$(dirname "$CONTAINERFILE")"
       fi
 
       exec podman run -it --rm \
