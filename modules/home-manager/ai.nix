@@ -27,6 +27,7 @@ in {
   home.packages = with pkgs-unstable; [
     pi-coding-agent
     fence
+    nodejs_24
   ];
 
   home.shellAliases = {
