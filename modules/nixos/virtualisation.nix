@@ -17,7 +17,7 @@
   # Rootless podman, used by the sandboxed "pi" agent container
   virtualisation.podman = {
     enable = true;
-    dockerCompat = true;
+    dockerCompat = false;
     defaultNetwork.settings.dns_enabled = true;
   };
 
