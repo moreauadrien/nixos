@@ -4,10 +4,9 @@
   ...
 }: let
   # Docker image with pi + nix + devenv for sandboxed agentic workflow
-  piImage = pkgs-unstable.dockerTools.buildLayeredImage {
+  piImage = pkgs-unstable.dockerTools.buildImage {
     name = "pi-agent";
     tag = "latest";
-    maxLayers = 100;
     contents = with pkgs-unstable; [
       bashInteractive
       coreutils-full
@@ -22,11 +21,15 @@
       gzip
       xz
     ];
+    runAsRoot = ''
+      #!${pkgs-unstable.stdenv.shell}
+      mkdir -p /work /tmp
+    '';
     config = {
       Env = [
         "PATH=/bin"
-        "SSL_CERT_FILE=/etc/ssl/certs/ca-bundle.crt"
-        "NIX_SSL_CERT_FILE=/etc/ssl/certs/ca-bundle.crt"
+        "SSL_CERT_FILE=${pkgs-unstable.cacert}/etc/ssl/certs/ca-bundle.crt"
+        "NIX_SSL_CERT_FILE=${pkgs-unstable.cacert}/etc/ssl/certs/ca-bundle.crt"
         "NIX_REMOTE=daemon"
       ];
       WorkingDir = "/work";
