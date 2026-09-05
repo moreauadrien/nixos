@@ -38,10 +38,10 @@
         nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs && \
         nix-channel --update
 
-    RUN nix profile install nixpkgs#pi-coding-agent
-    RUN nix profile install nixpkgs#devenv
-    RUN nix profile install nixpkgs#tmux
-    RUN nix profile install nixpkgs#ripgrep
+    RUN nix profile add nixpkgs#pi-coding-agent
+    RUN nix profile add nixpkgs#devenv
+    RUN nix profile add nixpkgs#tmux
+    RUN nix profile add nixpkgs#ripgrep
 
     ENV PATH="/root/.nix-profile/bin:''${PATH}"
 
