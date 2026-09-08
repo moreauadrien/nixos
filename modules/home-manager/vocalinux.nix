@@ -1,7 +1,4 @@
-{
-  pkgs,
-  ...
-}: let
+{pkgs, ...}: let
   python = pkgs.python312;
   # pywhispercpp (bindings whisper.cpp, moteur par défaut) absent de nixpkgs :
   # wheel manylinux officielle qui embarque whisper.cpp compilé.
@@ -67,4 +64,14 @@
   };
 in {
   home.packages = [vocalinux];
+
+  home.file.".local/share/applications/vocalinux.desktop" = {
+    text = ''
+[Desktop Entry]
+Name=Vocalinux
+Exec=vocalinux
+Type=Application
+Terminal=true
+'';
+  };
 }
