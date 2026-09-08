@@ -1,7 +1,7 @@
 {
   pkgs,
   ...
-}: 
+}:
 let
   # Icône pi pour les notifications (favicon officiel pi.dev).
   pi-icon-svg = pkgs.writeText "pi-icon.svg" ''
@@ -40,7 +40,8 @@ let
       ${pkgs.libnotify}/bin/notify-send -a pi -i "${pi-icon-svg}" "π" "Done."
     done
   '';
-in {
+in
+{
   # Copie du SVG à côté des autres fichiers pi (le proxy utilise le SVG).
   home.file.".config/pi-agent/pi-icon.svg".source = pi-icon-svg;
 
@@ -76,6 +77,7 @@ in {
       done
 
       exec podman run -it --rm \
+        -e PONYTAIL_HIDE_STATUS=1 \
         -v "$(pwd)":/workspace \
         -v "$HOME/.pi":/root/.pi \
         -v "$EXT_DIR":/root/.pi/agent/extensions:ro \
@@ -131,7 +133,7 @@ in {
       Restart = "always";
       RestartSec = 2;
     };
-    Install.WantedBy = ["default.target"];
+    Install.WantedBy = [ "default.target" ];
   };
 
   home.file.".config/pi-agent/Containerfile".text = ''
@@ -165,11 +167,11 @@ in {
     ];
 
     settings = {
-      plugin = ["@mohak34/opencode-notifier@latest"];
+      plugin = [ "@mohak34/opencode-notifier@latest" ];
       mcp = {
         nixos = {
           type = "local";
-          command = ["${pkgs.mcp-nixos}/bin/mcp-nixos"];
+          command = [ "${pkgs.mcp-nixos}/bin/mcp-nixos" ];
           enabled = true;
         };
       };
