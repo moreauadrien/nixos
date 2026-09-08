@@ -37,17 +37,19 @@ in {
       fi
 
       # home-manager place les extensions gérées en symlinks vers /nix/store
-      # (absent du conteneur) -> on bind-mount chaque fichier déréférencé.
-      EXT_MOUNTS=()
+      # (absent du conteneur) -> on copie les fichiers déréférencés dans un
+      # vrai dossier et on le monte par-dessus le répertoire des extensions.
+      EXT_DIR="''${HOME}/.cache/pi-agent/extensions"
+      mkdir -p "$EXT_DIR"
       for f in "''${HOME}"/.pi/agent/extensions/*; do
         [ -e "$f" ] || continue
-        EXT_MOUNTS+=("-v" "$(readlink -f "$f"):''${f}:ro")
+        cp -rL "$f" "$EXT_DIR/"
       done
 
       exec podman run -it --rm \
         -v "$(pwd)":/workspace \
         -v "$HOME/.pi":/root/.pi \
-        "''${EXT_MOUNTS[@]}" \
+        -v "$EXT_DIR":/root/.pi/agent/extensions:ro \
         "$IMAGE"
     '')
   ];
