@@ -71,6 +71,10 @@ in {
     }
 
     export default function (pi: ExtensionAPI) {
+      pi.on("session_start", async () => {
+        send("Session démarrée");
+      });
+
       pi.on("agent_settled", async (_event, ctx) => {
         send(`Terminé — ''${basename(ctx.cwd)} attend ton retour`);
       });
