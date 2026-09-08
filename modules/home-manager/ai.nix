@@ -14,10 +14,35 @@ let
     while true; do
       # read échoue (EOF) quand le dernier writer ferme la FIFO -> on réouvre.
       IFS=$'\t' read -r title body < "$FIFO" || continue
-      ${pkgs.libnotify}/bin/notify-send -a pi "$title" "''${body:-}"
+      ${pkgs.libnotify}/bin/notify-send -a pi -i "$''${HOME}/.config/pi-agent/pi-icon.svg" "$title" "''${body:-}"
     done
   '';
 in {
+  # Icône pi pour les notifications (favicon officiel pi.dev, rendu par
+  # mako via gdk-pixbuf).
+  home.file.".config/pi-agent/pi-icon.svg".text = ''
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+      <rect width="800" height="800" rx="120" fill="#09090b"/>
+      <path fill="#fff" fill-rule="evenodd" d="
+        M165.29 165.29
+        H517.36
+        V400
+        H400
+        V517.36
+        H282.65
+        V634.72
+        H165.29
+        Z
+        M282.65 282.65
+        V400
+        H400
+        V282.65
+        Z
+      "/>
+      <path fill="#fff" d="M517.36 400 H634.72 V634.72 H517.36 Z"/>
+    </svg>
+  '';
+
   # Sandboxed pi coding agent: `pi` builds (if needed) and runs a rootless
   # podman container with the current directory mounted. The Containerfile is
   # embedded directly here so no external file is needed.
@@ -82,10 +107,6 @@ in {
     }
 
     export default function (pi: ExtensionAPI) {
-      pi.on("session_start", async () => {
-        send("Session démarrée");
-      });
-
       pi.on("agent_settled", async (_event, ctx) => {
         send(`Terminé — ''${basename(ctx.cwd)} attend ton retour`);
       });
