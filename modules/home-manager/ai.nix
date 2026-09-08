@@ -65,6 +65,9 @@ in {
       # (absent du conteneur) -> on copie les fichiers déréférencés dans un
       # vrai dossier et on le monte par-dessus le répertoire des extensions.
       EXT_DIR="''${HOME}/.cache/pi-agent/extensions"
+      # On repart d'un dossier propre : cp -L préserve le mode 444 des
+      # fichiers du /nix/store, une copie précédente serait read-only.
+      rm -rf "$EXT_DIR"
       mkdir -p "$EXT_DIR"
       for f in "''${HOME}"/.pi/agent/extensions/*; do
         [ -e "$f" ] || continue
