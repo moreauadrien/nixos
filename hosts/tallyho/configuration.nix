@@ -74,6 +74,7 @@ in {
       "dialout"
       "wireshark"
       "battery"
+      "input"
     ];
     packages = with pkgs; [
       btop

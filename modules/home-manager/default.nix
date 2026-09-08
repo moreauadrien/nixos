@@ -21,6 +21,7 @@
     ./cliPrograms/git.nix
 
     ./kde_connect.nix
+    ./vocalinux.nix
 
     ./ai.nix
   ];
