@@ -41,7 +41,21 @@
     ];
     nativeBuildInputs = [pkgs.wrapGAppsHook3];
     # Outils externes lancés à l'exécution (injection de texte, presse-papier)
+    # + typelibs GObject (non ramassés par wrapGAppsHook3 sur un build wheel)
+    giTypelibPath = pkgs.lib.makeSearchPath "lib/girepository-1.0" [
+      pkgs.gtk3
+      pkgs.pango.out
+      pkgs.gdk-pixbuf
+      pkgs.at-spi2-core # Atk
+      pkgs.harfbuzz
+      pkgs.glib.out
+      pkgs.gobject-introspection
+      pkgs.libnotify
+      pkgs.libayatana-appindicator
+    ];
     makeWrapperArgs = [
+      "--prefix GI_TYPELIB_PATH : ${giTypelibPath}"
+      "--set-default FONTCONFIG_FILE ${pkgs.fontconfig.out}/etc/fonts/fonts.conf"
       "--prefix PATH : ${pkgs.lib.makeBinPath [
         pkgs.wtype
         pkgs.ydotool
