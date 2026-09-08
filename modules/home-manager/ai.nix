@@ -4,23 +4,8 @@
   ...
 }: 
 let
-  # Proxy de notifications pi : lit la FIFO ~/.pi/notify.fifo (une ligne
-  # "titre\tcorps" par notification, écrite par l'extension pi ci-dessous,
-  # montée dans le conteneur via ~/.pi) et émet une notification desktop.
-  pi-notify-proxy = pkgs.writeShellScriptBin "pi-notify-proxy" ''
-    #!/usr/bin/env bash
-    FIFO="''${HOME}/.pi/notify.fifo"
-    [ -p "$FIFO" ] || mkfifo "$FIFO"
-    while true; do
-      # read échoue (EOF) quand le dernier writer ferme la FIFO -> on réouvre.
-      IFS=$'\t' read -r title body < "$FIFO" || continue
-      ${pkgs.libnotify}/bin/notify-send -a pi -i "$''${HOME}/.config/pi-agent/pi-icon.svg" "$title" "''${body:-}"
-    done
-  '';
-in {
-  # Icône pi pour les notifications (favicon officiel pi.dev, rendu par
-  # mako via gdk-pixbuf).
-  home.file.".config/pi-agent/pi-icon.svg".text = ''
+  # Icône pi pour les notifications (favicon officiel pi.dev).
+  pi-icon-svg = pkgs.writeText "pi-icon.svg" ''
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
       <rect width="800" height="800" rx="120" fill="#09090b"/>
       <path fill="#fff" fill-rule="evenodd" d="
@@ -42,6 +27,29 @@ in {
       <path fill="#fff" d="M517.36 400 H634.72 V634.72 H517.36 Z"/>
     </svg>
   '';
+
+  # gdk-pixbuf (utilisé par mako) rend le PNG nativement mais a besoin du
+  # loader librsvg pour le SVG -> on convertit au build.
+  pi-icon-png = pkgs.runCommand "pi-icon.png" {} ''
+    ${pkgs.imagemagick}/bin/magick ${pi-icon-svg} -resize 128x128 "$out"
+  '';
+
+  # Proxy de notifications pi : lit la FIFO ~/.pi/notify.fifo (une ligne
+  # "titre\tcorps" par notification, écrite par l'extension pi ci-dessous,
+  # montée dans le conteneur via ~/.pi) et émet une notification desktop.
+  pi-notify-proxy = pkgs.writeShellScriptBin "pi-notify-proxy" ''
+    #!/usr/bin/env bash
+    FIFO="''${HOME}/.pi/notify.fifo"
+    [ -p "$FIFO" ] || mkfifo "$FIFO"
+    while true; do
+      # read échoue (EOF) quand le dernier writer ferme la FIFO -> on réouvre.
+      IFS=$'\t' read -r title body < "$FIFO" || continue
+      ${pkgs.libnotify}/bin/notify-send -a pi -i "${pi-icon-png}" "$title" "''${body:-}"
+    done
+  '';
+in {
+  # Copie du SVG à côté des autres fichiers pi (le proxy utilise le PNG).
+  home.file.".config/pi-agent/pi-icon.svg".source = pi-icon-svg;
 
   # Sandboxed pi coding agent: `pi` builds (if needed) and runs a rootless
   # podman container with the current directory mounted. The Containerfile is
