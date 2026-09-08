@@ -28,12 +28,6 @@ let
     </svg>
   '';
 
-  # gdk-pixbuf (utilisé par mako) rend le PNG nativement mais a besoin du
-  # loader librsvg pour le SVG -> on convertit au build.
-  pi-icon-png = pkgs.runCommand "pi-icon.png" {} ''
-    ${pkgs.imagemagick}/bin/magick ${pi-icon-svg} -resize 128x128 "$out"
-  '';
-
   # Proxy de notifications pi : lit la FIFO ~/.pi/notify.fifo (une ligne
   # "titre\tcorps" par notification, écrite par l'extension pi ci-dessous,
   # montée dans le conteneur via ~/.pi) et émet une notification desktop.
@@ -44,11 +38,11 @@ let
     while true; do
       # read échoue (EOF) quand le dernier writer ferme la FIFO -> on réouvre.
       IFS=$'\t' read -r title body < "$FIFO" || continue
-      ${pkgs.libnotify}/bin/notify-send -a pi -i "${pi-icon-png}" "$title" "''${body:-}"
+      ${pkgs.libnotify}/bin/notify-send -a pi -i "${pi-icon-svg}" "$title" "''${body:-}"
     done
   '';
 in {
-  # Copie du SVG à côté des autres fichiers pi (le proxy utilise le PNG).
+  # Copie du SVG à côté des autres fichiers pi (le proxy utilise le SVG).
   home.file.".config/pi-agent/pi-icon.svg".source = pi-icon-svg;
 
   # Sandboxed pi coding agent: `pi` builds (if needed) and runs a rootless
