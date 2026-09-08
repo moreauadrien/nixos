@@ -36,9 +36,18 @@ in {
         podman build -t "$IMAGE" -f "$CONTAINERFILE" "$(dirname "$CONTAINERFILE")"
       fi
 
+      # home-manager place les extensions gérées en symlinks vers /nix/store
+      # (absent du conteneur) -> on bind-mount chaque fichier déréférencé.
+      EXT_MOUNTS=()
+      for f in "''${HOME}"/.pi/agent/extensions/*; do
+        [ -e "$f" ] || continue
+        EXT_MOUNTS+=("-v" "$(readlink -f "$f"):''${f}:ro")
+      done
+
       exec podman run -it --rm \
         -v "$(pwd)":/workspace \
         -v "$HOME/.pi":/root/.pi \
+        "''${EXT_MOUNTS[@]}" \
         "$IMAGE"
     '')
   ];
