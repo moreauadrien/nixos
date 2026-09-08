@@ -1,6 +1,5 @@
 {
   pkgs,
-  pkgs-unstable,
   ...
 }: 
 let
@@ -28,17 +27,17 @@ let
     </svg>
   '';
 
-  # Proxy de notifications pi : lit la FIFO ~/.pi/notify.fifo (une ligne
-  # "titre\tcorps" par notification, écrite par l'extension pi ci-dessous,
-  # montée dans le conteneur via ~/.pi) et émet une notification desktop.
+  # Proxy de notifications pi : lit la FIFO ~/.pi/notify.fifo (une ligne vide
+  # par notification, écrite par l'extension pi ci-dessous, montée dans le
+  # conteneur via ~/.pi) et émet une notification desktop (titre "π").
   pi-notify-proxy = pkgs.writeShellScriptBin "pi-notify-proxy" ''
     #!/usr/bin/env bash
     FIFO="''${HOME}/.pi/notify.fifo"
     [ -p "$FIFO" ] || mkfifo "$FIFO"
     while true; do
       # read échoue (EOF) quand le dernier writer ferme la FIFO -> on réouvre.
-      IFS=$'\t' read -r title body < "$FIFO" || continue
-      ${pkgs.libnotify}/bin/notify-send -a pi -i "${pi-icon-svg}" "$title" "''${body:-}"
+      read -r < "$FIFO" || continue
+      ${pkgs.libnotify}/bin/notify-send -a pi -i "${pi-icon-svg}" "π" "Done."
     done
   '';
 in {
@@ -93,16 +92,17 @@ in {
     import { constants, closeSync, existsSync, openSync, writeSync } from "node:fs";
     import { execFileSync } from "node:child_process";
     import { homedir } from "node:os";
-    import { basename, join } from "node:path";
+    import { join } from "node:path";
 
     const FIFO = join(homedir(), ".pi", "notify.fifo");
 
-    function send(body: string) {
+    // Une ligne vide suffit : titre et corps sont fixés par le proxy.
+    function send() {
       try {
         if (!existsSync(FIFO)) execFileSync("mkfifo", [FIFO]);
         const fd = openSync(FIFO, constants.O_WRONLY | constants.O_NONBLOCK);
         try {
-          writeSync(fd, `pi\t''${body.replace(/[\t\n]/g, " ")}\n`);
+          writeSync(fd, "\n");
         } finally {
           closeSync(fd);
         }
@@ -112,36 +112,12 @@ in {
     }
 
     export default function (pi: ExtensionAPI) {
-      pi.on("agent_settled", async (_event, ctx) => {
-        send(`Terminé — ''${basename(ctx.cwd)} attend ton retour`);
+      pi.on("agent_settled", async () => {
+        send();
       });
 
-      pi.on("ui_prompt_start", async (event) => {
-        send(`Attend ton input — ''${event.title ?? event.kind}`);
-      });
-    }
-  '';
-
-  # Extension pi : remplace le provider "opencode" par un clone filtré qui ne
-  # garde que les modèles gratuits (coût 0 en input et output).
-  home.file.".pi/agent/extensions/opencode-free.ts".text = ''
-    // Provider "opencode" limité aux modèles gratuits (coût 0 en input et output).
-    import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-
-    export default function (pi: ExtensionAPI) {
-      let done = false;
-      pi.on("session_start", async (_event, ctx) => {
-        if (done) return;
-        const provider = ctx.modelRegistry.getProvider("opencode");
-        if (!provider) return;
-        const clone = Object.create(
-          Object.getPrototypeOf(provider),
-          Object.getOwnPropertyDescriptors(provider),
-        );
-        clone.filterModels = (models: readonly any[]) =>
-          models.filter((m) => !m.cost || (m.cost.input === 0 && m.cost.output === 0));
-        pi.registerProvider(clone);
-        done = true;
+      pi.on("ui_prompt_start", async () => {
+        send();
       });
     }
   '';
