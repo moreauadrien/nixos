@@ -22,7 +22,6 @@
     ./cliPrograms/voxtype.nix
 
     ./kde_connect.nix
-    ./vocalinux.nix
 
     ./ai
   ];
