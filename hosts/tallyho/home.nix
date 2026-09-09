@@ -5,7 +5,6 @@
   lib,
   ...
 }: {
-  imports = [../../modules/home-manager/vocalinux.nix];
   home.username = "adrien";
   home.homeDirectory = "/home/adrien";
 
