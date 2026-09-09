@@ -29,14 +29,35 @@ in {
         "en-US"
       ];
       SearchEngines = {
-        Default = "Startpage";
+        Default = "DuckDuckGo";
         Add = [
+          {
+            Name = "DuckDuckGo";
+            URLTemplate = "https://noai.duckduckgo.com/?q={searchTerms}";
+            Method = "GET";
+            IconURL = "https://noai.duckduckgo.com/favicon.ico";
+            Alias = "dd";
+          }
           {
             Name = "Startpage";
             URLTemplate = "https://www.startpage.com/sp/search?prfe=${startpage_preferences}&query={searchTerms}";
             Method = "GET";
             IconURL = "https://www.startpage.com/favicon.ico";
             Alias = "sp";
+          }
+          {
+            Name = "Brave Search";
+            URLTemplate = "https://search.brave.com/search?q={searchTerms}";
+            Method = "GET";
+            IconURL = "https://search.brave.com/favicon.ico";
+            Alias = "brave";
+          }
+          {
+            Name = "Kagi";
+            URLTemplate = "https://kagi.com/search?q={searchTerms}";
+            Method = "GET";
+            IconURL = "https://kagi.com/favicon.ico";
+            Alias = "kagi";
           }
         ];
       };

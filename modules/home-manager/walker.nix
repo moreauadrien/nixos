@@ -12,9 +12,23 @@ in {
   programs.elephant.provider.websearch.settings = {
     entries = [
       {
-        name = "Startpage";
+        name = "DuckDuckGo";
         default = true;
+        url = "https://noai.duckduckgo.com/?q=%TERM%";
+      }
+      {
+        name = "Startpage";
         url = "https://www.startpage.com/sp/search?prfe=${startpage_preferences}&query=%TERM%";
+      }
+      {
+        name = "Brave Search";
+        prefix = "brave:";
+        url = "https://search.brave.com/search?q=%TERM%";
+      }
+      {
+        name = "Kagi";
+        prefix = "kagi:";
+        url = "https://kagi.com/search?q=%TERM%";
       }
       {
         name = "NixOS Packages";
