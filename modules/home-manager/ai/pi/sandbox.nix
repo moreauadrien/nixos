@@ -29,12 +29,17 @@
         cp -rL "$f" "$EXT_DIR/"
       done
 
+      # Le dossier dans le conteneur porte le nom du dossier hôte courant.
+      DIR_NAME="$(basename "$(pwd)")"
+      [ "$DIR_NAME" = / ] && DIR_NAME=workspace
+
       # Herdr voit le wrapper, pas le vrai processus dans le conteneur :
       # on pose HERDR_AGENT sur la commande du wrapper elle-même (processus
       # hôte de premier plan), pas à l'intérieur du conteneur.
       exec env HERDR_AGENT=pi podman run -it --rm \
         -e PONYTAIL_HIDE_STATUS=1 \
-        -v "$(pwd)":/workspace \
+        -w "/$DIR_NAME" \
+        -v "$(pwd)":"/$DIR_NAME" \
         -v "$HOME/.pi":/root/.pi \
         -v "$EXT_DIR":/root/.pi/agent/extensions:ro \
         "$IMAGE"
@@ -58,8 +63,6 @@
     RUN nix profile add nixpkgs#ripgrep
 
     ENV PATH="/root/.nix-profile/bin:''${PATH}"
-
-    WORKDIR /workspace
 
     CMD ["pi"]
   '';
