@@ -1,1 +1,6 @@
 *.log
+/omarchy
+/devenv.nix
+/devenv.yaml
+/devenv.lock
+/.devenv/
