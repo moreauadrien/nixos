@@ -19,8 +19,6 @@
     };
 
     diceware-fr.url = "github:moreauadrien/diceware-fr";
-
-    smolvm.url = "github:smol-machines/smolvm";
   };
 
   outputs = {
@@ -40,9 +38,6 @@
       };
       modules = [
         hyprdynamicmonitors.nixosModules.default
-        {
-          nixpkgs.overlays = [inputs.smolvm.overlays.default];
-        }
         ./hosts/tallyho/configuration.nix
         ./modules/nixos
       ];
