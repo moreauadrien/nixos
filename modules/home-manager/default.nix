@@ -16,6 +16,7 @@
     ./guiPrograms/obsidian.nix
     ./guiPrograms/mako.nix
     ./guiPrograms/mpv.nix
+    ./guiPrograms/vlc.nix
     ./guiPrograms/foliate.nix
     ./cliPrograms/neovim.nix
     ./cliPrograms/git.nix
