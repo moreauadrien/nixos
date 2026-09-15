@@ -618,6 +618,15 @@ require('lazy').setup({
         capabilities = capabilities,
       }
       vim.lsp.enable('nixd')
+
+      -- qmlls comes from nixpkgs (kdePackages.qtdeclarative), not Mason:
+      -- Mason's generic binary can't run on NixOS. ~/.nix-profile/bin is
+      -- behind Mason's bin dir in PATH, so pin the path explicitly.
+      vim.lsp.config['qmlls'] = {
+        cmd = { vim.env.HOME .. '/.nix-profile/bin/qmlls' },
+        capabilities = capabilities,
+      }
+      vim.lsp.enable('qmlls')
     end,
   },
 

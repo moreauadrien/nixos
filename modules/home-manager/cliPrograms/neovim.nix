@@ -12,6 +12,7 @@
   };
 
   home.packages = with pkgs; [
+    kdePackages.qtdeclarative # qmlls (Mason's build is a generic binary, doesn't run on NixOS)
     git
     gnumake
     unzip
