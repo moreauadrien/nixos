@@ -1,6 +1,4 @@
 {pkgs, ...}: {
-  environment.systemPackages = [pkgs.smolvm];
-
   programs.virt-manager.enable = true;
   virtualisation.libvirtd = {
     enable = true;
