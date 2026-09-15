@@ -95,7 +95,6 @@ in {
     brightnessctl
     jq
 
-    cyberchef
     file-roller
     evince
 
