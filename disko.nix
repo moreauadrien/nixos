@@ -1,6 +1,6 @@
 {
   fileSystems."/nix".neededForBoot = true;
-  fileSystems."/persistent".neededForBoot = true; # sometimes needed too
+  fileSystems."/persistent".neededForBoot = true;
 
   disko.devices.nodev = {
     "/" = {
@@ -37,11 +37,11 @@
     };
 
     content.partitions.swap = {
-      size = "4G";
+      size = "16G";
 
       content = {
         type = "swap";
-        resumeDevice = true;
+        randomEncryption = true;
       };
     };
 
@@ -50,27 +50,37 @@
       size = "100%";
 
       content = {
-        type = "btrfs";
-        extraArgs = [ "-f" ];
+        type = "luks";
+        name = "cryptroot";
 
-        subvolumes = {
-          "/persistent" = {
-            mountOptions = [
-              "subvol=persistent"
-              "noatime"
-            ];
-            mountpoint = "/persistent";
-          };
+        settings = {
+          allowDiscards = true;
+        };
 
-          "/nix" = {
-            mountOptions = [
-              "subvol=nix"
-              "noatime"
-            ];
-            mountpoint = "/nix";
+        content = {
+          type = "btrfs";
+          extraArgs = [ "-f" ];
+
+          subvolumes = {
+            "/persistent" = {
+              mountOptions = [
+                "subvol=persistent"
+                "noatime"
+              ];
+              mountpoint = "/persistent";
+            };
+
+            "/nix" = {
+              mountOptions = [
+                "subvol=nix"
+                "noatime"
+              ];
+              mountpoint = "/nix";
+            };
           };
         };
       };
+
     };
   };
 }

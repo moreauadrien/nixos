@@ -1,4 +1,9 @@
 {
+  # /etc/machine-id is persistent (bind-mounted from /persistent), so
+  # systemd-machine-id-commit.service fails on every boot ("not on a
+  # temporary file system"). Harmless → mask it.
+  systemd.suppressedSystemUnits = [ "systemd-machine-id-commit.service" ];
+
   preservation = {
     enable = true;
 
