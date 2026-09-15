@@ -15,6 +15,5 @@
     ./notifications.nix
     ./webcam.nix
     ./hardware-acceleration.nix
-    ./steam.nix
   ];
 }

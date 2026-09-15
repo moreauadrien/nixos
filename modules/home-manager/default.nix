@@ -11,13 +11,11 @@
     ./guiPrograms/discord.nix
     ./guiPrograms/localsend.nix
     ./guiPrograms/librewolf.nix
-    ./guiPrograms/moonlight.nix
     ./guiPrograms/bruno.nix
     ./guiPrograms/obsidian.nix
     ./guiPrograms/mako.nix
     ./guiPrograms/mpv.nix
     ./guiPrograms/vlc.nix
-    ./guiPrograms/foliate.nix
     ./cliPrograms/neovim.nix
     ./cliPrograms/git.nix
     ./cliPrograms/voxtype.nix
