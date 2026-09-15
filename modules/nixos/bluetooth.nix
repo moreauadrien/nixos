@@ -1,17 +1,18 @@
 {pkgs, ...}: {
   hardware.bluetooth.enable = true;
 
+  hardware.bluetooth.settings = {
+    General = {
+      ControllerMode = "dual";
+      FastConnectable = "true";
+    };
+  };
+
   environment.systemPackages = with pkgs; [
     bluetui
   ];
 
-  systemd.user.services.mpris-proxy = {
-    description = "Mpris proxy";
-    after = [
-      "network.target"
-      "sound.target"
-    ];
-    wantedBy = ["default.target"];
-    serviceConfig.ExecStart = "${pkgs.bluez}/bin/mpris-proxy";
-  };
+  # bluez >= 5.86 fournit déjà l'unité mpris-proxy.service avec son ExecStart :
+  # on se contente de l'activer (sinon -> doublon ExecStart et unité "bad-setting").
+  systemd.user.units."mpris-proxy.service".wantedBy = ["default.target"];
 }
