@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{pkgs, ...}: {
   # Sandboxed pi coding agent: `pi` builds (if needed) and runs a rootless
   # podman container with the current directory mounted. The Containerfile is
   # embedded directly here so no external file is needed.
