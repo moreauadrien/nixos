@@ -17,32 +17,32 @@
       url = "github:abenz1267/walker";
       inputs.elephant.follows = "elephant";
     };
-
-    diceware-fr.url = "github:moreauadrien/diceware-fr";
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    nixpkgs-unstable,
-    hyprdynamicmonitors,
-    ...
-  } @ inputs: {
-    nixosConfigurations.tallyho = nixpkgs.lib.nixosSystem {
-      specialArgs = {
-        inherit inputs;
-        pkgs-unstable = import nixpkgs-unstable {
-          system = "x86_64-linux";
-          config.allowUnfree = true;
+  outputs =
+    {
+      self,
+      nixpkgs,
+      nixpkgs-unstable,
+      hyprdynamicmonitors,
+      ...
+    }@inputs:
+    {
+      nixosConfigurations.tallyho = nixpkgs.lib.nixosSystem {
+        specialArgs = {
+          inherit inputs;
+          pkgs-unstable = import nixpkgs-unstable {
+            system = "x86_64-linux";
+            config.allowUnfree = true;
+          };
         };
+        modules = [
+          hyprdynamicmonitors.nixosModules.default
+          ./hosts/tallyho/configuration.nix
+          ./modules/nixos
+        ];
       };
-      modules = [
-        hyprdynamicmonitors.nixosModules.default
-        ./hosts/tallyho/configuration.nix
-        ./modules/nixos
-      ];
-    };
 
-    homeManagerModules.default = ./modules/home-manager;
-  };
+      homeManagerModules.default = ./modules/home-manager;
+    };
 }
