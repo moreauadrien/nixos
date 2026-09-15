@@ -39,7 +39,6 @@
       nautilus
       xdg-terminal-exec
       xdg-desktop-portal-hyprland
-      waybar
       xwayland
       hyprsunset
       wl-clipboard

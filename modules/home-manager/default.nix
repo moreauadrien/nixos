@@ -1,10 +1,10 @@
 {...}: {
   imports = [
     ./hyprland.nix
-    ./waybar.nix
     ./scripts.nix
     ./cursor.nix
     ./walker.nix
+    ./quickshell.nix
 
     ./guiPrograms/alacritty.nix
     ./guiPrograms/whatsapp.nix
