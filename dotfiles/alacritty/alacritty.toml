@@ -1,0 +1,32 @@
+general.import = [
+  # "~/.config/alacritty/themes/catppuccin-mocha.toml",
+  #"~/.config/alacritty/themes/catppuccin-frappe.toml",
+  "~/.config/alacritty/themes/tokyo-night.toml",
+  #"~/.config/alacritty/themes/tokyo-night-storm.toml",
+]
+
+[env]
+TERM = "xterm-256color"
+
+
+[font]
+size = 17.0
+
+[font.bold]
+family = "JetBrainsMono Nerd Font"
+style = "Bold"
+
+[font.glyph_offset]
+x = 0
+y = 0
+
+[font.italic]
+family = "JetBrainsMono Nerd Font"
+
+[font.normal]
+family = "JetBrainsMono Nerd Font"
+style = "Regular"
+
+[font.offset]
+x = 0
+y = 0
