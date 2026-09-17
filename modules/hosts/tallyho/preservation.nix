@@ -12,6 +12,7 @@
         directories = [
           "/etc/nixos"
           "/var/lib/bluetooth"
+          "/etc/ssh"
           {
             directory = "/var/lib/nixos";
             inInitrd = true;
@@ -28,6 +29,7 @@
         users.adrien = {
           directories = [
             "nixos"
+            "podman"
           ];
 
           files = [
