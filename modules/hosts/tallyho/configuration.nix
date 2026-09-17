@@ -12,6 +12,7 @@
       imports = [
         self.nixosModules.tallyhoHardware
         self.nixosModules.desktop
+        self.nixosModules.plymouth
       ];
 
       # Use the GRUB 2 boot loader.
