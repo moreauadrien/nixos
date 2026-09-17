@@ -13,6 +13,7 @@
         self.nixosModules.tallyhoHardware
         self.nixosModules.desktop
         self.nixosModules.plymouth
+        self.nixosModules.pi
       ];
 
       # Use the GRUB 2 boot loader.
