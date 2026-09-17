@@ -54,6 +54,8 @@
         pkgs.playerctl
         pkgs.quickshell
         pkgs.bluetui
+        pkgs.walker
+        pkgs.elephant
       ];
     };
 }

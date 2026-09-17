@@ -1,6 +1,6 @@
 return {
     terminal = "alacritty",
-    launcher = "hyprlauncher",
+    launcher = "walker",
     screenshot = "gradio --screenshot",
     screenshotFullscreen = "gradio --screenshot=FULL",
     lock = "hyprlock",
