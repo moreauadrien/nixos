@@ -19,9 +19,15 @@
         "virtio_pci"
         "sr_mod"
         "virtio_blk"
+        "virtio_gpu"
       ];
       boot.initrd.kernelModules = [ ];
-      boot.kernelModules = [ "kvm-intel" ];
+      boot.kernelModules = [
+        "kvm-intel"
+        "virtio_gpu"
+      ];
+
+      hardware.graphics.enable = true;
       boot.extraModulePackages = [ ];
 
       swapDevices = [ ];
