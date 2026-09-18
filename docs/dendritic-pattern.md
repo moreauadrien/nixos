@@ -71,8 +71,9 @@ modules/
 └── attrs/…                # vimjoyer calls the profile layer "features/"
 ```
 
-`dotfiles/` (raw configs shipped to `$HOME`) sits next to `modules/`, referenced
-via `${self}/dotfiles/...` (this repo does it with hjem's `files`).
+Each feature ships its own config, colocated with its module (no central
+`dotfiles/`): `modules/features/alacritty.nix` + `modules/features/alacritty/config/`,
+referenced via relative paths (`hjem.users.<user>.files."…".source = ./config`).
 
 On `system/` vs `attrs/`: the README says `system/` should not be run standalone and
 reserves `attrs/` for bundles — so a pure profile bundle arguably belongs in
@@ -178,9 +179,9 @@ Hosts set the option, any feature can consume it.
 
 Already dendritic: `flake.nix` is minimal (`flake-parts` + `import-tree`), hjem for
 dotfiles, disko + preservation, host `tallyho` in `modules/hosts/tallyho/`. Shared
-logic lives in `modules/system/` (boot, user, locale, network, nix, and a `desktop`
-profile) and `modules/features/` (dotfiles, pi, plymouth); packages are
-`perSystem.packages` consumed via `moduleWithSystem` + `self'`.
+logic lives in `modules/system/` (boot, user, locale, network, and the `desktop`
+and `dev` profiles) and `modules/features/` (each app with its own config, pi,
+plymouth); packages are `perSystem.packages` consumed via `moduleWithSystem` + `self'`.
 Still missing vs the references:
 - no `attrs/` (profile) layer — add when a second host or a "bundle" need appears.
 

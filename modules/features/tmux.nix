@@ -1,8 +1,25 @@
-# Tmux terminal multiplexer: binary + config from dotfiles/tmux.conf.
-{ self, ... }: {
+# Tmux terminal multiplexer: binary + config (inlined, single file).
+{ ... }: {
   flake.nixosModules.tmux = { pkgs, ... }: {
     programs.tmux.enable = true;
 
-    hjem.users.adrien.files.".tmux.conf".source = "${self}/dotfiles/tmux.conf";
+    hjem.users.adrien.files.".tmux.conf".text = ''
+      set -g default-terminal "tmux-256color"
+      set -g status-style 'bg=#333333 fg=#5eacd3'
+      set -g extended-keys on
+      set -g extended-keys-format csi-u
+
+      set -g base-index 1
+      set -g pane-base-index 1
+      set -g mouse on
+      set-option -g renumber-windows on
+      set-window-option -g mode-keys vi
+
+      bind -r ^ last-window
+      bind -r k select-pane -U
+      bind -r j select-pane -D
+      bind -r h select-pane -L
+      bind -r l select-pane -R
+    '';
   };
 }

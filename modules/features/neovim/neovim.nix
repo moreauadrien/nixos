@@ -1,5 +1,5 @@
-# Neovim editor: binary, companion tools and the config from dotfiles/nvim.
-{ self, ... }: {
+# Neovim editor: binary, companion tools and the config from ./config.
+{ pkgs, ... }: {
   flake.nixosModules.neovim = { pkgs, ... }: {
     environment.systemPackages = with pkgs; [
       neovim
@@ -14,6 +14,6 @@
       kdePackages.qtdeclarative
     ];
 
-    hjem.users.adrien.files.".config/nvim".source = "${self}/dotfiles/nvim";
+    hjem.users.adrien.files.".config/nvim".source = ./config;
   };
 }

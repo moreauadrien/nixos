@@ -10,7 +10,7 @@
       walker
       elephant
       mako
-      # Referenced by dotfiles/hypr (bindings, idle daemon, night light):
+      # Referenced by the hyprland config (bindings, idle daemon, night light):
       # install them here so the configs can never point at a missing binary.
       hyprlock
       hypridle
