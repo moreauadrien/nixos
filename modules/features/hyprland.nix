@@ -7,6 +7,7 @@
 
     hjem.users.adrien.files = {
       ".config/hypr".source = "${self}/dotfiles/hypr";
+      ".config/mako/config".source = "${self}/dotfiles/mako/config";
       # wallpapers are referenced by dotfiles/hypr/hyprpaper.conf
       ".config/wallpapers".source = "${self}/dotfiles/wallpapers";
     };
