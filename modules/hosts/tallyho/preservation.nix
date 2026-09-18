@@ -28,6 +28,7 @@
 
         users.adrien = {
           directories = [
+            "keep" # scratch folder, everything inside persists across boots
             "nixos"
             "podman"
           ];
