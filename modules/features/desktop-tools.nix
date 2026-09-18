@@ -26,6 +26,7 @@
       libreoffice
       btop
       file-roller
+      nautilus
 
       # WhatsApp = web app in a dedicated chromium window
       ungoogled-chromium
