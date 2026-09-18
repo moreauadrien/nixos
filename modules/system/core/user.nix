@@ -1,5 +1,29 @@
 # Base user: adrien with hjem, sudo and shell packages.
-{ moduleWithSystem, ... }: {
+{
+  moduleWithSystem,
+  inputs,
+  ...
+}: {
+  # Wrapped git: user identity + default branch baked into the wrapper via
+  # GIT_CONFIG_GLOBAL (no env var exists for init.defaultBranch).
+  # Do NOT put this in an overlay as `pkgs.git` (infinite recursion, the
+  # wrapper builds git itself).
+  perSystem = { pkgs, ... }: {
+    packages.git = inputs.wrapper-modules.lib.wrapPackage [
+      inputs.wrapper-modules.lib.wrapperModules.git
+      {
+        inherit pkgs;
+        settings = {
+          user = {
+            name = "Adrien Moreau";
+            email = "adrienmoreau@ik.me";
+          };
+          init.defaultBranch = "main";
+        };
+      }
+    ];
+  };
+
   flake.nixosModules.user = moduleWithSystem ({
     self',
     pkgs,
@@ -29,10 +53,6 @@
           }
         ];
       }
-    ];
-
-    environment.systemPackages = [
-      pkgs.neovim
     ];
   });
 }
