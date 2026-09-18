@@ -1,0 +1,22 @@
+# Mako notification daemon.
+{ pkgs, ... }: {
+  flake.nixosModules.mako = {
+    hjem.users.adrien = {
+      packages = [ pkgs.mako ];
+      files.".config/mako/config".text = ''
+        anchor=top-right
+        default-timeout=5000
+        width=420
+        outer-margin=20
+        padding=10,15
+        border-size=2
+        max-icon-size=32
+        font=sans-serif 14px
+
+        text-color=#c0caf5
+        border-color=#33ccff
+        background-color=#1a1b26
+      '';
+    };
+  };
+}
