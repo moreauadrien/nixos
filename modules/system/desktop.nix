@@ -8,6 +8,7 @@
       desktop-tools
       quickshell
       alacritty
+      librewolf
     ];
   };
 }
