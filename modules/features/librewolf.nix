@@ -48,9 +48,9 @@
                 Alias = "brave";
               }
               {
-                # udm=14 = web only, no AI overview
+                # udm=web = web only, no AI
                 Name = "Google";
-                URLTemplate = "https://www.google.com/search?q={searchTerms}&udm=14";
+                URLTemplate = "https://www.google.com/search?q={searchTerms}&udm=web";
                 Method = "GET";
                 IconURL = "https://www.google.com/favicon.ico";
                 Alias = "g";
