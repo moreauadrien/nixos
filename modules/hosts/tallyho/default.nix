@@ -11,8 +11,9 @@
       self.nixosModules.tallyhoHardware
       self.nixosModules.tallyhoPreservation
 
-      # System: desktop profile imports core and the desktop features
+      # System profiles
       self.nixosModules.desktop
+      self.nixosModules.dev
 
       # Features
       self.nixosModules.plymouth
