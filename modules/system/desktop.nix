@@ -9,6 +9,8 @@
       quickshell
       alacritty
       librewolf
+      tailscale
+      voxtype
     ];
   };
 }
