@@ -48,6 +48,14 @@
                 Alias = "brave";
               }
               {
+                # udm=14 = web only, no AI overview
+                Name = "Google";
+                URLTemplate = "https://www.google.com/search?q={searchTerms}&udm=14";
+                Method = "GET";
+                IconURL = "https://www.google.com/favicon.ico";
+                Alias = "g";
+              }
+              {
                 Name = "Kagi";
                 URLTemplate = "https://kagi.com/search?q={searchTerms}";
                 Method = "GET";
