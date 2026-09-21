@@ -15,7 +15,7 @@
           pkgs.util-linux
           pkgs.gum
           pkgs.mkpasswd
-          pkgs.cryptsetup
+          pkgs.e2fsprogs # chattr (NOCOW swapfile on btrfs)
           pkgs.nixos-install-tools
         ]
       }:$PATH
@@ -88,28 +88,40 @@
       printf %s "$LUKS_PASS" > "$LUKS_KEY"
       chmod 600 "$LUKS_KEY"
 
-      # 7. Install.
-      step "Installing NixOS on $DISK (disko-install)"
-      # NIX_CONFIG propagates through sudo and disko-install's internal nix calls.
+      # 7. Partition, format and mount the disk with disko (LUKS passphrase is
+      #    read from passwordFile set in disko.nix). Mounting first lets the
+      #    installer use disk-backed swap and its own on-disk store.
+      step "Partitioning and mounting $DISK (disko)"
       sudo env NIX_CONFIG="extra-experimental-features = nix-command flakes" \
-        nix run 'github:nix-community/disko/latest#disko-install' -- \
-        --flake "$TMP#$HOST" --disk main "$DISK"
+        nix run 'github:nix-community/disko/latest#disko' -- \
+        --flake "$TMP#$HOST"
 
-      # 8. Copy the repo and the user password hash to the installed disk.
-      step "Copying the repo to $DISK"
-      ROOT_PART=/dev/$(lsblk -lno NAME,TYPE "$DISK" | awk '$2 == "part" { p = $1 } END { print p }')
-      OPENED=0
-      if [ ! -e /dev/mapper/cryptroot ]; then
-        sudo cryptsetup luksOpen --key-file "$LUKS_KEY" "$ROOT_PART" cryptroot
-        OPENED=1
-      fi
-      sudo mount -o subvol=persistent /dev/mapper/cryptroot /mnt
-      sudo mkdir -p /mnt/etc/nixos
-      sudo cp -r "$TMP"/. /mnt/etc/nixos/
-      printf %s "$USER_HASH" | sudo tee /mnt/passwd > /dev/null
-      sudo chmod 600 /mnt/passwd
-      sudo umount /mnt
-      [ "$OPENED" = 1 ] && sudo cryptsetup close cryptroot
+      # The installer runs from RAM (tmpfs capped at 50% of RAM); a full system
+      # closure does not fit. Give it disk-backed swap and grow the tmpfs caps.
+      step "Preparing installer swap on $DISK"
+      sudo mkdir -p /mnt/nix/.installer-swap
+      sudo chattr +C /mnt/nix/.installer-swap
+      sudo dd if=/dev/zero of=/mnt/nix/.installer-swap/file bs=1M count=16384 status=none
+      sudo chmod 600 /mnt/nix/.installer-swap/file
+      sudo mkswap /mnt/nix/.installer-swap/file
+      sudo swapon /mnt/nix/.installer-swap/file
+      sudo mount -o remount,size=100% / 2>/dev/null || true
+      sudo mount -o remount,size=100% /nix/.rw-store 2>/dev/null || true
+
+      step "Installing NixOS on $DISK (nixos-install)"
+      sudo env NIX_CONFIG="extra-experimental-features = nix-command flakes" \
+        nixos-install --flake "$TMP#$HOST" --no-root-passwd
+
+      # 8. Copy the repo and the user password hash to the installed disk
+      #    (/persistent subvolume, already mounted at /mnt/persistent by disko).
+      step "Copying the repo to /persistent"
+      sudo swapoff /mnt/nix/.installer-swap/file || true
+      sudo rm -rf /mnt/nix/.installer-swap
+      sudo mkdir -p /mnt/persistent/etc/nixos
+      sudo cp -r "$TMP"/. /mnt/persistent/etc/nixos/
+      printf %s "$USER_HASH" | sudo tee /mnt/persistent/passwd > /dev/null
+      sudo chmod 600 /mnt/persistent/passwd
+      sudo umount -R /mnt
 
       gum style \
         --foreground 212 --border double --border-foreground 212 --padding "1 2" \
