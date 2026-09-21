@@ -91,17 +91,11 @@
       # 7. Partition, format and mount the disk with disko (LUKS passphrase is
       #    read from passwordFile set in disko.nix). Mounting first lets the
       #    installer use disk-backed swap and its own on-disk store.
+      #    Note: disko has no "destroy,format" mode, so it's one invocation.
       step "Partitioning $DISK (disko)"
       sudo env NIX_CONFIG="extra-experimental-features = nix-command flakes" \
         nix run 'github:nix-community/disko/latest#disko' -- \
-        --flake "$TMP#$HOST" --mode destroy,format
-      # Let udev create /dev/disk/by-partlabel links before opening the LUKS
-      # container (races in VMs otherwise).
-      sudo udevadm settle
-      step "Mounting $DISK (disko)"
-      sudo env NIX_CONFIG="extra-experimental-features = nix-command flakes" \
-        nix run 'github:nix-community/disko/latest#disko' -- \
-        --flake "$TMP#$HOST" --mode mount
+        --flake "$TMP#$HOST" --mode destroy,format,mount
 
       # The installer runs from RAM (tmpfs capped at 50% of RAM); a full system
       # closure does not fit. Give it disk-backed swap and grow the tmpfs caps.
