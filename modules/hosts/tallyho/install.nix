@@ -21,7 +21,7 @@
       }:$PATH
       set -euo pipefail
 
-      REPO_URL="''${1:-git@github.com:moreauadrien/nixos.git}"
+      REPO_URL="''${1:-https://github.com/moreauadrien/nixos}"
       HOST="tallyho"
 
       die() { gum style --foreground 196 "✗ $*"; exit 1; }

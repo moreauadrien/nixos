@@ -4,7 +4,7 @@ sudo loadkeys fr
 
 From the NixOS installer ISO (with your SSH key loaded for repo access):
 
-nix run 'git+ssh://git@github.com/moreauadrien/nixos.git#install'
+nix run 'git+https://github.com/moreauadrien/nixos#install'
 
 It clones the repo to a tmpdir, generates the hardware config (conventional
 commit), asks for the install disk, the user password and the LUKS
