@@ -77,7 +77,7 @@
       USER_PASS=$(gum input --password --placeholder "Password for user adrien")
       [ -n "$USER_PASS" ] || die "Empty password."
       [ "$USER_PASS" = "$(gum input --password --placeholder "Confirm password")" ] || die "Passwords differ."
-      USER_HASH=$(printf %s "$USER_PASS" | mkpasswd -m yescrypt)
+      USER_HASH=$(printf %s "$USER_PASS" | mkpasswd -s -m yescrypt)
 
       # 6. Disk encryption passphrase, written to a file read by disko
       #    (disko.nix sets passwordFile = /tmp/luks-passphrase).
