@@ -15,7 +15,7 @@
           pkgs.util-linux
           pkgs.gum
           pkgs.mkpasswd
-          pkgs.disko # pinned by flake.lock (no mutable github ref)
+          pkgs.disko
           pkgs.e2fsprogs # chattr (NOCOW swapfile on btrfs)
           pkgs.nixos-install-tools
         ]
