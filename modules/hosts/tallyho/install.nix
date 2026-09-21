@@ -15,6 +15,7 @@
           pkgs.util-linux
           pkgs.gum
           pkgs.mkpasswd
+          pkgs.disko # pinned by flake.lock (no mutable github ref)
           pkgs.e2fsprogs # chattr (NOCOW swapfile on btrfs)
           pkgs.nixos-install-tools
         ]
@@ -92,10 +93,10 @@
       #    read from passwordFile set in disko.nix). Mounting first lets the
       #    installer use disk-backed swap and its own on-disk store.
       #    Note: disko has no "destroy,format" mode, so it's one invocation.
+      #    Uses the disko from nixpkgs (same revision as flake.lock) instead
+      #    of a mutable github:disko/latest ref.
       step "Partitioning $DISK (disko)"
-      sudo env NIX_CONFIG="extra-experimental-features = nix-command flakes" \
-        nix run 'github:nix-community/disko/latest#disko' -- \
-        --flake "$TMP#$HOST" --mode destroy,format,mount
+      sudo disko --flake "$TMP#$HOST" --mode destroy,format,mount
 
       # The installer runs from RAM (tmpfs capped at 50% of RAM); a full system
       # closure does not fit. Give it disk-backed swap and grow the tmpfs caps.
