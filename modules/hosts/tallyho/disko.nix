@@ -54,6 +54,9 @@
           type = "luks";
           name = "cryptroot";
 
+          # Written by the installer at /tmp/luks-passphrase (see install.nix).
+          passwordFile = "/tmp/luks-passphrase";
+
           settings = {
             allowDiscards = true;
           };
