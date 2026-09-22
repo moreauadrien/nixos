@@ -6,6 +6,7 @@
       fonts
       cursor
       desktop-tools
+      pipewire
       quickshell
       alacritty
       librewolf

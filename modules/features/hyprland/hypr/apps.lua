@@ -1,7 +1,7 @@
 return {
     terminal = "alacritty",
     launcher = "walker",
-    screenshot = "gradio --screenshot",
-    screenshotFullscreen = "gradio --screenshot=FULL",
+    screenshot = "gradia --screenshot",
+    screenshotFullscreen = "gradia --screenshot=FULL",
     lock = "hyprlock",
 }
