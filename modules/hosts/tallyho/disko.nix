@@ -14,7 +14,7 @@
     };
 
     disko.devices.disk.main = {
-      device = "/dev/vda"; # MAKE SURE TOO SELECT CORRECT DISK HERE
+      device = "/dev/nvme0n1"; # MAKE SURE TOO SELECT CORRECT DISK HERE
       type = "disk";
 
       content.type = "gpt";
