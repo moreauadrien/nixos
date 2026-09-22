@@ -2,6 +2,17 @@
 # (mirrors the legacy home-manager config, applied via the wrapper's extraPolicies).
 { ... }: {
   flake.nixosModules.librewolf = { pkgs, ... }: {
+    # Make LibreWolf the default browser (html/web mime types)
+    xdg.mime = {
+      enable = true;
+      defaultApplications = {
+        "x-scheme-handler/http" = "librewolf.desktop";
+        "x-scheme-handler/https" = "librewolf.desktop";
+        "text/html" = "librewolf.desktop";
+        "application/xhtml+xml" = "librewolf.desktop";
+      };
+    };
+
     environment.systemPackages = [
       (pkgs.librewolf.override {
         extraPolicies = {
