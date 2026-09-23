@@ -1,11 +1,20 @@
 # Neovim editor: binary, companion tools and the config from ./config.
 {
-  flake.nixosModules.neovim = { lib, ... }: {
+  flake.nixosModules.neovim = { lib, pkgs, ... }: {
     programs.neovim = {
       enable = true;
       vimAlias = true;
       defaultEditor = true;
     };
+
+
+    environment.systemPackages = with pkgs; [
+      ripgrep
+    ];
+
+
+
+
 
     # Link every file of ./config individually instead of the directory as a
     # whole: `vim.pack` (Nix 0.12+) writes its lockfile next to the config
