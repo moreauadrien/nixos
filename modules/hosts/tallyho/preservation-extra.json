@@ -5,9 +5,11 @@
   },
   "users": {
     "adrien": {
-      "files": [
-      ],
+      "files": [],
       "directories": [
+        ".config/voxtype",
+        ".local/share/nvim",
+        ".local/share/voxtype"
       ]
     }
   }
