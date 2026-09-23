@@ -28,9 +28,12 @@
 
         users.adrien = {
           directories = [
-            "keep" # scratch folder, everything inside persists across boots
             "nixos"
+            "keep"
             "podman"
+	    ".config/hyprmoncfg"
+	    ".config/librewolf"
+	    ".ssh"
           ];
 
           files = [
