@@ -54,6 +54,9 @@
             pkgs.nix
             pkgs.devenv
             pkgs.tmux
+            pkgs.git
+            pkgs.gnugrep
+            pkgs.coreutils
             pkgs.ripgrep
             pkgs.pi-coding-agent
             pkgs.cacert
@@ -85,13 +88,19 @@
         set -euo pipefail
 
         IMAGE="sandboxed-pi"
+        # Marker remembering which nix store image was last loaded: podman
+        # keeps the old image tagged sandboxed-pi:latest after a rebuild, so
+        # `podman image exists` alone would never pick up changes (e.g. new
+        # executables added to pi-image).
+        STATE="$HOME/podman/.sandboxed-pi-image"
 
-        if ! podman image exists "$IMAGE" 2>/dev/null; then
+        if [ "$(cat "$STATE" 2>/dev/null || true)" != "${pi-image}" ]; then
           echo "Loading image $IMAGE..."
           # podman doesn't create $graphroot/tmp itself (used as staging by
           # image_copy_tmp_dir="storage").
           mkdir -p "$HOME/podman/storage/tmp"
           podman load -i "${pi-image}"
+          printf '%s' "${pi-image}" > "$STATE"
         fi
 
         # hjem places managed extensions as symlinks to /nix/store (absent from
