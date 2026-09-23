@@ -7,4 +7,5 @@ hl.on("hyprland.start", function ()
   hl.exec_cmd("hypridle")
   hl.exec_cmd("hyprsunset")
   hl.exec_cmd("hyprmoncfgd") -- auto-apply monitor profiles on hotplug/lid
+  hl.exec_cmd("voxtype daemon") -- voice-to-text (push-to-talk)
 end)
