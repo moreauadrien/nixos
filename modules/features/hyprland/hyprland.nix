@@ -2,13 +2,16 @@
 # Owns its own config (./hypr): the config defines its binaries,
 # so importing this module alone yields a complete session.
 { self, ... }: {
-  flake.nixosModules.hyprland = { pkgs, ... }: {
+  flake.nixosModules.hyprland = { pkgs, lib, ... }: {
     imports = with self.nixosModules; [
       hyprpaper
       hypridle
     ];
 
-    programs.hyprland.enable = true;
+    programs.hyprland = {
+      enable = true;
+      withUWSM = true;
+    };
 
     hjem.users.adrien.files = let
       # individual links: the daemon configs (hyprpaper/hypridle/hyprsunset)
@@ -35,10 +38,10 @@
       enable = true;
       settings = {
         default_session = {
-          command = "${pkgs.tuigreet}/bin/tuigreet --remember --time --cmd start-hyprland";
+          command = "${pkgs.tuigreet}/bin/tuigreet --remember --time --cmd \"uwsm start hyprland-uwsm.desktop\"";
         };
         initial_session = {
-          command = "start-hyprland";
+          command = "uwsm start hyprland-uwsm.desktop";
           user = "adrien";
         };
       };
