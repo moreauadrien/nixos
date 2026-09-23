@@ -58,6 +58,7 @@
             pkgs.gnugrep
             pkgs.coreutils
             pkgs.ripgrep
+	    pkgs.nodejs_24
             pkgs.pi-coding-agent
             pkgs.cacert
             (pkgs.writeTextDir "etc/nix/nix.conf" ''
