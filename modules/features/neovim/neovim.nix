@@ -1,5 +1,5 @@
 # Neovim editor: binary, companion tools and the config from ./config.
-{ pkgs, ... }: {
+{
   flake.nixosModules.neovim = { pkgs, ... }: {
 
     programs.neovim = {

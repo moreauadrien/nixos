@@ -1,6 +1,6 @@
 # Hypridle idle daemon (locks screen, dpms off).
-{ pkgs, ... }: {
-  flake.nixosModules.hypridle = {
+{ ... }: {
+  flake.nixosModules.hypridle = {pkgs, ...} : {
     hjem.users.adrien.files.".config/hypr/hypridle.conf".text = ''
       general {
           lock_cmd = hyprlock

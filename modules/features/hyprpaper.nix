@@ -1,6 +1,6 @@
 # Hyprpaper wallpaper daemon.
-{ pkgs, ... }: {
-  flake.nixosModules.hyprpaper = {
+{
+  flake.nixosModules.hyprpaper = {pkgs, ...} : {
     hjem.users.adrien = {
       packages = [ pkgs.hyprpaper ];
       files.".config/hypr/hyprpaper.conf".text = ''
