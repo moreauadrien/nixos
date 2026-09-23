@@ -1,6 +1,6 @@
 # Mako notification daemon.
-{ pkgs, ... }: {
-  flake.nixosModules.mako = {
+{
+  flake.nixosModules.mako = { pkgs, ... } : {
     hjem.users.adrien = {
       packages = [ pkgs.mako ];
       files.".config/mako/config".text = ''

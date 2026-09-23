@@ -1,6 +1,6 @@
 # Hyprsunset night light.
-{ pkgs, ... }: {
-  flake.nixosModules.hyprsunset = {
+{
+  flake.nixosModules.hyprsunset = { pkgs, ... } : {
     hjem.users.adrien.files.".config/hypr/hyprsunset.conf".text = ''
       max-gamma = 150
 
