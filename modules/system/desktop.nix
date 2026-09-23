@@ -11,6 +11,7 @@
       hyprland
       fonts
       cursor
+      gtk-theme
       desktop-tools
       pipewire
       quickshell
