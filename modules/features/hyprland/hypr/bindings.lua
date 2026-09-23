@@ -1,5 +1,5 @@
 local apps = require("apps")
-local mainMod = "ALT"
+local mainMod = "SUPER"
 
 hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd(apps.terminal))
 hl.bind(mainMod .. " + SHIFT + A", hl.dsp.window.close())
