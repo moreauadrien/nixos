@@ -1,8 +1,13 @@
 # Hyprland session: compositor + greetd login (tuigreet starts Hyprland).
 # Owns its own config (./hypr): the config defines its binaries,
 # so importing this module alone yields a complete session.
-{ ... }: {
+{ self, ... }: {
   flake.nixosModules.hyprland = { pkgs, ... }: {
+    imports = with self.nixosModules; [
+      hyprpaper
+      hypridle
+    ];
+
     programs.hyprland.enable = true;
 
     hjem.users.adrien.files = let
