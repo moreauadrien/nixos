@@ -17,7 +17,6 @@
 
       # Features
       self.nixosModules.plymouth
-      self.nixosModules.pi
     ];
   };
 }
