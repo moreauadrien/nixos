@@ -18,6 +18,7 @@
       # Features
       self.nixosModules.plymouth
       self.nixosModules.touffu
+      self.nixosModules.elephant
     ];
   };
 }
