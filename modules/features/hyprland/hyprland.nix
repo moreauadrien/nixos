@@ -4,8 +4,10 @@
 { self, ... }: {
   flake.nixosModules.hyprland = { pkgs, lib, ... }: {
     imports = with self.nixosModules; [
+      wallpaper
       hyprpaper
       hypridle
+      hyprlock
     ];
 
     programs.hyprland = {
@@ -25,11 +27,8 @@
         "workspaces.lua"
         "input.lua"
         "permissions.lua"
-        "hyprlock.conf"
       ];
-    in {
-      ".config/wallpapers".source = ./wallpapers;
-    } // builtins.listToAttrs (map (f: {
+    in builtins.listToAttrs (map (f: {
       name = ".config/hypr/${f}";
       value.source = ./hypr + "/${f}";
     }) hyprFiles);
