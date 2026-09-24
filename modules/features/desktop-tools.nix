@@ -13,7 +13,6 @@
       playerctl
       bluetui
       walker
-      elephant
       # Referenced by the hypridle config (lock on idle):
       # install it here so the config can never point at a missing binary.
       hyprlock
