@@ -1,3 +1,4 @@
+# Voxtype daemon + quickshell frontend QML tree (self-contained feature).
 {
   moduleWithSystem,
   inputs,
@@ -15,6 +16,11 @@
           postBuild = ''
             wrapProgram $out/bin/voxtype \
               --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.pulseaudio ]}
+
+            # Ship the quickshell QML tree where `voxtype setup quickshell`
+            # expects to find its default source: <binary>/../share/voxtype/quickshell/
+            mkdir -p $out/share/voxtype
+            cp -r ${./quickshell} $out/share/voxtype/quickshell
           '';
         })
       ];
