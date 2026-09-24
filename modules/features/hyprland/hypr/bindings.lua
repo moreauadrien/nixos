@@ -33,3 +33,5 @@ hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = tr
 
 hl.bind("twosuperior", hl.dsp.exec_cmd("voxtype record start"))
 hl.bind("twosuperior", hl.dsp.exec_cmd("voxtype record stop"), { release = true })
+
+hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
