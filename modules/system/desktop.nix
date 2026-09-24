@@ -19,6 +19,8 @@
       librewolf
       tailscale
       voxtype
+
+      speaker-fix-940xfg
     ];
   };
 }

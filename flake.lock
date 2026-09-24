@@ -161,8 +161,25 @@
         "import-tree": "import-tree",
         "nixpkgs": "nixpkgs",
         "preservation": "preservation",
+        "samsung-fixes": "samsung-fixes",
         "voxtype": "voxtype",
         "wrapper-modules": "wrapper-modules"
+      }
+    },
+    "samsung-fixes": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1790239003,
+        "narHash": "sha256-Vt8i7DfcKdg990jV9SKhMblxUQIOR+cr+whUY3nA3dQ=",
+        "owner": "Andycodeman",
+        "repo": "samsung-galaxy-book-linux-fixes",
+        "rev": "bf6ae069f1b3f640b90a9ed0da8e183fc6fc44af",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Andycodeman",
+        "repo": "samsung-galaxy-book-linux-fixes",
+        "type": "github"
       }
     },
     "systems": {
