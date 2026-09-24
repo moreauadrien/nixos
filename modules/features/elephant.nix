@@ -9,6 +9,8 @@
       default = false
       name = "nixpkgs"
       url = "https://search.nixos.org/packages?channel=unstable&query=%TERM%"
+      # Icon name (freedesktop icon theme), provided by nixos-icons.
+      icon = "nix-snowflake"
     '';
   };
 }
