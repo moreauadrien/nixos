@@ -49,6 +49,9 @@ hl.window_rule({
 
     float = true,
     pin   = true,
+
+    -- Keep the video's aspect ratio when resizing the PiP window
+    keep_aspect_ratio = true,
 })
 
 -- Hyprland-run windowrule
