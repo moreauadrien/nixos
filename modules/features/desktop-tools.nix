@@ -1,6 +1,12 @@
 # Desktop utilities shipped system-wide.
 { ... }: {
   flake.nixosModules.desktop-tools = { pkgs, ... }: {
+    # BlueZ daemon: bluetui talks to it over D-Bus (org.bluez).
+    hardware.bluetooth = {
+      enable = true;
+      powerOnBoot = true;
+    };
+
     environment.systemPackages = with pkgs; [
       hyprmoncfg
       brightnessctl
