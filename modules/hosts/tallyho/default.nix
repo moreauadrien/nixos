@@ -17,6 +17,7 @@
 
       # Features
       self.nixosModules.plymouth
+      self.nixosModules.config-cli
     ];
   };
 }
