@@ -1,9 +1,5 @@
 {
   inputs = {
-    # This is pointing to an unstable release.
-    # If you prefer a stable release instead, you can change the word unstable to the latest number shown here: https://nixos.org/download
-    # i.e. nixos-24.11
-    # Use `nix flake update` to update the flake to the latest revision of the chosen release channel.
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     disko = {
@@ -22,10 +18,13 @@
       url = "github:feel-co/hjem";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    voxtype = {
+      url = "github:peteonrails/voxtype/v1.1.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  # All configuration lives in ./modules (see docs/dendritic-pattern.md);
-  # flake.nix only wires the framework.
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
     imports = [ (inputs.import-tree ./modules) ];
   };
