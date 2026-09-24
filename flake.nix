@@ -25,7 +25,7 @@
     };
 
     samsung-fixes = {
-      url = "github:Andycodeman/samsung-galaxy-book-linux-fixes";
+      url = "github:Andycodeman/samsung-galaxy-book-linux-fixes/4bae1c2";
       flake = false;
     };
   };
