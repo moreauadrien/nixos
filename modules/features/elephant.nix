@@ -4,12 +4,11 @@
     environment.systemPackages = [ pkgs.elephant ];
 
     # Websearch provider entry (TOML) for the nixpkgs package search.
-    hjem.users.adrien.files.".config/elephant/websearch/nixpkgs.toml".text = ''
+    hjem.users.adrien.files.".config/elephant/websearch.toml".text = ''
       [[entries]]
       default = false
       name = "nixpkgs"
       url = "https://search.nixos.org/packages?channel=unstable&query=%TERM%"
-      # Icon name (freedesktop icon theme), provided by nixos-icons.
       icon = "nix-snowflake"
     '';
   };
