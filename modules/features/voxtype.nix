@@ -1,12 +1,23 @@
-# Voice-to-text daemon (whisper.cpp via voxtype-vulkan).
 {
   moduleWithSystem,
+  inputs,
   ...
 }: {
-  flake.nixosModules.voxtype = moduleWithSystem ({ pkgs, ... }: {
-    hjem.users.adrien.packages = [ pkgs.voxtype-vulkan ];
+  flake.nixosModules.voxtype = moduleWithSystem (
+    { inputs', pkgs, ... }: {
+      imports = [ inputs.voxtype.nixosModules.default ];
 
-    # hjem.users.adrien.files.".config/voxtype/config.toml".text = ''
-    # '';
-  });
+      environment.systemPackages = [
+        (pkgs.symlinkJoin {
+          name = "voxtype-wrapped";
+          paths = [ inputs'.voxtype.packages.vulkan ];
+          nativeBuildInputs = [ pkgs.makeWrapper ];
+          postBuild = ''
+            wrapProgram $out/bin/voxtype \
+              --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.pulseaudio ]}
+          '';
+        })
+      ];
+    }
+  );
 }
