@@ -1,8 +1,8 @@
-# `config` CLI: gum-powered menu to rebuild the system and manage the
+# `touffu`: gum-powered menu to rebuild the system and manage the
 # repo's feature worktrees (test / merge / delete / explore).
 { moduleWithSystem, ... }: {
   perSystem = { pkgs, ... }: {
-    packages.config = pkgs.writeShellScriptBin "config" ''
+    packages.touffu = pkgs.writeShellScriptBin "touffu" ''
       set -uo pipefail
 
       GUM="${pkgs.gum}/bin/gum"
@@ -17,7 +17,7 @@
       banner() {
         clear
         $GUM style --border double --border-foreground 212 --align center \
-          --foreground 212 --bold ' CONFIG ' \
+          --foreground 212 --bold ' TOUFFU ' \
           'nixos rebuilds & worktree manager'
       }
 
@@ -112,7 +112,7 @@
               explore)
                 # Open neovim in the worktree (nvim from the user's PATH so
                 # the hjem-managed config is used).
-                (cd "$wt" && exec nvim)
+                (cd "$wt" && exec nvim .)
                 ;;
             esac
             ;;
@@ -125,7 +125,7 @@
     '';
   };
 
-  flake.nixosModules.config-cli = moduleWithSystem ({ self', ... }: {
-    hjem.users.adrien.packages = [ self'.packages.config ];
+  flake.nixosModules.touffu = moduleWithSystem ({ self', ... }: {
+    hjem.users.adrien.packages = [ self'.packages.touffu ];
   });
 }
