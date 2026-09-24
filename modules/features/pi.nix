@@ -153,6 +153,31 @@
             graphroot = "/home/adrien/podman/storage"
           '';
 
+          # pi extension: /q (and bare ":q" typed in the input, vim habits)
+          # quits pi immediately, like /quit.
+          ".pi/agent/extensions/vim-quit.ts".text = ''
+            import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+
+            export default function (pi: ExtensionAPI) {
+              // ":q" (or ":q!") typed as-is: quit immediately, before
+              // anything else (skills, templates, agent) sees it.
+              pi.on("input", (event, ctx) => {
+                if (event.text === ":q" || event.text === ":q!") {
+                  ctx.shutdown();
+                  return { action: "handled" };
+                }
+              });
+
+              // /q: same as /quit.
+              pi.registerCommand("q", {
+                description: "Quit pi (alias of /quit)",
+                handler: async (_args, ctx) => {
+                  ctx.shutdown();
+                },
+              });
+            }
+          '';
+
           # pi extension: writes to the FIFO when pi finishes working or waits
           # for user input. Auto-discovered (mounted as /root/.pi in the
           # container). O_NONBLOCK open: if no proxy reads the FIFO, the
