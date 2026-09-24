@@ -48,9 +48,13 @@
       }
 
       while true; do
+        list_features
+        nf="''${#FEATURES[@]}"
+        featlbl="features ($nf)"
+
         banner
         action=$($GUM choose --header ' What do you want to do? ' \
-          'switch' 'features' 'quit') || exit 0
+          'switch' "$featlbl" 'quit') || exit 0
 
         case $action in
           switch)
@@ -59,7 +63,7 @@
             pause
             ;;
 
-          features)
+          features*)
             list_features
             if [ ''${#FEATURES[@]} -eq 0 ]; then
               msg 'No unmerged feature worktrees.'
