@@ -39,6 +39,18 @@ hl.window_rule({
 -- })
 -- overlayLayerRule:set_enabled(false)
 
+hl.window_rule({
+    -- LibreWolf picture-in-picture: floating and pinned to every workspace
+    name  = "librewolf-pip",
+    match = {
+        class = "^librewolf$",
+        title = "^Picture-in-Picture$",
+    },
+
+    float = true,
+    pin   = true,
+})
+
 -- Hyprland-run windowrule
 hl.window_rule({
     name  = "move-hyprland-run",
