@@ -13,7 +13,7 @@
       cursor
       gtk-theme
       desktop-tools
-      pipewire
+      audio
       quickshell
       alacritty
       librewolf
