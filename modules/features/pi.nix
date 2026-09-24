@@ -159,11 +159,21 @@
             import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
             export default function (pi: ExtensionAPI) {
+              // Quit like /quit: ctx.shutdown() alone only exits when the
+              // agent is idle; while it is running it just sets a flag
+              // consumed at agent_settled, i.e. the end of the whole turn.
+              // ctx.abort() (same path as Esc) interrupts the run first, so
+              // agent_settled fires immediately and pi exits at once.
+              const quit = (ctx: { abort(): void; shutdown(): void }) => {
+                ctx.abort();
+                ctx.shutdown();
+              };
+
               // ":q" (or ":q!") typed as-is: quit immediately, before
               // anything else (skills, templates, agent) sees it.
               pi.on("input", (event, ctx) => {
                 if (event.text === ":q" || event.text === ":q!") {
-                  ctx.shutdown();
+                  quit(ctx);
                   return { action: "handled" };
                 }
               });
@@ -172,7 +182,7 @@
               pi.registerCommand("q", {
                 description: "Quit pi (alias of /quit)",
                 handler: async (_args, ctx) => {
-                  ctx.shutdown();
+                  quit(ctx);
                 },
               });
             }
