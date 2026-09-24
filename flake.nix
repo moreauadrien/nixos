@@ -23,6 +23,11 @@
       url = "github:peteonrails/voxtype/v1.1.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    samsung-fixes = {
+      url = "github:Andycodeman/samsung-galaxy-book-linux-fixes";
+      flake = false;
+    };
   };
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
