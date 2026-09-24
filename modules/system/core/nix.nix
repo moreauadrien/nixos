@@ -8,5 +8,7 @@
       ];
       trusted-users = [ "adrien" ];
     };
+
+    nixpkgs.config.allowUnfree = true; 
   };
 }

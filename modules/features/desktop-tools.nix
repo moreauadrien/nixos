@@ -17,15 +17,18 @@
       gradia
 
       # Applications
-      signal-desktop
-      localsend
       eog
       evince
-      gimp
-      libreoffice
       btop
       file-roller
       nautilus
+
+      # User Applications
+      localsend
+      signal-desktop
+      gimp
+      libreoffice
+      spotify
 
       # WhatsApp = web app in a dedicated chromium window
       ungoogled-chromium
