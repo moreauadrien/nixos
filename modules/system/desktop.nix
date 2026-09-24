@@ -16,6 +16,7 @@
       audio
       quickshell
       alacritty
+      mako
       librewolf
       tailscale
       voxtype
