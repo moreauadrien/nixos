@@ -41,7 +41,7 @@
         jq = "${pkgs.jq}/bin/jq";
         findmnt = "${pkgs.util-linux}/bin/findmnt";
         persist = "/persistent";
-        repo = "/home/adrien/nixos";
+        repo = "/home/adrien/nixos/main";
       };
     in
     {
@@ -63,7 +63,6 @@
 
         preserveAt."/persistent" = {
           directories = [
-            "/etc/nixos"
             "/var/lib/bluetooth"
             "/etc/ssh"
             {
