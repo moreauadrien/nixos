@@ -3,6 +3,8 @@ local mainMod = "SUPER"
 
 hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd(apps.terminal))
 hl.bind(mainMod .. " + SHIFT + A", hl.dsp.window.close())
+-- toggle floating <-> tiling pour la fenêtre active
+hl.bind(mainMod .. " + F", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"))
 hl.bind(mainMod .. " + D", hl.dsp.exec_cmd(apps.launcher))
 hl.bind("Print", hl.dsp.exec_cmd(apps.screenshot))
