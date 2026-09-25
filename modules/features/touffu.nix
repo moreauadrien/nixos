@@ -1,5 +1,5 @@
 # `touffu`: gum-powered menu to rebuild the system and manage the
-# repo's feature worktrees (test / merge / delete / explore).
+# repo's feature worktrees (create / test / merge / delete / explore).
 { moduleWithSystem, ... }: {
   perSystem = { pkgs, ... }: {
     packages.touffu = pkgs.writeShellScriptBin "touffu" ''
@@ -47,6 +47,60 @@
         done <<< "$out"
       }
 
+      # Menu for a single feature worktree. Loops until the user picks
+      # 'back' or the feature is merged / deleted.
+      feature_menu() {
+        local branch=$1 wt=$2 act
+        while true; do
+          banner
+          act=$($GUM choose --header " $branch ($wt) " \
+            'test' 'merge' 'delete' 'explore' 'back') || return 0
+
+          case $act in
+            test)
+              # Build + activate the test generation from the feature worktree.
+              sudo nixos-rebuild test --flake "$wt#$HOST" \
+                && msg 'Test done.' || err 'Test failed.'
+              pause
+              ;;
+            merge)
+              $GUM confirm "Merge '$branch' into main, then remove its worktree and branch?" || continue
+              if $GIT -C "$MAIN" merge "$branch"; then
+                $GIT -C "$REPO" worktree remove "$wt"
+                $GIT -C "$REPO" branch -d "$branch"
+                msg "Merged '$branch', worktree and branch removed."
+                if $GUM confirm 'Rebuild the system now (nixos-rebuild switch)?'; then
+                  sudo nixos-rebuild switch --flake "$MAIN#$HOST" \
+                    && msg 'Switch done.' || err 'Switch failed.'
+                fi
+                return 0
+              else
+                # Merge conflict: leave everything in place so the user
+                # can resolve it in the main checkout.
+                err "Merge failed: resolve the conflict in $MAIN."
+              fi
+              pause
+              ;;
+            delete)
+              $GUM confirm --affirmative 'Delete' --negative 'Keep' \
+                "Remove worktree and branch '$branch'?" || continue
+              $GIT -C "$REPO" worktree remove --force "$wt"
+              $GIT -C "$REPO" branch -D "$branch"
+              msg "Deleted worktree and branch '$branch'."
+              return 0
+              ;;
+            explore)
+              # Open neovim in the worktree (nvim from the user's PATH so
+              # the hjem-managed config is used).
+              (cd "$wt" && exec nvim .)
+              ;;
+            back)
+              return 0
+              ;;
+          esac
+        done
+      }
+
       while true; do
         list_features
         nf="''${#FEATURES[@]}"
@@ -54,13 +108,40 @@
 
         banner
         action=$($GUM choose --header ' What do you want to do? ' \
-          'switch' "$featlbl" 'quit') || exit 0
+          'switch' "$featlbl" 'new feature' 'quit') || exit 0
 
         case $action in
           switch)
             sudo nixos-rebuild switch --flake "$MAIN#$HOST" \
               && msg 'Switch done.' || err 'Switch failed.'
             pause
+            ;;
+
+          'new feature')
+            name=$($GUM input --header ' Feature name ' \
+              --placeholder 'my-feature') || continue
+            # Keep it branch-name safe: lowercase, dashes instead of spaces.
+            name=$(printf '%s' "$name" | $AWK '{print tolower($0)}' | tr ' ' '-')
+            if [ -z "$name" ]; then
+              err 'Empty name, aborting.'
+              pause
+              continue
+            fi
+            if ! printf '%s' "$name" | grep -Eq '^[a-z0-9][a-z0-9-]*$'; then
+              err "Invalid name '$name' (use only letters, digits and dashes)."
+              pause
+              continue
+            fi
+            # No explicit start point: creates a branch named after the
+            # directory, based on the default branch.
+            if $GIT -C "$REPO" worktree add "./$name"; then
+              msg "Worktree '$REPO/$name' created on branch '$name'."
+              pause
+              feature_menu "$name" "$REPO/$name"
+            else
+              err "Failed to create worktree '$name'."
+              pause
+            fi
             ;;
 
           features*)
@@ -78,47 +159,7 @@
               [ "''${FEATURES[$i]}" = "$branch" ] && wt=''${WPATHS[$i]}
             done
 
-            act=$($GUM choose --header " $branch ($wt) " \
-              'test' 'merge' 'delete' 'explore' 'back') || continue
-
-            case $act in
-              test)
-                # Build + activate the test generation from the feature worktree.
-                sudo nixos-rebuild test --flake "$wt#$HOST" \
-                  && msg 'Test done.' || err 'Test failed.'
-                pause
-                ;;
-              merge)
-                $GUM confirm "Merge '$branch' into main, then remove its worktree and branch?" || continue
-                if $GIT -C "$MAIN" merge "$branch"; then
-                  $GIT -C "$REPO" worktree remove "$wt"
-                  $GIT -C "$REPO" branch -d "$branch"
-                  msg "Merged '$branch', worktree and branch removed."
-                  if $GUM confirm 'Rebuild the system now (nixos-rebuild switch)?'; then
-                    sudo nixos-rebuild switch --flake "$MAIN#$HOST" \
-                      && msg 'Switch done.' || err 'Switch failed.'
-                  fi
-                else
-                  # Merge conflict: leave everything in place so the user
-                  # can resolve it in the main checkout.
-                  err "Merge failed: resolve the conflict in $MAIN."
-                fi
-                pause
-                ;;
-              delete)
-                $GUM confirm --affirmative 'Delete' --negative 'Keep' \
-                  "Remove worktree and branch '$branch'?" || continue
-                $GIT -C "$REPO" worktree remove --force "$wt"
-                $GIT -C "$REPO" branch -D "$branch"
-                msg "Deleted worktree and branch '$branch'."
-                pause
-                ;;
-              explore)
-                # Open neovim in the worktree (nvim from the user's PATH so
-                # the hjem-managed config is used).
-                (cd "$wt" && exec nvim .)
-                ;;
-            esac
+            feature_menu "$branch" "$wt"
             ;;
 
           quit)
