@@ -6,6 +6,7 @@
       tmux
       pi
       shell
+      ts-sessionizer
     ];
 
     environment.systemPackages = [ pkgs.devenv ];

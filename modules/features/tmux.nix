@@ -20,6 +20,9 @@
       bind -r j select-pane -D
       bind -r h select-pane -L
       bind -r l select-pane -R
+
+      # tmux sessionizer: pick/create a session in a popup.
+      bind C-f display-popup -E "ts"
     '';
   };
 }
