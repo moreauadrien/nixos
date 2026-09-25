@@ -53,10 +53,7 @@ final_space = true
     [blocks.segments.properties]
       threshold = 5000
 
-[transient_prompt]
-  foreground_templates = [
-    "{{if gt .Code 0}}red{{end}}",
-    "{{if eq .Code 0}}magenta{{end}}",
-  ]
+[secondary_prompt]
+  foreground = 'grey'
   background = 'transparent'
-  template = '❯ '
+  template = '>>   '
