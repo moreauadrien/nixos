@@ -8,10 +8,20 @@
        users.defaultUserShell = pkgs.zsh;
 
        hjem.users.adrien = {
-         packages = [ self'.packages.oh-my-posh pkgs.wl-clipboard ];
+         packages = [ 
+           self'.packages.oh-my-posh
+	   pkgs.wl-clipboard
+	   pkgs.fzf
+	 ];
+
          files.".zshrc".text = ''
            eval "$(oh-my-posh init zsh)"
 	   ZVM_SYSTEM_CLIPBOARD_ENABLED=true
+
+           function zvm_after_init() {
+             source ${pkgs.fzf}/share/fzf/key-bindings.zsh
+           }
+
            source ${pkgs.zsh-vi-mode}/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
          '';
        };
