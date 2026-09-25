@@ -10,6 +10,7 @@
       };
     } ''
       install -Dm755 $src $out/bin/cht.sh
+      ln -s cht.sh $out/bin/cheat
       patchShebangs $out/bin/cht.sh
       wrapProgram $out/bin/cht.sh \
         --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.curl ]}
