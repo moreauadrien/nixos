@@ -6,7 +6,6 @@
       tmux
       pi
       shell
-      fzf
     ];
 
     environment.systemPackages = [ pkgs.devenv ];
