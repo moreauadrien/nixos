@@ -5,7 +5,7 @@
       neovim
       tmux
       pi
-      starship
+      oh-my-posh
     ];
 
     environment.systemPackages = [ pkgs.devenv ];
