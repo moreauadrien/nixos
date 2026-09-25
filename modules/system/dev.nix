@@ -6,6 +6,7 @@
       tmux
       pi
       oh-my-posh
+      fzf
     ];
 
     environment.systemPackages = [ pkgs.devenv ];
