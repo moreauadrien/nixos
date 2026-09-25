@@ -19,6 +19,7 @@
       self.nixosModules.plymouth
       self.nixosModules.touffu
       self.nixosModules.elephant
+      self.nixosModules.cht-sh
     ];
   };
 }
