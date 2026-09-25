@@ -3,6 +3,18 @@
      inputs,
      ...
    }: {
+     flake.nixosModules.shell = moduleWithSystem ({ self', pkgs, ... }: {
+       programs.zsh.enable = true;
+       users.defaultUserShell = pkgs.zsh;
+
+       hjem.users.adrien = {
+         packages = [ self'.packages.oh-my-posh ];
+         files.".zshrc".text = ''
+           eval "$(oh-my-posh init zsh)"
+         '';
+       };
+     });
+
      # Wrapped oh-my-posh: config.toml becomes the default --config for the binary.
      perSystem = { pkgs, ... }: {
        packages.oh-my-posh = inputs.wrapper-modules.lib.wrapPackage [
@@ -13,13 +25,4 @@
          }
        ];
      };
-
-     flake.nixosModules.oh-my-posh = moduleWithSystem ({ self', ... }: {
-       hjem.users.adrien = {
-         packages = [ self'.packages.oh-my-posh ];
-         files.".bashrc".text = ''
-           eval "$(oh-my-posh init bash)"
-         '';
-       };
-     });
    }
