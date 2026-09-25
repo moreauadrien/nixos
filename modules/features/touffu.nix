@@ -27,7 +27,8 @@
       pause() { read -rp $'\nPress enter to continue...' _; }
 
       # Fill FEATURES (branch names) and WPATHS (matching worktree paths)
-      # from `git worktree list`, excluding the bare repo and main.
+      # from `git worktree list`, excluding the bare repo and the fixed
+      # worktrees (main, meta).
       list_features() {
         local out br wt
         out=$($GIT -C "$REPO" worktree list --porcelain | $AWK '
@@ -36,7 +37,7 @@
           /^branch /   {
             br = $2; sub("refs/heads/", "", br)
             n = split(wt, p, "/")
-            if (wt != "" && p[n] != "main") print br "\t" wt
+            if (wt != "" && p[n] != "main" && p[n] != "meta") print br "\t" wt
           }')
         FEATURES=()
         WPATHS=()
