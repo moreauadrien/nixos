@@ -39,8 +39,24 @@ final_space = true
     background = 'transparent'
     template = ' ❯'
 
+[[blocks]]
+  type = 'rprompt'
+  overflow = 'hide'
+
+  [[blocks.segments]]
+    type = 'executiontime'
+    style = 'plain'
+    foreground = 'yellow'
+    background = 'transparent'
+    template = '{{ .FormattedMs }}'
+
+    [blocks.segments.properties]
+      threshold = 5000
 
 [transient_prompt]
-background = "transparent"
-foreground = "#ffffff"
-template = "{{ .Shell }}> "
+  foreground_templates = [
+    "{{if gt .Code 0}}red{{end}}",
+    "{{if eq .Code 0}}magenta{{end}}",
+  ]
+  background = 'transparent'
+  template = '❯ '

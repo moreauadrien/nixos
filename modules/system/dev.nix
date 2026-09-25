@@ -5,7 +5,7 @@
       neovim
       tmux
       pi
-      oh-my-posh
+      shell
       fzf
     ];
 
