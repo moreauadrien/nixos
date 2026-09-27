@@ -20,6 +20,7 @@
       librewolf
       tailscale
       voxtype
+      virt-manager
 
       speaker-fix-940xfg
     ];
