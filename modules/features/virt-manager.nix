@@ -7,7 +7,8 @@
         package = pkgs.qemu_kvm;
         # Full-system emulation for non-x86 guests (aarch64, riscv64, ...).
         swtpm.enable = true;
-        ovmf.enable = true;
+        # Note: OVMF firmware is included in the default qemu package
+        # since NixOS 24.05, no need to enable it explicitly.
       };
     };
 
