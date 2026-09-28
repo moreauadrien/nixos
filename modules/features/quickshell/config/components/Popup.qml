@@ -31,6 +31,10 @@ PanelWindow {
     WlrLayershell.namespace: "popup"
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
 
+    // PanelWindow est visible par défaut — sans ça, le popup s'ouvre au
+    // lancement de quickshell.
+    visible: false
+
     anchors {
         top: true
         right: true

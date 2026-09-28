@@ -63,6 +63,19 @@ Item {
         return null;
     }
 
+    // Tooltip flottant interne : positionné au-dessus de l'élément survolé,
+    // en coordonnées panel.
+    function showTip(item, text) {
+        const p = item.mapToItem(root, item.width / 2, 0);
+        tipTargetX = p.x;
+        tipTargetY = p.y;
+        tipText = text;
+    }
+
+    function hideTip() {
+        tipText = "";
+    }
+
     function pendingLabel(address) {
         const action = pendingActions[address];
         if (action === "connecting")
@@ -249,7 +262,11 @@ Item {
         }
     }
 
-    onPopupVisibleChanged: scanStop.attempts = 0
+    onPopupVisibleChanged: {
+        scanStop.attempts = 0;
+        if (!popupVisible)
+            hideTip();
+    }
 
     // Filet de sécurité : purge les actions qui n'aboutissent jamais.
     Timer {
@@ -388,12 +405,44 @@ Item {
         }
     }
 
+    // --- tooltip flottant ----------------------------------------------------
+
+    property string tipText: ""
+    property real tipTargetX: 0
+    property real tipTargetY: 0
+
+    Rectangle {
+        id: tip
+
+        visible: root.tipText !== ""
+        width: tipLabel.implicitWidth + 14
+        height: tipLabel.implicitHeight + 8
+        radius: 4
+        color: Theme.background
+        border.color: Theme.muted
+        border.width: 1
+        x: Math.max(0, Math.min(root.width - width, root.tipTargetX - width / 2))
+        y: Math.max(0, root.tipTargetY - height - 6)
+        z: 10
+
+        Text {
+            id: tipLabel
+
+            anchors.centerIn: parent
+            text: root.tipText
+            color: Theme.foreground
+            font.family: Theme.fontFamily
+            font.pixelSize: 12
+        }
+    }
+
     // --- composants locaux ----------------------------------------------------
 
     component ActionButton: Rectangle {
         id: actionButton
 
         property string label
+        readonly property alias hovered: actionMouse.containsMouse
         signal clicked()
 
         width: actionLabel.implicitWidth + 18
@@ -444,12 +493,23 @@ Item {
             return "";
         }
 
+        readonly property bool hovered: rowMouse.containsMouse || crossMouse.containsMouse
+
         width: parent.width
         height: 48
         radius: 4
-        color: rowMouse.containsMouse ? Qt.alpha(Theme.foreground, 0.08) : "transparent"
-        border.width: rowMouse.containsMouse ? 1 : 0
+        color: hovered ? Qt.alpha(Theme.foreground, 0.08) : "transparent"
+        border.width: hovered ? 1 : 0
         border.color: Theme.muted
+
+        function updateTip() {
+            if (crossMouse.containsMouse)
+                root.showTip(forgetCross, "Forget " + deviceRow.modelData.name);
+            else if (rowMouse.containsMouse)
+                root.showTip(deviceRow, (deviceRow.modelData.connected ? "Disconnect " : "Connect ") + deviceRow.modelData.name);
+            else
+                root.hideTip();
+        }
 
         // Déclaré en PREMIER : les clics vont à l'élément le plus haut — si
         // rowMouse était après les boutons, il volait leurs clics (les hover
@@ -461,7 +521,11 @@ Item {
             anchors.fill: parent
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
-            onClicked: root.activateRow(deviceRow.modelData.address)
+            onClicked: {
+                root.hideTip();
+                root.activateRow(deviceRow.modelData.address);
+            }
+            onContainsMouseChanged: deviceRow.updateTip()
         }
 
         Row {
@@ -499,12 +563,13 @@ Item {
             }
         }
 
-        // Croix « forget » : toujours visible sur les devices connectés (comme
-        // la référence), au hover sur les devices appairés.
+        // Croix « forget » : toujours visible sur les devices connectés et
+        // appairés. (Visible seulement au hover, elle disparaissait quand la
+        // souris l'atteignait : containsMouse est exclusif entre siblings.)
         Rectangle {
             id: forgetCross
 
-            visible: deviceRow.kind === "connected" || (deviceRow.kind === "known" && rowMouse.containsMouse)
+            visible: deviceRow.kind === "connected" || deviceRow.kind === "known"
             width: 22
             height: 22
             radius: 11
@@ -527,12 +592,18 @@ Item {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-                onClicked: root.forgetDevice(deviceRow.modelData.address)
+                onClicked: {
+                    root.hideTip();
+                    root.forgetDevice(deviceRow.modelData.address);
+                }
+                onContainsMouseChanged: deviceRow.updateTip()
             }
         }
 
         ActionButton {
-            visible: deviceRow.kind === "discovered" && rowMouse.containsMouse
+            id: pairButton
+
+            visible: deviceRow.kind === "discovered" && deviceRow.hovered
             anchors.right: parent.right
             anchors.rightMargin: 10
             anchors.verticalCenter: parent.verticalCenter
