@@ -451,40 +451,6 @@ Item {
 
     // --- composants locaux ----------------------------------------------------
 
-    component ActionButton: Rectangle {
-        id: actionButton
-
-        property string label
-        readonly property alias hovered: actionMouse.containsMouse
-        signal clicked()
-
-        width: actionLabel.implicitWidth + 18
-        height: actionLabel.implicitHeight + 8
-        radius: 4
-        color: Theme.background
-        border.color: actionMouse.containsMouse ? Theme.accent : Theme.muted
-        border.width: 1
-
-        Text {
-            id: actionLabel
-
-            anchors.centerIn: parent
-            text: actionButton.label
-            color: Theme.foreground
-            font.family: Theme.fontFamily
-            font.pixelSize: 13
-        }
-
-        MouseArea {
-            id: actionMouse
-
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            onClicked: actionButton.clicked()
-        }
-    }
-
     component DeviceRow: Rectangle {
         id: deviceRow
 
@@ -519,7 +485,7 @@ Item {
             if (crossMouse.containsMouse)
                 root.showTip(forgetCross, "Forget");
             else if (rowMouse.containsMouse)
-                root.showTip(deviceRow, deviceRow.modelData.connected ? "Disconnect" : "Connect");
+                root.showTip(deviceRow, deviceRow.modelData.connected ? "Disconnect" : deviceRow.kind === "discovered" ? "Pair" : "Connect");
             else
                 root.hideTip();
         }
@@ -613,15 +579,7 @@ Item {
             }
         }
 
-        ActionButton {
-            id: pairButton
-
-            visible: deviceRow.kind === "discovered" && deviceRow.hovered
-            anchors.right: parent.right
-            anchors.rightMargin: 10
-            anchors.verticalCenter: parent.verticalCenter
-            label: "Pair"
-            onClicked: root.connectDevice(deviceRow.modelData.address)
-        }
+        // Découverts : pas de bouton — le tooltip « Pair » au hover suffit,
+        // le clic sur la ligne lance pair+connect.
     }
 }
