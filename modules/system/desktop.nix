@@ -21,6 +21,7 @@
       tailscale
       voxtype
       virt-manager
+      obs-studio
 
       speaker-fix-940xfg
     ];
