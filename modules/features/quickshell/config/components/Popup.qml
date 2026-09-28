@@ -19,8 +19,9 @@ PanelWindow {
     property alias contentWidth: content.implicitWidth
     property alias contentHeight: content.implicitHeight
 
-    signal opened()
-    signal closed()
+    // « closed » et « opened » sont déjà pris par PanelWindow/QsWindow.
+    signal popupOpened()
+    signal popupClosed()
 
     color: "transparent"
     exclusionMode: ExclusionMode.Ignore
@@ -46,7 +47,7 @@ PanelWindow {
 
     function open() {
         PopupManager.open(root);
-        root.opened();
+        root.popupOpened();
     }
 
     function close() {
@@ -54,7 +55,7 @@ PanelWindow {
             return;
         root.visible = false;
         PopupManager.notifyClosed(root);
-        root.closed();
+        root.popupClosed();
     }
 
     Rectangle {

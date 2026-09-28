@@ -11,7 +11,8 @@ import QtQuick
 Singleton {
     id: root
 
-    property Item current: null
+    // var, pas Item : un PanelWindow est un QObject, pas un QQuickItem.
+    property var current: null
 
     // Catcher : layer Top (sous les popups en Overlay, au-dessus de la barre).
     // Tant qu'un popup est ouvert, tout clic ici le referme — y compris un
