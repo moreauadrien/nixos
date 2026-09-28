@@ -7,17 +7,19 @@ import "../services"
 // Popup ancré sous un widget de la barre, réutilisable par tous les modules.
 // - anchorItem : le widget déclencheur ; le popup s'aligne sous lui, bord
 //   droit sur bord droit (même formule que Tooltip.qml).
-// - Contenu injecté via la propriété par défaut ; les tailles implicites du
-//   contenu (contentWidth / contentHeight) dimensionnent la fenêtre.
+// - Contenu injecté via la propriété par défaut ; l'appelant dimensionne le
+//   popup via contentWidth / contentHeight (properties simples — pas d'alias
+//   vers implicit*: la chaîne d'indirection gardait des tailles stale et le
+//   contenu débordait du cadre).
 // - Fermeture : clic extérieur (PopupManager) ou Esc.
 // - Exclusivité : ouvrir un popup ferme le précédent (PopupManager).
 PanelWindow {
     id: root
 
     required property Item anchorItem
+    property real contentWidth: 0
+    property real contentHeight: 0
     default property alias contentData: content.data
-    property alias contentWidth: content.implicitWidth
-    property alias contentHeight: content.implicitHeight
 
     // « closed » et « opened » sont déjà pris par PanelWindow/QsWindow.
     signal popupOpened()
@@ -34,8 +36,8 @@ PanelWindow {
         right: true
     }
 
-    implicitWidth: frame.width
-    implicitHeight: frame.height
+    implicitWidth: contentWidth + 24
+    implicitHeight: contentHeight + 20
 
     margins.top: Theme.barHeight + 4
     margins.right: {
@@ -61,9 +63,7 @@ PanelWindow {
     Rectangle {
         id: frame
 
-        anchors.centerIn: parent
-        implicitWidth: content.width + 24
-        implicitHeight: content.height + 20
+        anchors.fill: parent
         radius: 8
         color: Theme.background
         border.color: Theme.accent
@@ -73,6 +73,8 @@ PanelWindow {
             id: content
 
             anchors.centerIn: parent
+            width: root.contentWidth
+            height: root.contentHeight
             focus: true
             Keys.onEscapePressed: root.close()
         }

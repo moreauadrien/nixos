@@ -51,7 +51,8 @@ Item {
             connected: !!d.connected,
             paired: !!(d.paired || d.bonded || d.trusted),
             batteryAvailable: !!d.batteryAvailable,
-            battery: d.battery !== undefined ? d.battery : 0
+            // quickshell expose battery en fraction 0..1 → pourcentage.
+            battery: d.battery !== undefined ? Math.round((d.battery || 0) * 100) : 0
         };
     }
 
@@ -200,12 +201,16 @@ Item {
         return "NO DEVICES";
     }
 
+    readonly property bool hasAnyRows: sections.some(s => s.rows.length > 0)
+
     readonly property string footerText: {
         if (!hasAdapter)
             return "No Bluetooth adapter";
         if (!powered)
             return "Turn Bluetooth on to scan";
-        if (discovering && sections[2].rows.length === 0)
+        // Comme la référence : le footer de statut ne s'affiche que s'il n'y
+        // a aucune section à montrer.
+        if (!hasAnyRows && discovering)
             return "Scanning for devices…";
         return "";
     }

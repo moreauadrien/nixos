@@ -28,7 +28,7 @@ Text {
         id: bluetoothPopup
 
         anchorItem: root
-        contentWidth: 400
+        contentWidth: panel.implicitWidth
         contentHeight: panel.implicitHeight
 
         BluetoothPanel {
