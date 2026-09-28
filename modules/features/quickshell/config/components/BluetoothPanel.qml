@@ -114,13 +114,15 @@ Item {
             d.forget();
     }
 
-    // Ligne cliquée hors boutons : discovered → pair+connect, known → connect,
-    // connected → rien (le Disconnect passe par le bouton).
+    // Ligne cliquée : device connecté → disconnect ; sinon connect (pair
+    // d'abord si besoin).
     function activateRow(address) {
         const d = deviceByAddress(address);
         if (!d)
             return;
-        if (!d.connected)
+        if (d.connected)
+            disconnectDevice(address);
+        else
             connectDevice(address);
     }
 
@@ -275,7 +277,7 @@ Item {
                 spacing: 12
 
                 Text {
-                    text: "󰂿"
+                    text: "󰂯"
                     color: Theme.accent
                     font.family: Theme.fontFamily
                     font.pixelSize: 24
@@ -449,6 +451,19 @@ Item {
         border.width: rowMouse.containsMouse ? 1 : 0
         border.color: Theme.muted
 
+        // Déclaré en PREMIER : les clics vont à l'élément le plus haut — si
+        // rowMouse était après les boutons, il volait leurs clics (les hover
+        // events, eux, sont diffusés à toutes les MouseAreas, donc le highlight
+        // de ligne marche toujours).
+        MouseArea {
+            id: rowMouse
+
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: root.activateRow(deviceRow.modelData.address)
+        }
+
         Row {
             anchors.left: parent.left
             anchors.leftMargin: 10
@@ -484,39 +499,45 @@ Item {
             }
         }
 
-        Row {
+        // Croix « forget » : toujours visible sur les devices connectés (comme
+        // la référence), au hover sur les devices appairés.
+        Rectangle {
+            id: forgetCross
+
+            visible: deviceRow.kind === "connected" || (deviceRow.kind === "known" && rowMouse.containsMouse)
+            width: 22
+            height: 22
+            radius: 11
             anchors.right: parent.right
             anchors.rightMargin: 10
             anchors.verticalCenter: parent.verticalCenter
-            spacing: 6
-            visible: rowMouse.containsMouse
+            color: crossMouse.containsMouse ? Qt.alpha(Theme.urgent, 0.2) : "transparent"
 
-            ActionButton {
-                visible: deviceRow.kind === "known" || deviceRow.kind === "connected"
-                label: "Forget"
+            Text {
+                text: "󰅖"
+                color: crossMouse.containsMouse ? Theme.urgent : Theme.muted
+                anchors.centerIn: parent
+                font.family: Theme.fontFamily
+                font.pixelSize: 14
+            }
+
+            MouseArea {
+                id: crossMouse
+
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
                 onClicked: root.forgetDevice(deviceRow.modelData.address)
-            }
-
-            ActionButton {
-                visible: deviceRow.kind !== "connected"
-                label: deviceRow.kind === "discovered" ? "Pair" : "Connect"
-                onClicked: root.connectDevice(deviceRow.modelData.address)
-            }
-
-            ActionButton {
-                visible: deviceRow.kind === "connected"
-                label: "Disconnect"
-                onClicked: root.disconnectDevice(deviceRow.modelData.address)
             }
         }
 
-        MouseArea {
-            id: rowMouse
-
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            onClicked: root.activateRow(deviceRow.modelData.address)
+        ActionButton {
+            visible: deviceRow.kind === "discovered" && rowMouse.containsMouse
+            anchors.right: parent.right
+            anchors.rightMargin: 10
+            anchors.verticalCenter: parent.verticalCenter
+            label: "Pair"
+            onClicked: root.connectDevice(deviceRow.modelData.address)
         }
     }
 }

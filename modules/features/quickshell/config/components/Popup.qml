@@ -40,16 +40,24 @@ PanelWindow {
     implicitHeight: contentHeight + 20
 
     margins.top: Theme.barHeight + 4
-    margins.right: {
-        if (!anchorItem)
-            return 8;
-        const anchorRight = anchorItem.mapToItem(null, anchorItem.width, 0).x;
-        return Math.max(8, root.screen.width - anchorRight);
-    }
-
+    // Recalculé impérativement à chaque open() (voir updateAnchorMargins) :
+    // un binding sur mapToItem() évalué au démarrage — avant le layout de la
+    // barre et le chargement de la police — donnait une marge fausse et le
+    // popup s'ouvrait hors écran, invisible.
+    margins.right: 8
     function open() {
+        updateAnchorMargins();
         PopupManager.open(root);
         root.popupOpened();
+    }
+
+    function updateAnchorMargins() {
+        if (!anchorItem || !root.screen) {
+            margins.right = 8;
+            return;
+        }
+        const anchorRight = anchorItem.mapToItem(null, anchorItem.width, 0).x;
+        margins.right = Math.max(8, root.screen.width - anchorRight);
     }
 
     function close() {
