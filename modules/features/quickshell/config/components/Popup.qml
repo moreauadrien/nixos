@@ -50,6 +50,10 @@ PanelWindow {
     // popup s'ouvrait hors écran, invisible.
     margins.right: 8
     function open() {
+        // Tue le préchauffage s'il est en cours : la vraie ouverture prime.
+        root.warmed = true;
+        warmStart.stop();
+        warmEnd.stop();
         updateAnchorMargins();
         PopupManager.open(root);
         root.popupOpened();
@@ -72,10 +76,42 @@ PanelWindow {
         root.popupClosed();
     }
 
+    // --- préchauffage ---------------------------------------------------------
+    // La première cartographie d'une surface layer-shell produit fréquemment
+    // une ou deux frames avec un buffer mal dimensionné (flash au premier
+    // open après le lancement de quickshell). On mappe donc la fenêtre une
+    // fois au démarrage, contenu invisible, puis on la démappe : les opens
+    // suivants remapent une surface déjà établie, sans flash.
+    property bool warmed: false
+
+    Timer {
+        id: warmStart
+
+        interval: 500
+        onTriggered: root.visible = true
+    }
+
+    Timer {
+        id: warmEnd
+
+        interval: 150
+        onTriggered: {
+            // Si l'utilisateur a ouvert le popup pendant le préchauffage
+            // (warmed déjà true via open()), on ne ferme surtout pas.
+            if (!root.warmed) {
+                root.visible = false;
+                root.warmed = true;
+            }
+        }
+    }
+
+    Component.onCompleted: warmStart.restart()
+
     Rectangle {
         id: frame
 
         anchors.fill: parent
+        opacity: root.warmed ? 1 : 0
         radius: 8
         color: Theme.background
         border.color: Theme.accent
