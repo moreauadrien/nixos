@@ -2,7 +2,7 @@
 {
   flake.nixosModules.mako = { pkgs, ... } : {
     hjem.users.adrien = {
-      packages = [ pkgs.mako ];
+      packages = [ pkgs.mako pkgs.libnotify ];
       files.".config/mako/config".text = ''
         anchor=top-right
         default-timeout=5000
