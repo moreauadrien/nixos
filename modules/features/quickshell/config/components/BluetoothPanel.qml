@@ -69,10 +69,14 @@ Item {
         const p = item.mapToItem(root, item.width / 2, 0);
         tipTargetX = p.x;
         tipTargetY = p.y;
-        tipText = text;
+        tipPendingText = text;
+        tipText = "";
+        tipTimer.restart();
     }
 
     function hideTip() {
+        tipTimer.stop();
+        tipPendingText = "";
         tipText = "";
     }
 
@@ -408,8 +412,17 @@ Item {
     // --- tooltip flottant ----------------------------------------------------
 
     property string tipText: ""
+    property string tipPendingText: ""
     property real tipTargetX: 0
     property real tipTargetY: 0
+
+    // Le tip ne s'affiche qu'après 500ms de hover continu.
+    Timer {
+        id: tipTimer
+
+        interval: 500
+        onTriggered: root.tipText = root.tipPendingText
+    }
 
     Rectangle {
         id: tip
@@ -504,9 +517,9 @@ Item {
 
         function updateTip() {
             if (crossMouse.containsMouse)
-                root.showTip(forgetCross, "Forget " + deviceRow.modelData.name);
+                root.showTip(forgetCross, "Forget");
             else if (rowMouse.containsMouse)
-                root.showTip(deviceRow, (deviceRow.modelData.connected ? "Disconnect " : "Connect ") + deviceRow.modelData.name);
+                root.showTip(deviceRow, deviceRow.modelData.connected ? "Disconnect" : "Connect");
             else
                 root.hideTip();
         }
