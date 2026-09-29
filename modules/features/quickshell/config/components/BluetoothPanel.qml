@@ -611,6 +611,32 @@ Item {
         onExited: root.refreshPactl()
     }
 
+    // Les touches de volume physiques changent le sink par défaut (combined,
+    // qui répartit sur les slaves) sans passer par le panel. tant que le
+    // popup est ouvert, pactl subscribe écoute les évènements PipeWire et
+    // rafraîchit les volumes (throttlé : les touches génèrent une rafale
+    // d'évènements).
+    Process {
+        id: subscribeProc
+
+        command: ["pactl", "subscribe"]
+        running: root.popupVisible
+
+        stdout: SplitParser {
+            onRead: line => {
+                if (line.indexOf("on sink") !== -1)
+                    volumeEventTimer.restart();
+            }
+        }
+    }
+
+    Timer {
+        id: volumeEventTimer
+
+        interval: 150
+        onTriggered: root.refreshVolumes()
+    }
+
     // --- layout -------------------------------------------------------------
 
     Column {
