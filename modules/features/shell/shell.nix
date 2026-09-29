@@ -21,6 +21,9 @@
            # Ctrl-C quitte le mode insertion -> mode normal (à la place de Échap)
            ZVM_VI_INSERT_ESCAPE_BINDKEY='^C'
 
+	   precmd()  { stty intr undef }   # avant l'affichage du prompt
+	   preexec() { stty intr ^C }      # juste avant l'exécution d'une commande
+
            function zvm_after_init() {
              source ${pkgs.fzf}/share/fzf/key-bindings.zsh
 
