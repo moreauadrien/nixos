@@ -767,13 +767,16 @@ Item {
             }
         }
 
-        // Icône merge (combine-sink) : devices connectés audio uniquement.
+        // Icône merge (combine-sink) : devices connectés uniquement.
         // 1er clic = sélection, 2e device = création, clic sur un membre =
         // retrait. Surbrillance accent quand sélectionné ou membre.
+        // (Pas de gating sur la présence d'un sink pipewire : si pactl échoue
+        // le bouton doit rester visible, le combine échouera juste sans
+        // effet — et l'absence de bouton est indifférenciable d'un bug.)
         Rectangle {
             id: mergeButton
 
-            visible: deviceRow.kind === "connected" && root.sinkNames[deviceRow.addrNorm] !== undefined
+            visible: deviceRow.kind === "connected"
             width: 22
             height: 22
             radius: 11
