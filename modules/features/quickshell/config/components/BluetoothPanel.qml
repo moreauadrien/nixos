@@ -321,6 +321,7 @@ Item {
     // --- combine (module-combine-sink via pactl) -------------------------------
 
     property var sinkNames: ({})            // adresse normalisée -> nom de sink pipewire
+    property var sinkVolumes: ({})          // adresse normalisée -> volume % (devices combinés)
     property string combinedModuleIndex: ""
     property var combinedSlaveAddresses: []
     property string pendingMergeAddress: ""
@@ -372,6 +373,7 @@ Item {
             const arg = (block.match(/slaves=([^\s"]+)/) || [])[1] || "";
             combinedModuleIndex = idx ? idx[1] : "";
             combinedSlaveAddresses = arg.split(",").map(sinkAddress).filter(a => a !== "");
+            refreshVolumes();
             return;
         }
         combinedModuleIndex = "";
@@ -440,6 +442,55 @@ Item {
         pactlMode = "unload-destroy";
         pactlAction.command = ["pactl", "unload-module", combinedModuleIndex];
         pactlAction.running = true;
+    }
+
+    // --- volumes des devices combinés -----------------------------------------
+
+    function refreshVolumes() {
+        const names = combinedSlaveAddresses.map(a => sinkNames[a] || "").filter(n => n !== "");
+        if (names.length === 0)
+            return;
+        volumesProc.command = ["/bin/sh", "-c",
+            "for s in " + names.join(" ") + "; do echo \"$s $(pactl get-sink-volume \"$s\" | grep -oP '\\d+%' | head -1)\"; done"];
+        volumesProc.running = true;
+    }
+
+    function parseVolumes(text) {
+        const map = Object.assign({}, sinkVolumes);
+        for (const line of String(text).split("\n")) {
+            const parts = line.trim().split(/\s+/);
+            if (parts.length < 2)
+                continue;
+            const addr = sinkAddress(parts[0]);
+            const pct = parseInt(String(parts[1]).replace("%", ""), 10);
+            if (addr !== "" && isFinite(pct))
+                map[addr] = pct;
+        }
+        sinkVolumes = map;
+    }
+
+    function setSinkVolume(addr, pct) {
+        const name = sinkNames[addr];
+        if (!name)
+            return;
+        volumeProc.command = ["pactl", "set-sink-volume", name, pct + "%"];
+        volumeProc.running = true;
+    }
+
+    Process {
+        id: volumesProc
+
+        stdout: StdioCollector {
+            id: volumesOut
+
+            onStreamFinished: root.parseVolumes(volumesOut.text)
+        }
+    }
+
+    Process {
+        id: volumeProc
+
+        onExited: root.refreshVolumes()
     }
 
     function restoreDefaultSink() {
@@ -686,6 +737,89 @@ Item {
 
     // --- composants locaux ----------------------------------------------------
 
+    // Slider de volume individuel pour les devices membres du combined.
+    // Affichage live pendant le drag, commit pactl throttlé (200ms) + commit
+    // final au release. La valeur affichée suit sinkVolumes (pactl
+    // get-sink-volume) hors drag.
+    component VolumeSlider: Item {
+        id: slider
+
+        required property var deviceAddress
+        readonly property string addrNorm: root.normalizedAddress(deviceAddress)
+        readonly property bool sliderHover: sliderMouse.containsMouse
+        property bool pressed: false
+        property real dragValue: 50
+        property real value: pressed ? dragValue : (root.sinkVolumes[addrNorm] !== undefined ? root.sinkVolumes[addrNorm] : 50)
+
+        width: 96
+        height: 22
+
+        function updateDrag(x) {
+            const usable = width - 12;
+            dragValue = Math.max(0, Math.min(100, (x - 6) / usable * 100));
+            commitTimer.restart();
+        }
+
+        Timer {
+            id: commitTimer
+
+            interval: 200
+            onTriggered: root.setSinkVolume(slider.addrNorm, Math.round(slider.value))
+        }
+
+        Rectangle {
+            id: track
+
+            anchors.left: parent.left
+            anchors.leftMargin: 6
+            anchors.right: parent.right
+            anchors.rightMargin: 6
+            anchors.verticalCenter: parent.verticalCenter
+            height: 4
+            radius: 2
+            color: Theme.muted
+
+            Rectangle {
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                height: 4
+                radius: 2
+                width: Math.max(2, (track.width - 10) * slider.value / 100 + 5)
+                color: Theme.accent
+            }
+
+            Rectangle {
+                anchors.verticalCenter: parent.verticalCenter
+                x: (track.width - 10) * slider.value / 100
+                width: 10
+                height: 10
+                radius: 5
+                color: Theme.foreground
+            }
+        }
+
+        MouseArea {
+            id: sliderMouse
+
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onPressed: {
+                slider.pressed = true;
+                slider.updateDrag(mouse.x);
+            }
+            onPositionChanged: {
+                if (slider.pressed)
+                    slider.updateDrag(mouse.x);
+            }
+            onReleased: {
+                slider.pressed = false;
+                commitTimer.stop();
+                root.setSinkVolume(slider.addrNorm, Math.round(slider.value));
+            }
+        }
+    }
+
     component DeviceRow: Rectangle {
         id: deviceRow
 
@@ -702,6 +836,10 @@ Item {
         readonly property string sublabel: {
             if (pending !== "")
                 return pending;
+            // device combiné : le sous-titre affiche son volume (réglé par le
+            // slider à droite de la ligne)
+            if (inCombined)
+                return Math.round(volumeSlider.value) + "%";
             if (modelData.connected && modelData.batteryAvailable)
                 return modelData.battery + "%";
             return "";
@@ -720,6 +858,11 @@ Item {
         border.color: Theme.muted
 
         function updateTip() {
+            // Le slider parle de lui-même : pas de tooltip au-dessus.
+            if (volumeSlider.sliderHover) {
+                root.hideTip();
+                return;
+            }
             if (mergeMouse.containsMouse)
                 root.showTip(deviceRow, deviceRow.inCombined ? "Unmerge" : "Merge");
             else if (crossMouse.containsMouse)
@@ -780,6 +923,17 @@ Item {
                     font.pixelSize: 11
                 }
             }
+        }
+
+        VolumeSlider {
+            id: volumeSlider
+
+            deviceAddress: deviceRow.modelData.address
+            visible: deviceRow.kind === "connected" && deviceRow.inCombined
+            anchors.right: mergeButton.left
+            anchors.rightMargin: 8
+            anchors.verticalCenter: parent.verticalCenter
+            onSliderHoverChanged: deviceRow.updateTip()
         }
 
         // Icône merge (combine-sink) : devices connectés uniquement.
