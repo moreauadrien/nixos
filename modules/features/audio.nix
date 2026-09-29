@@ -9,6 +9,7 @@
 
     environment.systemPackages = with pkgs; [
       wiremix
+      (writeShellScriptBin "pactl" ''exec ${pulseaudio}/bin/pactl "$@"'')
     ];
   };
 }
