@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Bluetooth
+import Quickshell.Io
 
 import "../services"
 
@@ -36,6 +37,10 @@ Item {
 
     function isAddressLike(text) {
         return /^([0-9a-f]{2}[:-]){5}[0-9a-f]{2}$/i.test(String(text || "").trim());
+    }
+
+    function normalizedAddress(text) {
+        return String(text || "").toLowerCase().replace(/[^0-9a-f]/g, "");
     }
 
     function humanName(device) {
@@ -171,7 +176,23 @@ Item {
             pendingActions = next;
     }
 
-    onDevicesChanged: syncPending()
+    onDevicesChanged: {
+        syncPending();
+        // Une sélection merge en attente dont le device se déconnecte expire
+        // (pendingMergeAddress est normalisé, les addresses BlueZ ne le sont
+        // pas — comparaison en normalisé).
+        if (pendingMergeAddress !== "") {
+            let stillThere = false;
+            for (const d of devices)
+                if (d && normalizedAddress(d.address) === pendingMergeAddress) {
+                    stillThere = true;
+                    break;
+                }
+            if (!stillThere)
+                pendingMergeAddress = "";
+        }
+        pactlRefresh.restart();
+    }
 
     readonly property var sections: {
         const connected = [], known = [], discovered = [];
@@ -270,6 +291,8 @@ Item {
         scanStop.attempts = 0;
         if (!popupVisible)
             hideTip();
+        else
+            refreshPactl();
     }
 
     // Filet de sécurité : purge les actions qui n'aboutissent jamais.
@@ -278,6 +301,203 @@ Item {
 
         interval: 15000
         onTriggered: root.pendingActions = ({})
+    }
+
+    // --- combine (module-combine-sink via pactl) -------------------------------
+
+    property var sinkNames: ({})            // adresse normalisée -> nom de sink pipewire
+    property string combinedModuleIndex: ""
+    property var combinedSlaveAddresses: []
+    property string pendingMergeAddress: ""
+    property string savedDefaultSink: ""
+    property var nextCombineSlaves: []
+    property string pactlMode: ""
+
+    Timer {
+        id: pactlRefresh
+
+        interval: 500
+        onTriggered: root.refreshPactl()
+    }
+
+    function refreshPactl() {
+        if (!popupVisible)
+            return;
+        sinksProc.running = true;
+        modulesProc.running = true;
+    }
+
+    function sinkAddress(sinkName) {
+        const m = String(sinkName || "").match(/bluez_output\.([0-9a-f_]+)/i);
+        return m ? normalizedAddress(m[1]) : "";
+    }
+
+    function isCombined(addr) {
+        return combinedSlaveAddresses.indexOf(addr) !== -1;
+    }
+
+    function parseSinks(text) {
+        const map = ({});
+        for (const line of String(text).split("\n")) {
+            const fields = line.split("\t");
+            if (fields.length < 2)
+                continue;
+            const addr = sinkAddress(fields[1]);
+            if (addr !== "")
+                map[addr] = fields[1];
+        }
+        sinkNames = map;
+    }
+
+    function parseModules(text) {
+        for (const block of String(text).split("Module #").slice(1)) {
+            if (block.indexOf("module-combine-sink") === -1)
+                continue;
+            const idx = block.match(/^(\d+)/);
+            const arg = (block.match(/slaves=([^\s"]+)/) || [])[1] || "";
+            combinedModuleIndex = idx ? idx[1] : "";
+            combinedSlaveAddresses = arg.split(",").map(sinkAddress).filter(a => a !== "");
+            return;
+        }
+        combinedModuleIndex = "";
+        combinedSlaveAddresses = [];
+    }
+
+    // Clic sur l'icône merge d'un device connecté : 1er clic = sélection,
+    // 2e device = création du combined. Une fois le combined existant, un
+    // clic sur un autre device l'ajoute (recréation), un clic sur un membre
+    // le retire (recréation sans lui, destruction s'il ne reste personne).
+    function mergeClicked(address) {
+        const addr = normalizedAddress(address);
+        if (pendingMergeAddress === addr) {
+            pendingMergeAddress = "";
+            return;
+        }
+        if (pendingMergeAddress !== "") {
+            const pair = [pendingMergeAddress, addr];
+            pendingMergeAddress = "";
+            beginCombine(pair);
+            return;
+        }
+        if (isCombined(addr)) {
+            const rest = combinedSlaveAddresses.filter(a => a !== addr);
+            if (rest.length >= 2)
+                beginCombine(rest);
+            else
+                destroyCombined();
+            return;
+        }
+        if (combinedSlaveAddresses.length > 0) {
+            beginCombine(combinedSlaveAddresses.concat([addr]));
+            return;
+        }
+        pendingMergeAddress = addr;
+    }
+
+    function beginCombine(slaves) {
+        nextCombineSlaves = slaves.map(normalizedAddress);
+        if (combinedModuleIndex === "") {
+            // première création : sauvegarder le sink par défaut pour le
+            // restaurer à la destruction du combined
+            pactlMode = "save-default";
+            getDefault.running = true;
+        } else {
+            pactlMode = "unload-recreate";
+            pactlAction.command = ["pactl", "unload-module", combinedModuleIndex];
+            pactlAction.running = true;
+        }
+    }
+
+    function startLoad() {
+        const names = nextCombineSlaves.map(a => sinkNames[a] || "").filter(n => n !== "");
+        if (names.length < 2) {
+            restoreDefaultSink();
+            return;
+        }
+        pactlMode = "load";
+        pactlAction.command = ["pactl", "load-module", "module-combine-sink", "sink_name=combined", "slaves=" + names.join(",")];
+        pactlAction.running = true;
+    }
+
+    function destroyCombined() {
+        if (combinedModuleIndex === "")
+            return;
+        pactlMode = "unload-destroy";
+        pactlAction.command = ["pactl", "unload-module", combinedModuleIndex];
+        pactlAction.running = true;
+    }
+
+    function restoreDefaultSink() {
+        pactlMode = "";
+        if (savedDefaultSink !== "" && savedDefaultSink !== "combined") {
+            defaultSinkProc.command = ["pactl", "set-default-sink", savedDefaultSink];
+            defaultSinkProc.running = true;
+        }
+        savedDefaultSink = "";
+    }
+
+    Process {
+        id: sinksProc
+
+        command: ["pactl", "list", "short", "sinks"]
+
+        stdout: StdioCollector {
+            id: sinksOut
+
+            onStreamFinished: root.parseSinks(sinksOut.streamData)
+        }
+    }
+
+    Process {
+        id: modulesProc
+
+        command: ["pactl", "list", "modules"]
+
+        stdout: StdioCollector {
+            id: modulesOut
+
+            onStreamFinished: root.parseModules(modulesOut.streamData)
+        }
+    }
+
+    Process {
+        id: getDefault
+
+        command: ["pactl", "get-default-sink"]
+
+        stdout: StdioCollector {
+            id: defaultOut
+
+            onStreamFinished: {
+                if (root.pactlMode === "save-default") {
+                    root.savedDefaultSink = defaultOut.streamData.trim();
+                    root.startLoad();
+                }
+            }
+        }
+    }
+
+    Process {
+        id: pactlAction
+
+        onExited: {
+            if (root.pactlMode === "load") {
+                root.pactlMode = "set-default";
+                defaultSinkProc.command = ["pactl", "set-default-sink", "combined"];
+                defaultSinkProc.running = true;
+            } else if (root.pactlMode === "unload-destroy") {
+                root.restoreDefaultSink();
+            } else if (root.pactlMode === "unload-recreate") {
+                root.startLoad();
+            }
+            root.refreshPactl();
+        }
+    }
+
+    Process {
+        id: defaultSinkProc
+
+        onExited: root.refreshPactl()
     }
 
     // --- layout -------------------------------------------------------------
@@ -472,7 +692,10 @@ Item {
             return "";
         }
 
-        readonly property bool hovered: rowMouse.containsMouse || crossMouse.containsMouse
+        readonly property string addrNorm: root.normalizedAddress(modelData.address)
+        readonly property bool inCombined: root.combinedSlaveAddresses.includes(addrNorm)
+        readonly property bool mergeSelected: root.pendingMergeAddress === addrNorm
+        readonly property bool hovered: rowMouse.containsMouse || mergeMouse.containsMouse || crossMouse.containsMouse
 
         width: parent.width
         height: 48
@@ -482,7 +705,9 @@ Item {
         border.color: Theme.muted
 
         function updateTip() {
-            if (crossMouse.containsMouse)
+            if (mergeMouse.containsMouse)
+                root.showTip(deviceRow, deviceRow.inCombined ? "Unmerge" : "Merge");
+            else if (crossMouse.containsMouse)
                 root.showTip(forgetCross, "Forget");
             else if (rowMouse.containsMouse)
                 root.showTip(deviceRow, deviceRow.modelData.connected ? "Disconnect" : deviceRow.kind === "discovered" ? "Pair" : "Connect");
@@ -539,6 +764,43 @@ Item {
                     font.family: Theme.fontFamily
                     font.pixelSize: 11
                 }
+            }
+        }
+
+        // Icône merge (combine-sink) : devices connectés audio uniquement.
+        // 1er clic = sélection, 2e device = création, clic sur un membre =
+        // retrait. Surbrillance accent quand sélectionné ou membre.
+        Rectangle {
+            id: mergeButton
+
+            visible: deviceRow.kind === "connected" && root.sinkNames[deviceRow.addrNorm] !== undefined
+            width: 22
+            height: 22
+            radius: 11
+            anchors.right: parent.right
+            anchors.rightMargin: 38
+            anchors.verticalCenter: parent.verticalCenter
+            color: mergeMouse.containsMouse ? Qt.alpha(Theme.accent, 0.15) : "transparent"
+
+            Text {
+                text: "\uE727"
+                color: deviceRow.mergeSelected || deviceRow.inCombined ? Theme.accent : mergeMouse.containsMouse ? Theme.foreground : Theme.muted
+                anchors.centerIn: parent
+                font.family: Theme.fontFamily
+                font.pixelSize: 16
+            }
+
+            MouseArea {
+                id: mergeMouse
+
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: {
+                    root.hideTip();
+                    root.mergeClicked(deviceRow.modelData.address);
+                }
+                onContainsMouseChanged: deviceRow.updateTip()
             }
         }
 
