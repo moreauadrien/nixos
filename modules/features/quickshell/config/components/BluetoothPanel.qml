@@ -164,7 +164,7 @@ Item {
                 } else if (paired && !d.connected && d.connect) {
                     d.connect();
                 }
-            } else if (action === "disconnecting" && d && !d.connected) {
+            } else if (action === "disconnecting" && (!d || !d.connected)) {
                 delete next[address];
                 changed = true;
             } else if (action === "forgetting" && (!d || !paired)) {
@@ -301,6 +301,21 @@ Item {
 
         interval: 15000
         onTriggered: root.pendingActions = ({})
+    }
+
+    // Le binding `devices` ne se re-évalue pas quand un device change sur
+    // place (connected, paired...) — seul `sections`, qui lit les devices
+    // directement, est réactif à ces signaux. onDevicesChanged ne part donc
+    // pas au moment où la déconnexion aboutit. D'où cette purge périodique
+    // des actions terminées, tant que le popup est ouvert.
+    Timer {
+        id: pendingSync
+
+        interval: 1000
+        triggeredOnStart: true
+        repeat: true
+        running: root.popupVisible
+        onTriggered: root.syncPending()
     }
 
     // --- combine (module-combine-sink via pactl) -------------------------------
