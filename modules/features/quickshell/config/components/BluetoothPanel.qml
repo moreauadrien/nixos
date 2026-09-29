@@ -467,15 +467,33 @@ Item {
                 map[addr] = pct;
         }
         sinkVolumes = map;
+        // Le refresh confirme l'état réel : la valeur affichée en attente
+        // n'a plus de raison d'être.
+        pendingVolumeAddr = "";
     }
 
     function setSinkVolume(addr, pct) {
         const name = sinkNames[addr];
         if (!name)
             return;
-        volumeProc.command = ["pactl", "set-sink-volume", name, pct + "%"];
+        const cmd = ["pactl", "set-sink-volume", name, pct + "%"];
+        // Un seul Process pour tous les sets : si un pactl est encore en
+        // cours, on garde la dernière commande en file — sinon running=true
+        // est un no-op et la commande est perdue (le refresh d'après l'exit
+        // relirait l'ancien volume → snap-back du slider).
+        if (volumeProc.running) {
+            pendingVolumeCmd = cmd;
+            return;
+        }
+        volumeProc.command = cmd;
         volumeProc.running = true;
     }
+
+    property var pendingVolumeCmd: null
+    // Affichage en attente entre le release du drag et la confirmation du
+    // refresh (évite le snap-back visuel vers l'ancienne valeur).
+    property string pendingVolumeAddr: ""
+    property real pendingVolumeValue: -1
 
     Process {
         id: volumesProc
@@ -485,12 +503,39 @@ Item {
 
             onStreamFinished: root.parseVolumes(volumesOut.text)
         }
+
+        stderr: StdioCollector {
+            id: volumesErr
+
+            onStreamFinished: {
+                if (volumesErr.text !== "")
+                    console.log("bluetooth: pactl get-sink-volume:", volumesErr.text.trim());
+            }
+        }
     }
 
     Process {
         id: volumeProc
 
-        onExited: root.refreshVolumes()
+        stderr: StdioCollector {
+            id: volumeErr
+
+            onStreamFinished: {
+                if (volumeErr.text !== "")
+                    console.log("bluetooth: pactl set-sink-volume:", volumeErr.text.trim());
+            }
+        }
+
+        onExited: {
+            const next = root.pendingVolumeCmd;
+            root.pendingVolumeCmd = null;
+            if (next) {
+                volumeProc.command = next;
+                volumeProc.running = true;
+            } else {
+                root.refreshVolumes();
+            }
+        }
     }
 
     function restoreDefaultSink() {
@@ -749,7 +794,9 @@ Item {
         readonly property bool sliderHover: sliderMouse.containsMouse
         property bool pressed: false
         property real dragValue: 50
-        property real value: pressed ? dragValue : (root.sinkVolumes[addrNorm] !== undefined ? root.sinkVolumes[addrNorm] : 50)
+        property real value: pressed ? dragValue
+            : root.pendingVolumeAddr === addrNorm && root.pendingVolumeValue >= 0 ? root.pendingVolumeValue
+            : root.sinkVolumes[addrNorm] !== undefined ? root.sinkVolumes[addrNorm] : 50
 
         width: 96
         height: 22
@@ -815,7 +862,10 @@ Item {
             onReleased: {
                 slider.pressed = false;
                 commitTimer.stop();
-                root.setSinkVolume(slider.addrNorm, Math.round(slider.value));
+                const final = Math.round(slider.value);
+                root.pendingVolumeAddr = slider.addrNorm;
+                root.pendingVolumeValue = final;
+                root.setSinkVolume(slider.addrNorm, final);
             }
         }
     }
