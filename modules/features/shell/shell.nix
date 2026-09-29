@@ -16,10 +16,16 @@
 
          files.".zshrc".text = ''
            eval "$(oh-my-posh init zsh)"
+	   stty intr undef # Désactive <C-c> -> intr
 	   ZVM_SYSTEM_CLIPBOARD_ENABLED=true
+           # Ctrl-C quitte le mode insertion -> mode normal (à la place de Échap)
+           ZVM_VI_INSERT_ESCAPE_BINDKEY='^C'
 
            function zvm_after_init() {
              source ${pkgs.fzf}/share/fzf/key-bindings.zsh
+
+             # Échap annule la commande en cours (ancien comportement de Ctrl-C)
+             bindkey -M viins '^[' send-break
            }
 
            source ${pkgs.zsh-vi-mode}/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
