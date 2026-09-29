@@ -456,8 +456,6 @@ Item {
     }
 
     function parseVolumes(text) {
-        // DEBUG temporaire — à retirer une fois le flux validé
-        console.log("bluetooth: volumes raw:", JSON.stringify(String(text)));
         const map = Object.assign({}, sinkVolumes);
         for (const line of String(text).split("\n")) {
             const parts = line.trim().split(/\s+/);
@@ -476,8 +474,6 @@ Item {
 
     function setSinkVolume(addr, pct) {
         const name = sinkNames[addr];
-        // DEBUG temporaire — à retirer une fois le flux validé
-        console.log("bluetooth: set-sink-volume", addr, "->", name, pct + "%");
         if (!name)
             return;
         const cmd = ["pactl", "set-sink-volume", name, pct + "%"];
@@ -855,18 +851,20 @@ Item {
             anchors.fill: parent
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
-            onPressed: {
+            onPressed: mouse => {
                 slider.pressed = true;
                 slider.updateDrag(mouse.x);
             }
-            onPositionChanged: {
+            onPositionChanged: mouse => {
                 if (slider.pressed)
                     slider.updateDrag(mouse.x);
             }
             onReleased: {
+                // Lire la valeur AVANT pressed=false : sinon le binding se
+                // ré-évalue et retombe sur l'ancienne valeur de sinkVolumes.
+                const final = Math.round(slider.value);
                 slider.pressed = false;
                 commitTimer.stop();
-                const final = Math.round(slider.value);
                 root.pendingVolumeAddr = slider.addrNorm;
                 root.pendingVolumeValue = final;
                 root.setSinkVolume(slider.addrNorm, final);
