@@ -21,6 +21,7 @@
       self.nixosModules.elephant
       self.nixosModules.cht-sh
       self.nixosModules.nix-gc
+      self.nixosModules.auto-upgrade
     ];
   };
 }
