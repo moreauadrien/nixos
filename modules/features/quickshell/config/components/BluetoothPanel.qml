@@ -444,7 +444,7 @@ Item {
         stdout: StdioCollector {
             id: sinksOut
 
-            onStreamFinished: root.parseSinks(sinksOut.streamData)
+            onStreamFinished: root.parseSinks(sinksOut.text)
         }
     }
 
@@ -456,7 +456,7 @@ Item {
         stdout: StdioCollector {
             id: modulesOut
 
-            onStreamFinished: root.parseModules(modulesOut.streamData)
+            onStreamFinished: root.parseModules(modulesOut.text)
         }
     }
 
@@ -470,7 +470,7 @@ Item {
 
             onStreamFinished: {
                 if (root.pactlMode === "save-default") {
-                    root.savedDefaultSink = defaultOut.streamData.trim();
+                    root.savedDefaultSink = defaultOut.text.trim();
                     root.startLoad();
                 }
             }
