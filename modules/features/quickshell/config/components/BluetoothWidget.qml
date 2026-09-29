@@ -1,6 +1,5 @@
-import Quickshell.Bluetooth
-import Quickshell.Io
 import QtQuick
+import Quickshell.Bluetooth
 
 import "../services"
 
@@ -9,42 +8,42 @@ Text {
 
     readonly property var adapter: Bluetooth.defaultAdapter
     readonly property bool powered: adapter !== null && adapter.enabled
-    readonly property var connected: {
-        const list = [];
-        if (powered) {
-            for (const device of adapter.devices.values) {
-                if (device.connected)
-                    list.push(device);
-            }
-        }
-        return list;
+    readonly property int connectedCount: {
+        if (!powered)
+            return 0;
+        const list = Bluetooth.devices ? Bluetooth.devices.values : [];
+        let n = 0;
+        for (const d of list)
+            if (d && d.connected)
+                n += 1;
+        return n;
     }
 
-    text: !powered ? "󰂲" : connected.length > 0 ? "󰂱" : ""
+    text: !powered ? "󰂲" : connectedCount > 0 ? "󰂱" : "󰂯"
     color: Theme.foreground
     font.family: Theme.fontFamily
     font.pixelSize: Theme.fontSize
 
-    Process {
-        id: launcher
+    Popup {
+        id: bluetoothPopup
 
-        command: ["alacritty", "--command", "bluetui"]
+        anchorItem: root
+        contentWidth: panel.implicitWidth
+        contentHeight: panel.implicitHeight
+
+        BluetoothPanel {
+            id: panel
+
+            popupVisible: bluetoothPopup.visible
+            anchors.left: parent.left
+            anchors.top: parent.top
+        }
     }
 
     MouseArea {
-        id: mouse
-
         anchors.fill: parent
-        hoverEnabled: true
+        hoverEnabled: false
         cursorShape: Qt.PointingHandCursor
-        onContainsMouseChanged: tooltip.wantShow = containsMouse
-        onClicked: launcher.running = true
-    }
-
-    Tooltip {
-        id: tooltip
-
-        anchorItem: root
-        text: !root.powered ? "Bluetooth off" : root.connected.length === 0 ? "No devices connected" : root.connected.map(d => d.name).join("\n")
+        onClicked: bluetoothPopup.open()
     }
 }
