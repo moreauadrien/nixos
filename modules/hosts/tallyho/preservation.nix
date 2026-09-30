@@ -90,7 +90,7 @@
                   ".ssh"
                   ".pi"
                 ];
-                adrien.files = [ ".bash_history" ];
+                adrien.files = [];
               };
             in
             lib.foldlAttrs (
