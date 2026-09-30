@@ -18,6 +18,8 @@
       powerOnBoot = true;
     };
 
+    programs.localsend.enable = true;
+
     environment.systemPackages = with pkgs; [
       hyprmoncfg
       brightnessctl
@@ -40,7 +42,6 @@
       nautilus
 
       # User Applications
-      localsend
       signal-desktop
       gimp
       libreoffice
