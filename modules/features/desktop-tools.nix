@@ -1,6 +1,11 @@
 # Desktop utilities shipped system-wide.
 { ... }: {
   flake.nixosModules.desktop-tools = { pkgs, ... }: {
+    # Folders must open in nautilus (walker opens entries via xdg-open),
+    # otherwise chromium claims them by default. Merges with the browser
+    # mime defaults set in librewolf.nix.
+    xdg.mime.defaultApplications."inode/directory" = "org.gnome.Nautilus.desktop";
+
     # BlueZ daemon: bluetui talks to it over D-Bus (org.bluez).
     hardware.bluetooth = {
       enable = true;
