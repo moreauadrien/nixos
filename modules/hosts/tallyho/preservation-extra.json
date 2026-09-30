@@ -12,6 +12,7 @@
         ".config/Signal",
         ".config/chromium",
         ".config/spotify",
+        ".config/thunderbird",
         ".config/voxtype",
         ".local/share/nvim",
         ".local/share/voxtype",
