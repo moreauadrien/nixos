@@ -10,6 +10,7 @@
       ],
       "directories": [
         ".config/Signal",
+        ".config/chromium",
         ".config/spotify",
         ".config/voxtype",
         ".local/share/nvim",
