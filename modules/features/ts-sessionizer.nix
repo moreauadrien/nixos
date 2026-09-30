@@ -17,6 +17,12 @@
 in {
   flake.nixosModules.ts-sessionizer = moduleWithSystem ({ self', ... }: {
     hjem.users.adrien.packages = [ self'.packages.ts ];
+
+    # zsh snippet: <C-f> runs ts from the shell (sourced by the shell module's
+    # .zshrc via ~/.zshrc.d/*.zsh).
+    hjem.users.adrien.files.".zshrc.d/ts-sessionizer.zsh".text = ''
+      bindkey -s ^f "ts\n"
+    '';
   });
 
   perSystem = { pkgs, ... }: {

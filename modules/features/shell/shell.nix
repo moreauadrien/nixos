@@ -28,6 +28,11 @@
 
              # Échap annule la commande en cours (ancien comportement de Ctrl-C)
              bindkey -M viins '^[' send-break
+
+             # Snippets dropped by other modules (e.g. ts-sessionizer).
+             # Must run inside zvm_after_init: zsh-vi-mode binds its keys late
+             # (at the first precmd) and would otherwise clobber theirs.
+             for f in ~/.zshrc.d/*.zsh(N); do source "$f"; done
            }
 
            source ${pkgs.zsh-vi-mode}/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
