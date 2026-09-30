@@ -4,7 +4,13 @@
     # Folders must open in nautilus (walker opens entries via xdg-open),
     # otherwise chromium claims them by default. Merges with the browser
     # mime defaults set in librewolf.nix.
-    xdg.mime.defaultApplications."inode/directory" = "org.gnome.Nautilus.desktop";
+    # gio reports bind mounts (preservation dirs) as inode/mount-point,
+    # not inode/directory: without a default, xdg-open falls back to its
+    # BROWSER list (chromium) for those.
+    xdg.mime.defaultApplications = {
+      "inode/directory" = "org.gnome.Nautilus.desktop";
+      "inode/mount-point" = "org.gnome.Nautilus.desktop";
+    };
 
     # BlueZ daemon: bluetui talks to it over D-Bus (org.bluez).
     hardware.bluetooth = {
