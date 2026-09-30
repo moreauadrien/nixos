@@ -5,13 +5,16 @@
   },
   "users": {
     "adrien": {
-      "files": [],
+      "files": [
+        ".zsh_history"
+      ],
       "directories": [
         ".config/Signal",
         ".config/spotify",
         ".config/voxtype",
         ".local/share/nvim",
-        ".local/share/voxtype"
+        ".local/share/voxtype",
+        "projects"
       ]
     }
   }
