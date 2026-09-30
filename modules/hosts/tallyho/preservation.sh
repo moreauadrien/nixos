@@ -192,7 +192,7 @@ cmd_add() {
   fi
   rm -f "$tmp.new"
 
-  commit_state "chore: add ${rel:-$target} to preservation"
+  commit_state "chore: add $target to preservation"
 
   printf '\nAdded %s [%s]%s\n' "$target" "$kind" "${user:+ (user: $user)}"
 
@@ -311,7 +311,7 @@ cmd_remove() {
   fi
   rm -f "$tmp.new"
 
-  commit_state "chore: remove ${rel:-$target} from preservation"
+  commit_state "chore: remove $target from preservation"
 
   printf '\nRemoved %s [%s]%s\n' "$target" "$extra_kind" "${user:+ (user: $user)}"
 
