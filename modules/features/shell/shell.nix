@@ -14,31 +14,13 @@
 	   pkgs.fzf
 	 ];
 
-         files.".zshrc".text = ''
-           eval "$(oh-my-posh init zsh)"
+	 files.".zshrc".text = ''
+ eval "$(oh-my-posh init zsh)"
 
-	   setopt HIST_IGNORE_SPACE # use a space to hide a command from history
-	   ZVM_SYSTEM_CLIPBOARD_ENABLED=true
-           # Ctrl-C quitte le mode insertion -> mode normal (à la place de Échap)
-           ZVM_VI_INSERT_ESCAPE_BINDKEY='^C'
-
-	   precmd()  { stty intr undef }   # avant l'affichage du prompt
-	   preexec() { stty intr ^C }      # juste avant l'exécution d'une commande
-
-           function zvm_after_init() {
-             source ${pkgs.fzf}/share/fzf/key-bindings.zsh
-
-             # Échap annule la commande en cours (ancien comportement de Ctrl-C)
-             bindkey -M viins '^[' send-break
-
-             # Snippets dropped by other modules (e.g. ts-sessionizer).
-             # Must run inside zvm_after_init: zsh-vi-mode binds its keys late
-             # (at the first precmd) and would otherwise clobber theirs.
-             for f in ~/.zshrc.d/*.zsh(N); do source "$f"; done
-           }
-
-           source ${pkgs.zsh-vi-mode}/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
-         '';
+ setopt HIST_IGNORE_SPACE # use a space to hide a command from history
+ source ${pkgs.fzf}/share/fzf/key-bindings.zsh
+ for f in ~/.zshrc.d/*.zsh(N); do source "$f"; done
+	'';
        };
      });
 
