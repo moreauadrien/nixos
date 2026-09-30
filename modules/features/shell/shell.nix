@@ -32,6 +32,10 @@
            }
 
            source ${pkgs.zsh-vi-mode}/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
+
+           # Snippets dropped by other modules (e.g. ts-sessionizer).
+           # Loaded last so plugins can't override their bindings.
+           for f in ~/.zshrc.d/*.zsh(N); do source "$f"; done
          '';
        };
      });
