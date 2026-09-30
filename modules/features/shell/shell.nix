@@ -16,7 +16,6 @@
 
          files.".zshrc".text = ''
            eval "$(oh-my-posh init zsh)"
-	   stty intr undef # Désactive <C-c> -> intr
 	   ZVM_SYSTEM_CLIPBOARD_ENABLED=true
            # Ctrl-C quitte le mode insertion -> mode normal (à la place de Échap)
            ZVM_VI_INSERT_ESCAPE_BINDKEY='^C'
