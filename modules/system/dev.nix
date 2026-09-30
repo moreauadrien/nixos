@@ -9,6 +9,6 @@
       ts-sessionizer
     ];
 
-    environment.systemPackages = [ pkgs.devenv ];
+    environment.systemPackages = [ pkgs.devenv pkgs.fd pkgs.ripgrep];
   };
 }

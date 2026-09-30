@@ -17,6 +17,8 @@
 	 files.".zshrc".text = ''
  eval "$(oh-my-posh init zsh)"
 
+ bindkey -e
+
  setopt HIST_IGNORE_SPACE # use a space to hide a command from history
  source ${pkgs.fzf}/share/fzf/key-bindings.zsh
  for f in ~/.zshrc.d/*.zsh(N); do source "$f"; done
