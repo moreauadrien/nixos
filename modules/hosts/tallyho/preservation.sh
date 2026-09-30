@@ -31,6 +31,10 @@ repo) and runs `sudo nixos-rebuild switch --flake .#tallyho`.
 to the temporary filesystem, deletes the copy from /persistent, drops
 the path from preservation-extra.json and rebuilds. Paths declared
 statically in the Nix configuration cannot be removed this way.
+
+Both commands commit preservation-extra.json automatically in the config
+repo (e.g. "chore: add .foo to preservation" / "chore: remove .foo from
+preservation").
 EOF
 }
 
@@ -73,6 +77,28 @@ in_manifest() {
     else
       ((.users[$u].directories // []) | index($r)) or ((.users[$u].files // []) | index($r))
     end' "$MANIFEST" > /dev/null
+}
+
+commit_state() {
+  # $1 = commit message; commit the state file in the config repo (best
+  # effort: warn instead of failing, e.g. on a missing git identity).
+  local rel="${EXTRA#$REPO/}"
+  if ! git -C "$REPO" rev-parse --git-dir > /dev/null 2>&1; then
+    printf 'warning: %s is not a git repository; state file change not committed\n' "$REPO" >&2
+    return 0
+  fi
+  if ! git -C "$REPO" add -- "$rel"; then
+    printf 'warning: could not stage %s; change not committed\n' "$EXTRA" >&2
+    return 0
+  fi
+  if git -C "$REPO" diff --cached --quiet -- "$rel"; then
+    return 0  # nothing new to commit
+  fi
+  if git -C "$REPO" commit -m "$1" -- "$rel" > /dev/null; then
+    printf 'committed: %s\n' "$1"
+  else
+    printf 'warning: could not commit %s (do it manually in %s)\n' "$EXTRA" "$REPO" >&2
+  fi
 }
 
 cmd_add() {
@@ -165,6 +191,8 @@ cmd_add() {
     sudo install -m 0644 "$tmp.new" "$EXTRA"
   fi
   rm -f "$tmp.new"
+
+  commit_state "chore: add ${rel:-$target} to preservation"
 
   printf '\nAdded %s [%s]%s\n' "$target" "$kind" "${user:+ (user: $user)}"
 
@@ -282,6 +310,8 @@ cmd_remove() {
     sudo install -m 0644 "$tmp.new" "$EXTRA"
   fi
   rm -f "$tmp.new"
+
+  commit_state "chore: remove ${rel:-$target} from preservation"
 
   printf '\nRemoved %s [%s]%s\n' "$target" "$extra_kind" "${user:+ (user: $user)}"
 
