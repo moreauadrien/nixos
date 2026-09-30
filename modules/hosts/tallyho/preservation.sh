@@ -50,14 +50,29 @@ cmd_ls() {
 }
 
 is_persistent_mount() {
-  # $1 = path; success if it is a mountpoint sourced from the persistent root
-  local src
-  src="$("$FINDMNT" -rno SOURCE --target "$1" 2>/dev/null || true)"
-  [ -n "$src" ] || return 1
-  case "$src" in
-    "$PERSIST"|"$PERSIST"/*) return 0 ;;
-    *) return 1 ;;
-  esac
+  # $1 = path; success if it is a mountpoint backed by the persistent root.
+  # On btrfs, findmnt reports the source as "DEVICE[/subvol/path]", so a
+  # plain source-prefix check is unreliable. Instead require the path to be
+  # mounted (possibly through an ancestor) and to share its inode with the
+  # persistent copy — bind mounts do.
+  [ -e "$1" ] || return 1
+  "$FINDMNT" --target "$1" > /dev/null 2>&1 || return 1
+  local pdest="$PERSIST$1"
+  [ -e "$pdest" ] || return 1
+  [ "$(stat -c %d:%i "$1")" = "$(stat -c %d:%i "$pdest")" ]
+}
+
+in_manifest() {
+  # $1 = path, $2 = user, $3 = path relative to the user's home; success if
+  # the path is listed in the rendered manifest (/etc/preservation.json),
+  # i.e. preserved declaratively rather than via preservation-extra.json.
+  [ -f "$MANIFEST" ] || return 1
+  "$JQ" -e --arg p "$1" --arg u "$2" --arg r "$3" '
+    if $u == "" then
+      ((.system.directories // []) | index($p)) or ((.system.files // []) | index($p))
+    else
+      ((.users[$u].directories // []) | index($r)) or ((.users[$u].files // []) | index($r))
+    end' "$MANIFEST" > /dev/null
 }
 
 cmd_add() {
@@ -199,10 +214,18 @@ cmd_remove() {
       end' "$EXTRA")"
   fi
   if [ -z "$extra_kind" ]; then
-    if is_persistent_mount "$target"; then
-      die "$target is preserved but not recorded in $EXTRA (declared statically in the Nix configuration); edit modules/hosts/tallyho/preservation.nix to remove it"
+    if in_manifest "$target" "$user" "$rel"; then
+      die "$target is preserved, but statically declared in the Nix configuration (not in $EXTRA); edit modules/hosts/tallyho/preservation.nix to remove it, then rebuild"
     fi
-    die "not preserved: $target"
+    if is_persistent_mount "$target"; then
+      die "$target is preserved but not recorded in $EXTRA; edit modules/hosts/tallyho/preservation.nix to remove it"
+    fi
+    local mnt
+    mnt="$($FINDMNT -rno TARGET --target "$target" 2>/dev/null || true)"
+    if [ -n "$mnt" ] && [ "$mnt" != "$target" ] && is_persistent_mount "$mnt"; then
+      die "the path itself is not preserved, but it lives inside the preserved directory $mnt; run 'preservation remove $mnt' instead"
+    fi
+    die "not preserved: $target (see 'preservation ls')"
   fi
 
   # Unmount the bind mount if it is active.
