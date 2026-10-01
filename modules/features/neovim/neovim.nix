@@ -9,7 +9,19 @@
 
 
     environment.systemPackages = with pkgs; [
+      git
+      gnumake
+      unzip
+      gcc
       ripgrep
+      fd
+      tree-sitter
+
+      # LSP (installed from nixpkgs: Mason-downloaded binaries are dynamically
+      # linked generic-Linux executables and cannot run on NixOS)
+      kdePackages.qtdeclarative # qmlls
+      lua-language-server # lua_ls
+      stylua # stylua --lsp (Lua formatting)
     ];
 
 
