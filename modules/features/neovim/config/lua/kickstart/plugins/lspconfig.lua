@@ -114,7 +114,15 @@ local servers = {
   -- But for many setups, the LSP (`rust_analyzer`) will work just fine
   -- rust_analyzer = {},
 
-  stylua = {}, -- Used to format Lua code
+  -- stylua has an LSP mode (`stylua --lsp`) but nvim-lspconfig does not ship a
+  -- config for it, so the `cmd` must be given explicitly. The binary comes from
+  -- nixpkgs (see neovim.nix): Mason-downloaded binaries are dynamically linked
+  -- generic-Linux executables and cannot run on NixOS.
+  stylua = {
+    cmd = { 'stylua', '--lsp' },
+  },
+
+  qmlls = {}, -- Qt QML language server (from kdePackages.qtdeclarative in nixpkgs)
 
   -- Special Lua Config, as recommended by neovim help docs
   lua_ls = {
@@ -151,32 +159,13 @@ local servers = {
 
 vim.pack.add {
   gh 'neovim/nvim-lspconfig',
-  gh 'mason-org/mason.nvim',
-  gh 'mason-org/mason-lspconfig.nvim',
-  gh 'WhoIsSethDaniel/mason-tool-installer.nvim',
 }
 
--- Automatically install LSPs and related tools to stdpath for Neovim
-require('mason').setup {}
-
--- Translates between nvim-lspconfig server names and mason.nvim package names (e.g. lua_ls <-> lua-language-server)
-require('mason-lspconfig').setup {
-  automatic_enable = false, -- Change this to true if you want to automatically enable servers that are installed manually (e.g. via :Mason / :MasonInstall)
-}
-
--- Ensure the servers and tools above are installed
---
--- To check the current status of installed tools and/or manually install
--- other tools, you can run
---    :Mason
---
--- You can press `g?` for help in this menu.
-local ensure_installed = vim.tbl_keys(servers or {})
-vim.list_extend(ensure_installed, {
-  -- You can add other tools here that you want Mason to install
-})
-
-require('mason-tool-installer').setup { ensure_installed = ensure_installed }
+-- NOTE: Mason is deliberately not used on NixOS: it downloads prebuilt,
+-- dynamically linked executables that fail with "Could not start dynamically
+-- linked executable" (see https://nix.dev/permalink/stub-ld). All language
+-- servers above come from nixpkgs instead (see neovim.nix) and are found on
+-- PATH via their default nvim-lspconfig `cmd`.
 
 for name, server in pairs(servers) do
   vim.lsp.config(name, server)

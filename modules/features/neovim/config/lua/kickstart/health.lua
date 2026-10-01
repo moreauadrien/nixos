@@ -41,7 +41,8 @@ return {
 
   Fix only warnings for plugins and languages you intend to use.
     Mason will give warnings for languages that are not installed.
-    You do not need to install, unless you want to use those languages!]]
+    Language servers are installed via nixpkgs instead of Mason, so Mason
+    warnings can be ignored.]]
 
     local uv = vim.uv or vim.loop
     vim.health.info('System Information: ' .. vim.inspect(uv.os_uname()))
