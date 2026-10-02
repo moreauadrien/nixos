@@ -40,6 +40,8 @@ require('blink.cmp').setup {
     --
     -- See `:help blink-cmp-config-keymap` for defining your own keymap
     preset = 'default',
+    ['<c-k>'] = { 'select_prev', 'fallback' },
+    ['<c-j>'] = { 'select_next', 'fallback' },
 
     -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
     --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
@@ -58,7 +60,7 @@ require('blink.cmp').setup {
   },
 
   sources = {
-    default = { 'lsp', 'path', 'snippets' },
+    default = { 'lsp', 'path', 'snippets', 'buffer' },
   },
 
   snippets = { preset = 'luasnip' },
