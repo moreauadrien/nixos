@@ -1,6 +1,8 @@
 {
   "system": {
-    "directories": [],
+    "directories": [
+      "/var/lib/tailscale"
+    ],
     "files": []
   },
   "users": {
