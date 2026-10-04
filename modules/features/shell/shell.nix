@@ -31,6 +31,21 @@
 	   # NixOS rebuild helpers (main checkout, host tallyho)
 	   alias nrs="sudo nixos-rebuild switch --flake /home/adrien/nixos/main#tallyho"
 	   alias nrt="sudo nixos-rebuild test --flake /home/adrien/nixos/main#tallyho"
+
+	   # tconf: tmux session in ~/nixos — pi on the left, touffu top-right,
+	   # plain shell bottom-right. Reattaches if the session already exists.
+	   tconf() {
+	     local s=tconf
+	     if tmux has-session -t "$s" 2>/dev/null; then
+	       exec tmux attach -t "$s"
+	     fi
+	     tmux new-session -d -s "$s" -n work -c ~/nixos
+	     tmux split-window -h -t "$s:work.1" -c ~/nixos -p 50
+	     tmux split-window -v -t "$s:work.2" -c ~/nixos
+	     tmux send-keys -t "$s:work.1" 'pi' C-m
+	     tmux send-keys -t "$s:work.2" 'touffu' C-m
+	     exec tmux attach -t "$s"
+	   }
 	 '';
        };
      });
