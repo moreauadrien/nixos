@@ -23,6 +23,15 @@
  source ${pkgs.fzf}/share/fzf/key-bindings.zsh
  for f in ~/.zshrc.d/*.zsh(N); do source "$f"; done
 	'';
+
+	 files.".zshrc.d/aliases.zsh".text = ''
+	   compress() { tar -czf "''${1%/}.tar.gz" "''${1%/}"; }
+	   alias decompress="tar -xzf"
+
+	   # NixOS rebuild helpers (main checkout, host tallyho)
+	   alias nrs="sudo nixos-rebuild switch --flake /home/adrien/nixos/main#tallyho"
+	   alias nrt="sudo nixos-rebuild test --flake /home/adrien/nixos/main#tallyho"
+	 '';
        };
      });
 
