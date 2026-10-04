@@ -12,6 +12,7 @@
            self'.packages.oh-my-posh
 	   pkgs.wl-clipboard
 	   pkgs.fzf
+	   pkgs.pv
 	 ];
 
 	 files.".zshrc".text = ''
@@ -25,8 +26,13 @@
 	'';
 
 	 files.".zshrc.d/aliases.zsh".text = ''
-	   compress() { tar -czf "''${1%/}.tar.gz" "''${1%/}"; }
-	   alias decompress="tar -xzf"
+	   compress() {
+	     local d="''${1%/}"
+	     tar cf - "$d" | pv -s "$(du -sb "$d" | awk '{print $1}')" | gzip > "$d.tar.gz"
+	   }
+	   decompress() {
+	     pv "$1" | tar xzf -
+	   }
 
 	   # NixOS rebuild helpers (main checkout, host tallyho)
 	   alias nrs="sudo nixos-rebuild switch --flake /home/adrien/nixos/main#tallyho"
