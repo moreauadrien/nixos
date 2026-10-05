@@ -12,7 +12,10 @@
       # symlink chain all the way to the real ELF binary in the *unwrapped*
       # package. The tree must therefore ship in that package's share/ dir:
       # <binary>/../share/voxtype/quickshell/
-      voxtype = inputs'.voxtype.packages.voxtype-vulkan-unwrapped.overrideAttrs
+      # voxtype-onnx-unwrapped exposes packages.voxtype-onnx-unwrapped in
+      # upstream flake.nix. Its wrapper (upstream wrapOnnx) additionally sets
+      # ORT_DYLIB_PATH/LD_LIBRARY_PATH, replicated in the postBuild below.
+      voxtype = inputs'.voxtype.packages.voxtype-onnx-unwrapped.overrideAttrs
         (old: {
           postInstall = (old.postInstall or "") + ''
             # Ship the quickshell QML tree where `voxtype setup quickshell`
@@ -32,9 +35,10 @@
           name = "voxtype-wrapped";
           paths = [ voxtype ];
           nativeBuildInputs = [ pkgs.makeWrapper ];
-          postBuild = ''
-            wrapProgram $out/bin/voxtype --prefix PATH : ${
-              pkgs.lib.makeBinPath (
+          postBuild =
+            let
+              libExt = if pkgs.stdenv.isDarwin then "dylib" else "so";
+              binPath = pkgs.lib.makeBinPath (
                 with pkgs;
                 [
                   wtype # Wayland typing
@@ -47,9 +51,14 @@
                   pciutils # GPU detection
                   pulseaudio
                 ]
-              )
-            }
-          '';
+              );
+            in
+            ''
+              wrapProgram $out/bin/voxtype \
+                --prefix PATH : ${binPath} \
+                --set ORT_DYLIB_PATH "${pkgs.onnxruntime}/lib/libonnxruntime.${libExt}" \
+                --prefix LD_LIBRARY_PATH : "${pkgs.onnxruntime}/lib"
+            '';
         })
       ];
     }
