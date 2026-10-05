@@ -1,6 +1,15 @@
 # Desktop utilities shipped system-wide.
-{ ... }: {
-  flake.nixosModules.desktop-tools = { pkgs, ... }: {
+{ moduleWithSystem, ... }: {
+  flake.nixosModules.desktop-tools = moduleWithSystem ({ pkgs, ... }: {
+    # Spotify: force native Wayland (ozone). Under XWayland the bundled Chromium
+    # ignores XCURSOR_THEME and renders a default cursor; the nixpkgs wrapper
+    # unsets DISPLAY when NIXOS_OZONE_WL=1, which makes the cursor theme work.
+    # The desktop entry Exec is repointed at the wrapper so launchers (walker)
+    # also start it on Wayland.
+    # Built with the NixOS pkgs instance (not perSystem.packages): spotify is
+    # unfree and perSystem pkgs have no allowUnfree config, which would break
+    # `nix flake show` / `nix eval .#packages` for the whole flake.
+
     # Folders must open in nautilus (walker opens entries via xdg-open),
     # otherwise chromium claims them by default. Merges with the browser
     # mime defaults set in librewolf.nix.
@@ -21,6 +30,20 @@
     programs.localsend.enable = true;
 
     environment.systemPackages = with pkgs; [
+      # Spotify, forced native Wayland (see comment above):
+      (symlinkJoin {
+        name = "spotify-wl";
+        paths = [ spotify ];
+        nativeBuildInputs = [ pkgs.makeWrapper ];
+        postBuild = ''
+          rm $out/bin/spotify
+          makeShellWrapper ${spotify}/share/spotify/spotify $out/bin/spotify \
+            --set NIXOS_OZONE_WL 1
+          substituteInPlace $out/share/applications/spotify.desktop \
+            --replace-fail "Exec=spotify" "Exec=$out/bin/spotify"
+        '';
+      })
+
       hyprmoncfg
       brightnessctl
       playerctl
@@ -45,7 +68,6 @@
       signal-desktop
       gimp
       libreoffice
-      spotify
 
       thunderbird
 
@@ -63,5 +85,5 @@
         };
       })
     ];
-  };
+  });
 }
