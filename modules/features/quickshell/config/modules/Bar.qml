@@ -3,6 +3,7 @@ import Quickshell.Io
 import QtQuick
 import "../components"
 import "../services"
+import "../config.js" as Config
 
 Scope {
     Variants {
@@ -18,8 +19,8 @@ Scope {
                 right: true
             }
 
-            implicitHeight: Theme.barHeight
-            color: Theme.background
+            implicitHeight: Config.bar.height
+            color: Config.colors.background
 
             WorkspaceIndicator {
                 anchors {

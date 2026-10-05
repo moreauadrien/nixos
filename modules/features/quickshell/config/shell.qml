@@ -3,4 +3,5 @@ import "modules"
 
 Scope {
     Bar {}
+    Notifications {}
 }

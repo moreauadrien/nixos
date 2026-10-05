@@ -5,6 +5,7 @@ import Quickshell.Wayland
 import QtQuick
 
 import "../services"
+import "../config.js" as Config
 
 Text {
     id: root
@@ -22,9 +23,9 @@ Text {
     readonly property string tip: charging ? `${capacity}% ↑${powerW}W` : `${capacity}% ↓${powerW}W`
 
     text: full ? "󰂅" : charging ? chargingIcons[level] : icons[level]
-    color: capacity <= 10 ? Theme.urgent : Theme.foreground
-    font.family: Theme.fontFamily
-    font.pixelSize: Theme.fontSize
+    color: capacity <= 10 ? Config.colors.error : Config.colors.text
+    font.family: Config.bar.fontFamily
+    font.pixelSize: Config.bar.fontSize
 
     Process {
         id: launcher

@@ -1,49 +1,52 @@
-import QtQuick
 import Quickshell.Bluetooth
+import Quickshell.Io
+import QtQuick
 
 import "../services"
+import "../config.js" as Config
 
 Text {
     id: root
 
+    // qmllint disable unresolved-type
     readonly property var adapter: Bluetooth.defaultAdapter
     readonly property bool powered: adapter !== null && adapter.enabled
-    readonly property int connectedCount: {
-        if (!powered)
-            return 0;
-        const list = Bluetooth.devices ? Bluetooth.devices.values : [];
-        let n = 0;
-        for (const d of list)
-            if (d && d.connected)
-                n += 1;
-        return n;
+    readonly property var connected: {
+        const list = [];
+        if (powered) {
+            for (const device of adapter.devices.values) {
+                if (device.connected)
+                    list.push(device);
+            }
+        }
+        return list;
     }
 
-    text: !powered ? "󰂲" : connectedCount > 0 ? "󰂱" : "󰂯"
-    color: Theme.foreground
-    font.family: Theme.fontFamily
-    font.pixelSize: Theme.fontSize
+    text: !powered ? "󰂲" : connected.length > 0 ? "󰂱" : ""
+    color: Config.colors.text
+    font.family: Config.bar.fontFamily
+    font.pixelSize: Config.bar.fontSize
 
-    Popup {
-        id: bluetoothPopup
+    Process {
+        id: launcher
 
-        anchorItem: root
-        contentWidth: panel.implicitWidth
-        contentHeight: panel.implicitHeight
-
-        BluetoothPanel {
-            id: panel
-
-            popupVisible: bluetoothPopup.visible
-            anchors.left: parent.left
-            anchors.top: parent.top
-        }
+        command: ["alacritty", "--command", "bluetui"]
     }
 
     MouseArea {
+        id: mouse
+
         anchors.fill: parent
-        hoverEnabled: false
+        hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
-        onClicked: bluetoothPopup.open()
+        onContainsMouseChanged: tooltip.wantShow = containsMouse
+        onClicked: launcher.running = true
+    }
+
+    Tooltip {
+        id: tooltip
+
+        anchorItem: root
+        text: !root.powered ? "Bluetooth off" : root.connected.length === 0 ? "No devices connected" : root.connected.map(d => d.name).join("\n")
     }
 }

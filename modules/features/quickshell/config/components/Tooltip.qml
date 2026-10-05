@@ -4,13 +4,14 @@ import Quickshell.Wayland
 import QtQuick
 
 import "../services"
+import "../config.js" as Config
 
 PanelWindow {
     id: root
 
-    property Item anchorItem   // l'item par rapport auquel se positionner
+    property Item anchorItem
     property string text: ""
-    property int barHeight: Theme.barHeight // pas de constante en dur
+    property int barHeight: Config.bar.height
 
     visible: false
     exclusionMode: ExclusionMode.Ignore
@@ -26,7 +27,7 @@ PanelWindow {
     implicitWidth: rect.implicitWidth
     implicitHeight: rect.implicitHeight
 
-    margins.top: Theme.barHeight + 4
+    margins.top: Config.bar.height + 4
     margins.right: {
         if (!anchorItem)
             return 8;
@@ -41,17 +42,17 @@ PanelWindow {
         implicitWidth: label.implicitWidth + 16
         implicitHeight: label.implicitHeight + 10
         radius: 6
-        color: Theme.background
-        border.color: Theme.muted
+        color: Config.colors.background
+        border.color: Config.colors.textMuted
         border.width: 1
 
         Text {
             id: label
             anchors.centerIn: parent
             text: root.text
-            color: Theme.foreground
-            font.family: Theme.fontFamily
-            font.pixelSize: Theme.fontSize
+            color: Config.colors.text
+            font.family: Config.bar.fontFamily
+            font.pixelSize: Config.bar.fontSize
         }
     }
 
