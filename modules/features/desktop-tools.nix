@@ -1,15 +1,30 @@
 # Desktop utilities shipped system-wide.
-{ moduleWithSystem, ... }: {
-  flake.nixosModules.desktop-tools = moduleWithSystem ({ pkgs, ... }: {
+{
+  moduleWithSystem,
+  inputs,
+  ...
+}: {
+  perSystem = { pkgs, ... }: {
     # Spotify: force native Wayland (ozone). Under XWayland the bundled Chromium
     # ignores XCURSOR_THEME and renders a default cursor; the nixpkgs wrapper
     # unsets DISPLAY when NIXOS_OZONE_WL=1, which makes the cursor theme work.
-    # The desktop entry Exec is repointed at the wrapper so launchers (walker)
-    # also start it on Wayland.
-    # Built with the NixOS pkgs instance (not perSystem.packages): spotify is
-    # unfree and perSystem pkgs have no allowUnfree config, which would break
-    # `nix flake show` / `nix eval .#packages` for the whole flake.
+    # wrapper-modules handles the binary wrapper, symlinks share/ (icons, man)
+    # and patches the desktop entry; `Exec=spotify` then resolves to the
+    # wrapper through PATH since the unwrapped package is not installed.
+    packages.spotify = inputs.wrapper-modules.lib.wrapPackage [
+      {
+        inherit pkgs;
+        package = pkgs.spotify;
+        env.NIXOS_OZONE_WL = "1";
+      }
+    ];
+  };
 
+  flake.nixosModules.desktop-tools = moduleWithSystem ({
+    pkgs,
+    self',
+    ...
+  }: {
     # Folders must open in nautilus (walker opens entries via xdg-open),
     # otherwise chromium claims them by default. Merges with the browser
     # mime defaults set in librewolf.nix.
@@ -31,18 +46,7 @@
 
     environment.systemPackages = with pkgs; [
       # Spotify, forced native Wayland (see comment above):
-      (symlinkJoin {
-        name = "spotify-wl";
-        paths = [ spotify ];
-        nativeBuildInputs = [ pkgs.makeWrapper ];
-        postBuild = ''
-          rm $out/bin/spotify
-          makeShellWrapper ${spotify}/share/spotify/spotify $out/bin/spotify \
-            --set NIXOS_OZONE_WL 1
-          substituteInPlace $out/share/applications/spotify.desktop \
-            --replace-fail "Exec=spotify" "Exec=$out/bin/spotify"
-        '';
-      })
+      self'.packages.spotify
 
       hyprmoncfg
       brightnessctl
