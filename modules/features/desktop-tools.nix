@@ -76,6 +76,7 @@
       thunderbird
 
       yt-dlp
+      obsidian
 
       # WhatsApp = web app in a dedicated chromium window
       ungoogled-chromium
