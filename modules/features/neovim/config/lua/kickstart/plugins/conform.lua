@@ -21,7 +21,7 @@ require('conform').setup {
   },
   -- You can also specify external formatters in here.
   formatters_by_ft = {
-    -- rust = { 'rustfmt' },
+    rust = { 'rustfmt' }, -- rustfmt comes from nixpkgs (see neovim.nix)
     -- Conform can also run multiple formatters sequentially
     -- python = { "isort", "black" },
     --

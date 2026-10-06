@@ -22,6 +22,8 @@
       kdePackages.qtdeclarative # qmlls
       lua-language-server # lua_ls
       stylua # stylua --lsp (Lua formatting)
+      rust-analyzer # rust_analyzer
+      rustfmt # Rust formatting (conform.nvim)
     ];
 
 

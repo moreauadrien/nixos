@@ -124,6 +124,8 @@ local servers = {
 
   qmlls = {}, -- Qt QML language server (from kdePackages.qtdeclarative in nixpkgs)
 
+  rust_analyzer = {}, -- Rust language server (from rust-analyzer in nixpkgs)
+
   -- Special Lua Config, as recommended by neovim help docs
   lua_ls = {
     on_init = function(client)
