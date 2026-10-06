@@ -7,8 +7,9 @@
       pi
       shell
       ts-sessionizer
+      devenv
     ];
 
-    environment.systemPackages = [ pkgs.devenv pkgs.fd pkgs.ripgrep];
+    environment.systemPackages = [ pkgs.fd pkgs.ripgrep];
   };
 }
