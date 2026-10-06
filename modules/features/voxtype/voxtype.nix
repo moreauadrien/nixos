@@ -37,7 +37,7 @@
           nativeBuildInputs = [ pkgs.makeWrapper ];
           postBuild =
             let
-              libExt = if pkgs.stdenv.isDarwin then "dylib" else "so";
+              libExt = if pkgs.stdenv.hostPlatform.isDarwin then "dylib" else "so";
               binPath = pkgs.lib.makeBinPath (
                 with pkgs;
                 [
