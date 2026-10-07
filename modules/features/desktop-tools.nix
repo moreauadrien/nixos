@@ -78,6 +78,8 @@
       yt-dlp
       obsidian
 
+      bruno
+
       # WhatsApp = web app in a dedicated chromium window
       ungoogled-chromium
       (pkgs.makeDesktopItem {
