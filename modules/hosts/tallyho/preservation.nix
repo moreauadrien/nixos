@@ -64,6 +64,7 @@
         preserveAt."/persistent" = {
           directories = [
             "/var/lib/bluetooth"
+            "/var/lib/systemd/timers"
             "/etc/ssh"
             {
               directory = "/var/lib/nixos";
