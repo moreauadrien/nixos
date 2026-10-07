@@ -16,6 +16,7 @@
         ".config/spotify",
         ".config/thunderbird",
         ".config/voxtype",
+        ".local/share/devenv",
         ".local/share/nvim",
         ".local/share/voxtype",
         "projects"
