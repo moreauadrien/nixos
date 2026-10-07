@@ -16,8 +16,7 @@
       flags = [
         "--print-build-logs"
       ];
-      # Daily at 04:00 (+ random delay so we don't hammer the cache).
-      dates = "04:00";
+      dates = "weekly";
       randomizedDelaySec = "45min";
       # Run the missed upgrade at boot if the machine was off at 04:00.
       persistent = true;
