@@ -46,6 +46,25 @@ statusline.setup { use_icons = vim.g.have_nerd_font }
 ---@diagnostic disable-next-line: duplicate-set-field
 statusline.section_location = function() return '%2l:%-2v' end
 
+
+require('mini.pairs').setup()
+
+require('mini.move').setup {
+  mappings = {
+    -- Move visual selection in Visual mode.
+    left = 'H',
+    right = 'L',
+    down = 'J',
+    up = 'K',
+
+    -- Move current line in Normal mode
+    line_left = '<M-h>',
+    line_right = '<M-l>',
+    line_down = '<M-j>',
+    line_up = '<M-k>',
+  },
+}
+
 -- ... and there is more!
 --  Check out: https://github.com/nvim-mini/mini.nvim
 
