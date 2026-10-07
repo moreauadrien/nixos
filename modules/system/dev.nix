@@ -8,6 +8,7 @@
       shell
       ts-sessionizer
       devenv
+      direnv
     ];
 
     environment.systemPackages = [ pkgs.fd pkgs.ripgrep];
