@@ -1,5 +1,5 @@
 { self, ... }: {
-  flake.nixosModules.pi =
+  flake.nixosModules.pi-docker =
     { pkgs, ... }:
     let
       # pi icon for notifications (official pi.dev favicon).
@@ -84,7 +84,7 @@
 
       # Sandboxed pi coding agent: `pi` loads the image (if needed) then starts
       # a rootless podman container with the current directory mounted.
-      pi-wrapper = pkgs.writeShellScriptBin "pi" ''
+      pi-wrapper = pkgs.writeShellScriptBin "pi-docker" ''
         #!/usr/bin/env bash
         set -euo pipefail
 

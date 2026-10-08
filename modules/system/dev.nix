@@ -4,7 +4,7 @@
     imports = with self.nixosModules; [
       neovim
       tmux
-      pi
+      pi-docker
       shell
       ts-sessionizer
       devenv
