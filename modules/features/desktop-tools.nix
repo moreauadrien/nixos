@@ -44,7 +44,16 @@
 
     programs.localsend.enable = true;
 
+    # GVFS: the D-Bus daemons behind all of Nautilus's remote filesystems
+    # (network browsing in the "Network" tab, smb:// sftp:// nfs://… URIs).
+    # Without it the Network tab just spins forever. The nixpkgs gvfs build
+    # includes the smb and nfs backends (samba/libnfs in its buildInputs).
+    services.gvfs.enable = true;
+
+    # mount.cifs for imperative SMB mounts
+    # (mount -t cifs //server/share /mnt/x -o credentials=...).
     environment.systemPackages = with pkgs; [
+      cifs-utils
       # Spotify, forced native Wayland (see comment above):
       self'.packages.spotify
 
