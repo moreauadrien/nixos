@@ -1,6 +1,7 @@
 {
   "system": {
     "directories": [
+      "/tmp",
       "/var/lib/tailscale"
     ],
     "files": []
