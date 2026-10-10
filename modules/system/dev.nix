@@ -5,6 +5,7 @@
       neovim
       tmux
       pi-docker
+      pi
       shell
       ts-sessionizer
       devenv

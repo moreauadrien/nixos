@@ -58,6 +58,8 @@
         '')
       ];
 
+      boot.tmp.cleanOnBoot = true;
+
       preservation = {
         enable = true;
 
@@ -66,6 +68,12 @@
             "/var/lib/bluetooth"
             "/var/lib/systemd/timers"
             "/etc/ssh"
+            {
+              directory = "/tmp";
+              user = "root";
+              group = "root";
+              mode = "1777";
+            }
             {
               directory = "/var/lib/nixos";
               inInitrd = true;
