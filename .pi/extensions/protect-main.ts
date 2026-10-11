@@ -19,12 +19,21 @@
  * plus mutating git ops that don't update the main branch — e.g.
  * `git merge main` run from a feature worktree (brings main INTO the
  * feature branch), or `git worktree add/remove` for feature worktrees.
+ *
+ * Known limitation: `git merge <x>` run directly in the BARE repo root
+ * (cwd = the bare repository itself) would fast-forward refs/heads/main
+ * and is not detected. Don't do that.
  */
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { resolve } from "node:path";
 
-const MAIN_ROOTS = ["/nixos/main", "/home/adrien/nixos/main"];
+const MAIN_ROOTS = [
+	"/nixos/main",
+	"/home/adrien/nixos/main",
+	// Gondolin VM: the host repo is mounted at /workspace
+	"/workspace/main",
+];
 
 const REASON =
 	"'main' worktree and branch are protected. Work in a feature worktree instead: " +
@@ -33,7 +42,7 @@ const REASON =
 	"See /nixos/AGENTS.md.";
 
 /** Is a path inside the main worktree (resolved against `base`)? */
-function inMain(p: string, base = "/"): boolean {
+export function inMain(p: string, base = "/"): boolean {
 	const abs = resolve(base, p);
 	return MAIN_ROOTS.some((r) => abs === r || abs.startsWith(r + "/"));
 }
@@ -64,7 +73,7 @@ function isDirectWrite(cmd: string): boolean {
 	});
 }
 
-type GitSegment = { runsInMain: boolean; sub: string; flags: string[]; args: string[] };
+type GitSegment = { runsInMain: boolean; cdMain: boolean; sub: string; flags: string[]; args: string[] };
 
 /** Git global options that take a separate value word. */
 const GIT_GLOBAL_OPTS_WITH_VALUE = new Set([
@@ -78,7 +87,7 @@ const GIT_GLOBAL_OPTS_WITH_VALUE = new Set([
 ]);
 
 /** Parse a shell command into per-segment git invocations. */
-function gitSegments(cmd: string, cwd: string | undefined): GitSegment[] {
+export function gitSegments(cmd: string, cwd: string | undefined): GitSegment[] {
 	const segs: GitSegment[] = [];
 	let cdDir: string | null = null;
 	for (const raw of cmd.split(/[;|&]+/)) {
@@ -90,9 +99,12 @@ function gitSegments(cmd: string, cwd: string | undefined): GitSegment[] {
 			cdDir = resolve(cwd ?? "/", cd[1]);
 			continue;
 		}
-		if (!/^git(?:\s|$)/.test(seg)) continue;
+		// strip leading `sudo` and VAR=value env assignments (e.g. `HOME=/tmp git ...`)
+		// so `sudo git ...` / `FOO=bar git ...` are still parsed as git commands
+		const gitSeg = seg.replace(/^(?:(?:sudo|[A-Za-z_][A-Za-z0-9_]*=\S*)\s+)*(git(?:\s|$))/, "$1");
+		if (!/^git(?:\s|$)/.test(gitSeg)) continue;
 
-		const words = seg.split(/\s+/).slice(1);
+		const words = gitSeg.split(/\s+/).slice(1);
 		let sub = "";
 		const flags: string[] = [];
 		const args: string[] = [];
@@ -114,9 +126,13 @@ function gitSegments(cmd: string, cwd: string | undefined): GitSegment[] {
 		// `--work-tree=...` override the cwd; otherwise a preceding `cd`, else ctx.cwd.
 		const cArg = seg.match(/\bgit\s+(?:-C\s*=?\s*(\S+)|--(?:git|work)-dir[=\s]+(\S+))/);
 		const dir = cArg ? (cArg[1] ?? cArg[2]) : null;
-		const runsInMain = dir ? inMain(dir, cwd ?? "/") : inMain(cdDir ?? cwd ?? "/", "/");
+		const runDir = dir ? resolve(cwd ?? "/", dir) : (cdDir ?? cwd ?? "/");
+		const runsInMain = inMain(runDir, "/");
+		// Belt and braces: a `cd .../main` whose mount layout is unknown to
+		// MAIN_ROOTS still counts as running in main for mutating commands.
+		const cdMain = !!cdDir && /\/main\/?$/.test(cdDir);
 
-		segs.push({ runsInMain, sub, flags, args });
+		segs.push({ runsInMain, cdMain, sub, flags, args });
 	}
 	return segs;
 }
@@ -136,13 +152,15 @@ function updatesMainBranch(cmd: string, cwd?: string): boolean {
 	// env-var overrides pointing at the main worktree
 	if (/\bGIT_(?:DIR|WORK_TREE)=\S*main\b/.test(cmd)) return true;
 
-	return gitSegments(cmd, cwd).some(({ runsInMain, sub, flags, args }) => {
+	return gitSegments(cmd, cwd).some(({ runsInMain, cdMain, sub, flags, args }) => {
+		const inMainCtx = runsInMain || cdMain;
+
 		// any non-read-only git command inside the main worktree is out
-		if (runsInMain && sub && !GIT_SUB_READONLY.has(sub) && !(sub === "worktree" && args[0] === "list"))
+		if (inMainCtx && sub && !GIT_SUB_READONLY.has(sub) && !(sub === "worktree" && args[0] === "list"))
 			return true;
 
 		const refMovers = ["push", "branch", "update-ref", "symbolic-ref", "worktree"];
-		if (!runsInMain && !refMovers.includes(sub)) return false;
+		if (!inMainCtx && !refMovers.includes(sub)) return false;
 		const rest = args.join(" ");
 
 		switch (sub) {
@@ -156,7 +174,7 @@ function updatesMainBranch(cmd: string, cwd?: string): boolean {
 			case "revert":
 			case "am":
 			case "stash":
-				return runsInMain;
+				return runsInMain || cdMain;
 
 			case "push": {
 				// only local ref updates move the local main branch
@@ -205,7 +223,7 @@ function updatesMainBranch(cmd: string, cwd?: string): boolean {
 }
 
 /** Decide whether a shell command touching main should be blocked. */
-function shouldBlockCommand(cmd: string, cwd?: string): string | null {
+export function shouldBlockCommand(cmd: string, cwd?: string): string | null {
 	if (updatesMainBranch(cmd, cwd)) return REASON;
 	if (!mentionsMain(cmd)) return null;
 	if (isDirectWrite(cmd)) return REASON;

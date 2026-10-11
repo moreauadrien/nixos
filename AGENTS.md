@@ -5,8 +5,17 @@
 Read-only access to `/nixos/main` is fine. Never write there: any attempt
 (edit, write tool, or bash command) is hard-blocked by the
 `.pi/extensions/protect-main.ts` extension and will fail with an error.
-All changes go through a feature worktree (see below), then get merged
-into `main` with `git merge`.
+All changes go through a feature worktree (see below).
+
+The agent NEVER merges into `main` (the extension blocks it) — leave the
+feature branch ready and the user merges manually:
+
+```bash
+cd ~/nixos/main && git merge feature-name
+```
+
+The agent never runs git merge/pull/rebase/commit/etc. from inside the `main`
+worktree, and never moves `refs/heads/main` behind git's back.
 
 ## Feature work → always use a worktree
 
@@ -28,7 +37,7 @@ which is what we want. Passing an explicit base branch (like `main`) makes git t
 to check out `main`, which fails if it is already checked out in another worktree
 (`fatal: 'main' is already used by worktree at ...`).
 
-Cleanup after merge (also from `/nixos`):
+Cleanup after the user merged (also from `/nixos`):
 
 ```bash
 cd /nixos
