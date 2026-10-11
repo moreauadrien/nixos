@@ -2,9 +2,10 @@
  * Gondolin Tool Routing
  *
  * Vendored from pi's examples/extensions/gondolin (pi 1.0.3) with one local
- * addition: the host clipboard-paste directory (PASTE_HOST_DIR, written to by
- * the paste-image extension, see ../config/extensions/paste-image.ts) is
- * mounted at the SAME guest path so pasted images are readable inside the VM.
+ * addition: this VM's clipboard-paste directory (written to by the paste-image
+ * extension, see ../config/extensions/paste-image.ts) is mounted at the SAME
+ * guest path so pasted images are readable inside the VM, while other VMs'
+ * paste directories stay invisible (one VM = one pi process, keyed by pid).
  *
  * Runs pi's built-in tools inside a local Gondolin micro-VM. The host working
  * directory is mounted at /workspace in the guest. File changes under
@@ -16,7 +17,7 @@
  *   - QEMU installed (for example, `brew install qemu` on macOS)
  */
 
-import { mkdirSync } from "node:fs";
+import { mkdirSync, readdirSync, rmSync } from "node:fs";
 import path from "node:path";
 import { RealFSProvider, VM } from "@earendil-works/gondolin";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
@@ -45,8 +46,30 @@ import {
 const GUEST_WORKSPACE = "/workspace";
 const DEFAULT_GREP_LIMIT = 100;
 
-/** Host clipboard-paste directory, mounted at the same guest path. Keep in sync with config/extensions/paste-image.ts. */
-const PASTE_HOST_DIR = "/tmp/pi-pastes";
+/** Clipboard-paste root; each pi process owns <root>/<pid>. Keep in sync with config/extensions/paste-image.ts. */
+const PASTE_ROOT = "/tmp/pi-pastes";
+/** This process's paste directory, mounted at the same guest path. */
+const PASTE_DIR = `${PASTE_ROOT}/${process.pid}`;
+
+/** Remove paste directories of dead pi processes (best effort). */
+function pruneStalePasteDirs() {
+	try {
+		for (const entry of readdirSync(PASTE_ROOT)) {
+			const dir = path.join(PASTE_ROOT, entry);
+			const pid = Number(entry);
+			if (dir === PASTE_DIR || !Number.isInteger(pid)) continue;
+			try {
+				process.kill(pid, 0);
+			} catch (error) {
+				if ((error as NodeJS.ErrnoException).code === "ESRCH") {
+					rmSync(dir, { recursive: true, force: true });
+				}
+			}
+		}
+	} catch {
+		// Best effort; the root may not exist yet.
+	}
+}
 
 type TextToolResult<TDetails> = {
 	content: Array<{ type: "text"; text: string }>;
@@ -379,15 +402,16 @@ export default function (pi: ExtensionAPI) {
 
 	async function startVm(ctx?: ExtensionContext): Promise<VM> {
 		ctx?.ui.setStatus("gondolin", ctx.ui.theme.fg("accent", `Gondolin: starting ${GUEST_WORKSPACE}`));
-		// Host directory for pasted clipboard images, readable at the same
-		// path in the guest so the agent can read pasted images directly.
-		mkdirSync(PASTE_HOST_DIR, { recursive: true });
+		// Host directory for this VM's pasted clipboard images, mounted at the
+		// same guest path so the agent only ever sees its own VM's pastes.
+		mkdirSync(PASTE_DIR, { recursive: true, mode: 0o700 });
+		pruneStalePasteDirs();
 		const created = await VM.create({
 			sessionLabel: `pi ${path.basename(localCwd)}`,
 			vfs: {
 				mounts: {
 					[GUEST_WORKSPACE]: new RealFSProvider(localCwd),
-					[PASTE_HOST_DIR]: new RealFSProvider(PASTE_HOST_DIR),
+					[PASTE_DIR]: new RealFSProvider(PASTE_DIR),
 				},
 			},
 		});

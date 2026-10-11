@@ -2,14 +2,15 @@
  * Paste clipboard images as files the agent can read.
  *
  * Ctrl+V with an image in the clipboard writes it to
- * /tmp/pi-pastes/pasted-image-<n>.<ext> on the host and inserts a
+ * /tmp/pi-pastes/<pid>/pasted-image-<n>.<ext> on the host and inserts a
  * `[pasted image n]` marker in the editor, expanded to the file path on
  * submit (same mechanism as the built-in `[paste #1 +N lines]` text markers).
  *
- * The gondolin VM mounts the host /tmp/pi-pastes directory at the SAME guest
- * path (see ../../gondolin-extension/index.ts), so the inserted path is valid
- * both inside and outside the VM. Without gondolin the agent reads the host
- * file directly.
+ * The gondolin VM mounts this process's paste directory (one VM = one pi
+ * process, keyed by process.pid) at the SAME guest path, so the path is valid
+ * both inside and outside the VM, and a VM only ever sees its own pastes —
+ * other VMs' paste directories are not mounted in the guest. Without
+ * gondolin the agent reads the host file directly.
  *
  * Ctrl+V without an image falls back to the built-in behavior: copied file
  * paths (uri-list / gnome-copied-files), then plain text.
@@ -20,8 +21,10 @@ import { execFile } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-/** Host directory receiving pasted images. Keep in sync with the gondolin extension mount. */
-const PASTE_HOST_DIR = "/tmp/pi-pastes";
+/** Root directory for pasted images; each pi process owns <root>/<pid>. */
+const PASTE_ROOT = "/tmp/pi-pastes";
+/** This process's paste directory. Keep in sync with the gondolin extension mount. */
+const PASTE_DIR = `${PASTE_ROOT}/${process.pid}`;
 
 const IMAGE_MIME_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"] as const;
 type ImageMimeType = (typeof IMAGE_MIME_TYPES)[number];
@@ -192,8 +195,8 @@ class PasteImageEditor extends CustomEditor {
 	private insertImage(image: ClipboardImage) {
 		pasteCounter += 1;
 		const fileName = `pasted-image-${pasteCounter}.${EXTENSIONS[image.mimeType]}`;
-		fs.mkdirSync(PASTE_HOST_DIR, { recursive: true });
-		const filePath = path.join(PASTE_HOST_DIR, fileName);
+		fs.mkdirSync(PASTE_DIR, { recursive: true, mode: 0o700 });
+		const filePath = path.join(PASTE_DIR, fileName);
 		fs.writeFileSync(filePath, image.bytes);
 		imagePastes.set(pasteCounter, filePath);
 		this.insertTextAtCursor(`[pasted image ${pasteCounter}]`);
