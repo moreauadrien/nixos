@@ -15,7 +15,6 @@
       desktop-tools
       audio
       quickshell
-      alacritty
       ghostty
       librewolf
       tailscale
