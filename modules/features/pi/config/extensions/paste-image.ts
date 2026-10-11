@@ -5,6 +5,8 @@
  * /tmp/pi-pastes/<pid>/pasted-image-<n>.<ext> on the host and inserts a
  * `[pasted image n]` marker in the editor, expanded to the file path on
  * submit (same mechanism as the built-in `[paste #1 +N lines]` text markers).
+ * Markers are merged into atomic editor segments, so backspace/delete and
+ * cursor movement treat them as a single unit, like built-in paste markers.
  *
  * The gondolin VM mounts this process's paste directory (one VM = one pi
  * process, keyed by process.pid) at the SAME guest path, so the path is valid
@@ -158,6 +160,25 @@ async function readClipboardText(): Promise<string | null> {
 	return text || null;
 }
 
+/**
+ * Spans of `[pasted image n]` markers present in the text. A marker only
+ * merges while its text is intact: hand-editing it degrades it to normal
+ * characters, like a built-in paste marker whose id is no longer valid.
+ */
+function imageMarkerSpans(text: string): Array<{ start: number; end: number }> {
+	const spans: Array<{ start: number; end: number }> = [];
+	for (const id of imagePastes.keys()) {
+		const marker = `[pasted image ${id}]`;
+		let start = text.indexOf(marker);
+		while (start !== -1) {
+			spans.push({ start, end: start + marker.length });
+			start = text.indexOf(marker, start + marker.length);
+		}
+	}
+	spans.sort((a, b) => a.start - b.start);
+	return spans;
+}
+
 class PasteImageEditor extends CustomEditor {
 	onPasteImage = () => {
 		void this.handlePaste();
@@ -202,6 +223,34 @@ class PasteImageEditor extends CustomEditor {
 		this.insertTextAtCursor(`[pasted image ${pasteCounter}]`);
 		this.tui.requestRender();
 		notify(`Pasted image saved to ${filePath}`);
+	}
+
+	/**
+	 * Merge `[pasted image n]` markers into single atomic segments so cursor
+	 * movement, deletion, and wrapping treat them as one unit, like the
+	 * built-in `[paste #n]` markers (see pi-tui Editor.segment).
+	 */
+	segment(text: string, mode: "grapheme" | "word"): Iterable<{ segment: string; index: number; input: string }> {
+		const base = super.segment(text, mode);
+		if (!text.includes("[pasted image ")) return base;
+		const spans = imageMarkerSpans(text);
+		if (spans.length === 0) return base;
+		const result: Array<{ segment: string; index: number; input: string }> = [];
+		let spanIdx = 0;
+		for (const seg of base) {
+			while (spanIdx < spans.length && spans[spanIdx].end <= seg.index) spanIdx++;
+			const span = spanIdx < spans.length ? spans[spanIdx] : undefined;
+			if (span && seg.index >= span.start) {
+				// Emit one merged segment for the first grapheme of the marker,
+				// skip the rest.
+				if (seg.index === span.start) {
+					result.push({ segment: text.slice(span.start, span.end), index: span.start, input: text });
+				}
+			} else {
+				result.push(seg);
+			}
+		}
+		return result;
 	}
 
 	/** Expand `[pasted image n]` markers to their file path on submit. */
