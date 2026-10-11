@@ -72,4 +72,30 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   callback = function() vim.hl.on_yank() end,
 })
 
+
+-- Remove small difference between <Esc> and <C-c>
+vim.keymap.set('i', '<C-c>', '<Esc>')
+
+-- Delete from quickfix list
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "qf",
+  callback = function(args)
+    local function delete_entries(first, last)
+      if first > last then first, last = last, first end
+      local qf = vim.fn.getqflist()
+      for i = last, first, -1 do
+        table.remove(qf, i)
+      end
+      vim.fn.setqflist(qf, "r")
+    end
+
+    vim.keymap.set("n", "dd", function()
+      delete_entries(vim.fn.line("."), vim.fn.line("."))
+    end, { buffer = args.buf, desc = "Delete quickfix entry" })
+
+    vim.keymap.set("v", "d", function()
+      delete_entries(vim.fn.line("v"), vim.fn.line("."))
+    end, { buffer = args.buf, desc = "Delete quickfix selection" })
+  end,
+})
 -- vim: ts=2 sts=2 sw=2 et
