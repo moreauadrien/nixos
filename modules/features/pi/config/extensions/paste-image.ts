@@ -180,13 +180,16 @@ function imageMarkerSpans(text: string): Array<{ start: number; end: number }> {
 }
 
 class PasteImageEditor extends CustomEditor {
+	// NOTE: the clipboard flow must not be named `handlePaste` — that name
+	// shadows pi-tui's bracketed-paste handler (Editor.handleInput dispatches
+	// terminal pastes to it), diverting pastes into this clipboard flow.
 	onPasteImage = () => {
-		void this.handlePaste();
+		void this.pasteFromClipboard();
 	};
 
 	private busy = false;
 
-	private async handlePaste() {
+	private async pasteFromClipboard() {
 		if (this.busy) return;
 		this.busy = true;
 		try {
@@ -197,13 +200,15 @@ class PasteImageEditor extends CustomEditor {
 			}
 			const filePaths = await readClipboardFilePaths();
 			if (filePaths) {
-				this.insertTextAtCursor(filePaths.join("\n"));
+				// Base handlePaste: same collapse-for-large-content behavior as
+				// a terminal paste.
+				this.handlePaste(filePaths.join("\n"));
 				this.tui.requestRender();
 				return;
 			}
 			const text = await readClipboardText();
 			if (text) {
-				this.insertTextAtCursor(text);
+				this.handlePaste(text);
 				this.tui.requestRender();
 			}
 		} catch (error) {
