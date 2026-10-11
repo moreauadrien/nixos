@@ -94,6 +94,7 @@
                   "nixos"
                   "keep"
                   "podman"
+                  ".cache/gondolin"
                   ".config/hyprmoncfg"
                   ".config/librewolf"
                   ".ssh"
