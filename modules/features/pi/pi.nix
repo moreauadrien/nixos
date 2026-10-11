@@ -23,9 +23,11 @@
           ${gondolinNodeModules}/node_modules/@earendil-works/gondolin/dist/bin/gondolin.js "$@"
       '';
 
+      # Vendored copy of pi's gondolin example extension with an extra mount
+      # for pasted clipboard images (see config/extensions/paste-image.ts).
       gondolinExtension = pkgs.runCommand "pi-gondolin-extension" { } ''
         mkdir -p $out
-        cp ${inputs.pi-src}/packages/coding-agent/examples/extensions/gondolin/index.ts $out/index.ts
+        cp ${./gondolin-extension/index.ts} $out/index.ts
         ln -s ${gondolinNodeModules}/node_modules $out/node_modules
       '';
 
