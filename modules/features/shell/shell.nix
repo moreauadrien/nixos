@@ -20,6 +20,15 @@
 
  bindkey -e
 
+ # Ctrl/Alt+arrows are not bound by zsh's emacs keymap by default; without
+ # these, the escape sequence falls through and can leak ';5D' into the line.
+ bindkey "\e[1;5C" forward-word
+ bindkey "\e[1;5D" backward-word
+ bindkey "\e[1;3C" forward-word
+ bindkey "\e[1;3D" backward-word
+ bindkey "\eO5C" forward-word
+ bindkey "\eO5D" backward-word
+
  setopt HIST_IGNORE_SPACE # use a space to hide a command from history
  source ${pkgs.fzf}/share/fzf/key-bindings.zsh
  for f in ~/.zshrc.d/*.zsh(N); do source "$f"; done
