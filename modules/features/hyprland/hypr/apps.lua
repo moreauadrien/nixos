@@ -1,5 +1,5 @@
 return {
-    terminal = "ghostty",
+    terminal = "alacritty",
     launcher = "walker",
     screenshot = "gradia --screenshot",
     screenshotFullscreen = "gradia --screenshot=FULL",
