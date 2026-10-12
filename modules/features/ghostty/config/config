@@ -23,6 +23,9 @@ term = xterm-256color
 
 font-family = JetBrainsMono Nerd Font
 font-size = 17
+font-feature = -calt
+
+confirm-close-surface = false
 
 # Stop the zsh shell integration from forcing a bar cursor; keep the default
 # block cursor like Alacritty.
