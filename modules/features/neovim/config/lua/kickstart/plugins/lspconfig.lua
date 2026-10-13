@@ -49,18 +49,28 @@ vim.api.nvim_create_autocmd('FileType', {
 
     -- Fully-concealed lines (the ``` fences) are invisible but the cursor still
     -- lands on them, so j/k seem to "do nothing" on those lines. Skip them.
-    local function move(dir)
-      return function()
-        local cur = vim.api.nvim_win_get_cursor(0)[1]
-        local line, last = cur + dir, vim.api.nvim_buf_line_count(0)
-        while line >= 1 and line <= last and vim.fn.getline(line):match('^%s*```') do
-          line = line + dir
-        end
-        vim.api.nvim_win_set_cursor(0, { math.min(math.max(line, 1), last), 0 })
-      end
+    local last = vim.api.nvim_buf_line_count(args.buf)
+    local function is_fence(line)
+      return vim.api.nvim_buf_get_lines(args.buf, line - 1, line, false)[1]:match('^%s*```')
     end
-    vim.keymap.set('n', 'j', move(1), { buffer = args.buf, desc = 'LSP popup: down' })
-    vim.keymap.set('n', 'k', move(-1), { buffer = args.buf, desc = 'LSP popup: up' })
+    local function nearest(line, dir)
+      line = line + dir
+      while line >= 1 and line <= last and is_fence(line) do
+        line = line + dir
+      end
+      return math.min(math.max(line, 1), last)
+    end
+
+    -- The popup cursor starts on line 1, which is often a concealed fence; it
+    -- then renders on the next visible line and the first j looks like a no-op.
+    -- Park it on visible content instead.
+    for _, win in ipairs(vim.fn.win_findbuf(args.buf)) do
+      local cur = vim.api.nvim_win_get_cursor(win)[1]
+      if is_fence(cur) then vim.api.nvim_win_set_cursor(win, { nearest(cur, 1), 0 }) end
+    end
+
+    vim.keymap.set('n', 'j', function() vim.api.nvim_win_set_cursor(0, { nearest(vim.fn.line '.', 1), 0 }) end, { buffer = args.buf, desc = 'LSP popup: down' })
+    vim.keymap.set('n', 'k', function() vim.api.nvim_win_set_cursor(0, { nearest(vim.fn.line '.', -1), 0 }) end, { buffer = args.buf, desc = 'LSP popup: up' })
   end,
 })
 
