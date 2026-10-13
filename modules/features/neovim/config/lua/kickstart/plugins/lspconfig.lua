@@ -30,10 +30,12 @@ local function gh(repo) return 'https://github.com/' .. repo end
 vim.pack.add { gh 'j-hui/fidget.nvim' }
 require('fidget').setup {}
 
--- Hide raw Markdown markers (`**bold**`, backticks, `#` headings, ...)
+-- Hide raw Markdown markers (`**bold**`, backticks, ``` fences, `#` headings, ...)
 -- inside floating preview windows (hover, signature help, ...), so LSP docs
 -- read like rendered Markdown instead of its source.
 -- Only applies to scratch buffers (buftype=nofile), never to real Markdown files.
+-- `concealcursor` keeps lines concealed even under the cursor, otherwise
+-- scrolling the focused popup (KK, then j/k) un-conceals every line it crosses.
 --  See `:help conceallevel`, `:help vim.lsp.util.open_floating_preview()`
 vim.api.nvim_create_autocmd('FileType', {
   group = vim.api.nvim_create_augroup('kickstart-lsp-float-markdown', { clear = true }),
@@ -42,6 +44,7 @@ vim.api.nvim_create_autocmd('FileType', {
     if vim.bo[args.buf].buftype ~= 'nofile' then return end
     for _, win in ipairs(vim.fn.win_findbuf(args.buf)) do
       vim.wo[win].conceallevel = 2
+      vim.wo[win].concealcursor = 'nvic'
     end
   end,
 })
