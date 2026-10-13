@@ -12,6 +12,7 @@
       ],
       "directories": [
         ".config/Signal",
+        ".config/bruno",
         ".config/chromium",
         ".config/obsidian",
         ".config/spotify",
