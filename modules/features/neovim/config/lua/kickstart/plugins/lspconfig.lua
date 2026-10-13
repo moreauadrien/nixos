@@ -30,6 +30,60 @@ local function gh(repo) return 'https://github.com/' .. repo end
 vim.pack.add { gh 'j-hui/fidget.nvim' }
 require('fidget').setup {}
 
+-- Hide raw Markdown markers (`**bold**`, backticks, ``` fences, `#` headings, ...)
+-- inside floating preview windows (hover, signature help, ...), so LSP docs
+-- read like rendered Markdown instead of its source.
+-- Only applies to scratch buffers (buftype=nofile), never to real Markdown files.
+-- `concealcursor` keeps lines concealed even under the cursor, otherwise
+-- scrolling the focused popup (KK, then j/k) un-conceals every line it crosses.
+--  See `:help conceallevel`, `:help vim.lsp.util.open_floating_preview()`
+vim.api.nvim_create_autocmd('FileType', {
+  group = vim.api.nvim_create_augroup('kickstart-lsp-float-markdown', { clear = true }),
+  pattern = 'markdown',
+  callback = function(args)
+    if vim.bo[args.buf].buftype ~= 'nofile' then return end
+    for _, win in ipairs(vim.fn.win_findbuf(args.buf)) do
+      vim.wo[win].conceallevel = 2
+      vim.wo[win].concealcursor = 'nvic'
+    end
+
+    -- Fully-concealed lines (the ``` fences) are invisible but the cursor still
+    -- lands on them, so j/k seem to "do nothing" on those lines. Skip them.
+    local last = vim.api.nvim_buf_line_count(args.buf)
+    local function is_fence(line)
+      return vim.api.nvim_buf_get_lines(args.buf, line - 1, line, false)[1]:match('^%s*```')
+    end
+    local function nearest(line, dir)
+      line = line + dir
+      while line >= 1 and line <= last and is_fence(line) do
+        line = line + dir
+      end
+      -- nil when only concealed lines remain in that direction: don't move
+      if line >= 1 and line <= last then return line end
+    end
+
+    -- The popup cursor starts on line 1, which is often a concealed fence; it
+    -- then renders on the next visible line and the first j looks like a no-op.
+    -- Park it on visible content instead.
+    for _, win in ipairs(vim.fn.win_findbuf(args.buf)) do
+      local cur = vim.api.nvim_win_get_cursor(win)[1]
+      if is_fence(cur) then
+        local target = nearest(cur, 1)
+        if target then vim.api.nvim_win_set_cursor(win, { target, 0 }) end
+      end
+    end
+
+    vim.keymap.set('n', 'j', function()
+      local target = nearest(vim.fn.line '.', 1)
+      if target then vim.api.nvim_win_set_cursor(0, { target, 0 }) end
+    end, { buffer = args.buf, desc = 'LSP popup: down' })
+    vim.keymap.set('n', 'k', function()
+      local target = nearest(vim.fn.line '.', -1)
+      if target then vim.api.nvim_win_set_cursor(0, { target, 0 }) end
+    end, { buffer = args.buf, desc = 'LSP popup: up' })
+  end,
+})
+
 --  This function gets run when an LSP attaches to a particular buffer.
 --    That is to say, every time a new file is opened that is associated with
 --    an lsp (for example, opening `main.rs` is associated with `rust_analyzer`) this
