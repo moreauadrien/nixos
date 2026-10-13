@@ -46,6 +46,21 @@ vim.api.nvim_create_autocmd('FileType', {
       vim.wo[win].conceallevel = 2
       vim.wo[win].concealcursor = 'nvic'
     end
+
+    -- Fully-concealed lines (the ``` fences) are invisible but the cursor still
+    -- lands on them, so j/k seem to "do nothing" on those lines. Skip them.
+    local function move(dir)
+      return function()
+        local cur = vim.api.nvim_win_get_cursor(0)[1]
+        local line, last = cur + dir, vim.api.nvim_buf_line_count(0)
+        while line >= 1 and line <= last and vim.fn.getline(line):match('^%s*```') do
+          line = line + dir
+        end
+        vim.api.nvim_win_set_cursor(0, { math.min(math.max(line, 1), last), 0 })
+      end
+    end
+    vim.keymap.set('n', 'j', move(1), { buffer = args.buf, desc = 'LSP popup: down' })
+    vim.keymap.set('n', 'k', move(-1), { buffer = args.buf, desc = 'LSP popup: up' })
   end,
 })
 
