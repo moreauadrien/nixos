@@ -58,7 +58,8 @@ vim.api.nvim_create_autocmd('FileType', {
       while line >= 1 and line <= last and is_fence(line) do
         line = line + dir
       end
-      return math.min(math.max(line, 1), last)
+      -- nil when only concealed lines remain in that direction: don't move
+      if line >= 1 and line <= last then return line end
     end
 
     -- The popup cursor starts on line 1, which is often a concealed fence; it
@@ -66,11 +67,20 @@ vim.api.nvim_create_autocmd('FileType', {
     -- Park it on visible content instead.
     for _, win in ipairs(vim.fn.win_findbuf(args.buf)) do
       local cur = vim.api.nvim_win_get_cursor(win)[1]
-      if is_fence(cur) then vim.api.nvim_win_set_cursor(win, { nearest(cur, 1), 0 }) end
+      if is_fence(cur) then
+        local target = nearest(cur, 1)
+        if target then vim.api.nvim_win_set_cursor(win, { target, 0 }) end
+      end
     end
 
-    vim.keymap.set('n', 'j', function() vim.api.nvim_win_set_cursor(0, { nearest(vim.fn.line '.', 1), 0 }) end, { buffer = args.buf, desc = 'LSP popup: down' })
-    vim.keymap.set('n', 'k', function() vim.api.nvim_win_set_cursor(0, { nearest(vim.fn.line '.', -1), 0 }) end, { buffer = args.buf, desc = 'LSP popup: up' })
+    vim.keymap.set('n', 'j', function()
+      local target = nearest(vim.fn.line '.', 1)
+      if target then vim.api.nvim_win_set_cursor(0, { target, 0 }) end
+    end, { buffer = args.buf, desc = 'LSP popup: down' })
+    vim.keymap.set('n', 'k', function()
+      local target = nearest(vim.fn.line '.', -1)
+      if target then vim.api.nvim_win_set_cursor(0, { target, 0 }) end
+    end, { buffer = args.buf, desc = 'LSP popup: up' })
   end,
 })
 
