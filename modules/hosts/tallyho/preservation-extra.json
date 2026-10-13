@@ -13,6 +13,7 @@
       "directories": [
         ".config/Signal",
         ".config/chromium",
+        ".config/obsidian",
         ".config/spotify",
         ".config/thunderbird",
         ".config/voxtype",
