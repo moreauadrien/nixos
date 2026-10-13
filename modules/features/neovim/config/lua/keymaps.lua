@@ -98,4 +98,8 @@ vim.api.nvim_create_autocmd("FileType", {
     end, { buffer = args.buf, desc = "Delete quickfix selection" })
   end,
 })
+
+vim.keymap.set('n', '<C-f>', '<cmd>silent !tmux neww ts<CR>')
+
+
 -- vim: ts=2 sts=2 sw=2 et

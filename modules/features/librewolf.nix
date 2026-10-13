@@ -45,6 +45,20 @@
                 Alias = "dd";
               }
               {
+                Name = "Rust std";
+                URLTemplate = "https://doc.rust-lang.org/stable/std/?search={searchTerms}";
+                Method = "GET";
+                IconURL = "https://doc.rust-lang.org/stable/static.files/favicon-044be391.svg";
+                Alias = "rust-std";
+              }
+              {
+                Name = "Rust crates";
+                URLTemplate = "https://docs.rs/releases/search?query={searchTerms}";
+                Method = "GET";
+                IconURL = "https://docs.rs/-/static/favicon.ico";
+                Alias = "rust-crate";
+              }
+              {
                 Name = "Startpage";
                 URLTemplate = "https://www.startpage.com/sp/search?prfe=cc666ed1e7fcf6d77c7258d739352543093f0c2464f9965afd4df3006aab0ed5ecf3a18d28395e3d64ed1d1db0a4ef0ee90d84b320ecf497afa49d736b2462d40daa63a73b15e9b6b677903774ac8096ed4d&query={searchTerms}";
                 Method = "GET";
