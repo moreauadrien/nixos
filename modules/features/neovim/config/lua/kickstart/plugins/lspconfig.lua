@@ -30,6 +30,22 @@ local function gh(repo) return 'https://github.com/' .. repo end
 vim.pack.add { gh 'j-hui/fidget.nvim' }
 require('fidget').setup {}
 
+-- Hide raw Markdown markers (`**bold**`, backticks, `#` headings, ...)
+-- inside floating preview windows (hover, signature help, ...), so LSP docs
+-- read like rendered Markdown instead of its source.
+-- Only applies to scratch buffers (buftype=nofile), never to real Markdown files.
+--  See `:help conceallevel`, `:help vim.lsp.util.open_floating_preview()`
+vim.api.nvim_create_autocmd('FileType', {
+  group = vim.api.nvim_create_augroup('kickstart-lsp-float-markdown', { clear = true }),
+  pattern = 'markdown',
+  callback = function(args)
+    if vim.bo[args.buf].buftype ~= 'nofile' then return end
+    for _, win in ipairs(vim.fn.win_findbuf(args.buf)) do
+      vim.wo[win].conceallevel = 2
+    end
+  end,
+})
+
 --  This function gets run when an LSP attaches to a particular buffer.
 --    That is to say, every time a new file is opened that is associated with
 --    an lsp (for example, opening `main.rs` is associated with `rust_analyzer`) this
