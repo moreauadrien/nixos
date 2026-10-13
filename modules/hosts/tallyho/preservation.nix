@@ -64,6 +64,15 @@
         enable = true;
 
         preserveAt."/persistent" = {
+          # Hide all preservation bind mounts from gvfs (Nautilus sidebar,
+          # "Other Locations") and gnome-disks; without this every preserved
+          # path shows up as a separate mounted folder since gvfs is enabled
+          # for SMB support.
+          commonMountOptions = [
+            "x-gvfs-hide"
+            "x-gdu.hide"
+          ];
+
           directories = [
             "/var/lib/bluetooth"
             "/var/lib/systemd/timers"
