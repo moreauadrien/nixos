@@ -38,7 +38,6 @@
         {
           inherit pkgs;
           package = pkgs.pi-coding-agent;
-          addFlag = [ "-e" "${gondolinExtension}/index.ts" ];
           env.GONDOLIN_DEFAULT_IMAGE = imageTag;
           runtimePkgs = [
             gondolin
@@ -55,6 +54,9 @@
             pkgs.git
           ];
           # The repository image uses Podman, so build it at first launch, outside the Nix build sandbox.
+          # pi dispatches subcommands (install, remove, update, list, config, auth, mcp) on
+          # argv[0] and rejects unknown flags, so the -e extension flag must not be injected
+          # for those invocations. For regular sessions, prepend it to the real arguments.
           runShell = [
             ''
               set -e
@@ -63,6 +65,10 @@
                   --config "${inputs.gondolin-nix-sandbox}/build-config.json" \
                   --tag "${imageTag}"
               fi
+              case "$1" in
+                install|remove|uninstall|update|list|config|auth|mcp) ;;
+                *) set -- -e "${gondolinExtension}/index.ts" "$@" ;;
+              esac
             ''
           ];
         }
