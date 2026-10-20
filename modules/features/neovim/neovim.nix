@@ -25,6 +25,7 @@
       rust-analyzer # rust_analyzer
       rustfmt # Rust formatting (conform.nvim)
       nixfmt-rfc-style # Nix formatting (conform.nvim, RFC 166 style)
+      typstyle # Typst formatting (conform.nvim)
     ];
 
 

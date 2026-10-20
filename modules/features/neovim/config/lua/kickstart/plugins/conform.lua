@@ -23,6 +23,7 @@ require('conform').setup {
   formatters_by_ft = {
     rust = { 'rustfmt' }, -- rustfmt comes from nixpkgs (see neovim.nix)
     nix = { 'nixfmt' }, -- nixfmt (RFC 166) comes from nixpkgs (see neovim.nix)
+    typst = { 'typstyle' }, -- typstyle comes from nixpkgs (see neovim.nix)
     -- Conform can also run multiple formatters sequentially
     -- python = { "isort", "black" },
     --
