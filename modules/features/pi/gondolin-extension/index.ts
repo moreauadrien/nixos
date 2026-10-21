@@ -1,11 +1,16 @@
 /**
  * Gondolin Tool Routing
  *
- * Vendored from pi's examples/extensions/gondolin (pi 1.0.3) with one local
- * addition: this VM's clipboard-paste directory (written to by the paste-image
- * extension, see ../config/extensions/paste-image.ts) is mounted at the SAME
- * guest path so pasted images are readable inside the VM, while other VMs'
- * paste directories stay invisible (one VM = one pi process, keyed by pid).
+ * Vendored from pi's examples/extensions/gondolin (pi 1.0.3) with two local
+ * additions:
+ *   - this VM's clipboard-paste directory (written to by the paste-image
+ *     extension, see ../config/extensions/paste-image.ts) is mounted at the SAME
+ *     guest path so pasted images are readable inside the VM, while other VMs'
+ *     paste directories stay invisible (one VM = one pi process, keyed by pid);
+ *   - the host paths the system prompt points at but that live outside the
+ *     workspace (user skills, skills shipped by Pi packages, and the Pi package
+ *     itself) are mounted read-only at the same guest paths, so the agent can
+ *     read skills and docs from inside the VM.
  *
  * Runs pi's built-in tools inside a local Gondolin micro-VM. The host working
  * directory is mounted at /workspace in the guest. File changes under
@@ -17,9 +22,12 @@
  *   - QEMU installed (for example, `brew install qemu` on macOS)
  */
 
-import { mkdirSync, readdirSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
+import { homedir } from "node:os";
 import path from "node:path";
-import { RealFSProvider, VM } from "@earendil-works/gondolin";
+import { ReadonlyProvider, RealFSProvider, VM } from "@earendil-works/gondolin";
+import type { VirtualProvider } from "@earendil-works/gondolin";
+import { getAgentDir, getPackageDir } from "@earendil-works/pi-coding-agent";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import {
 	type BashOperations,
@@ -103,6 +111,33 @@ function toGuestPath(localCwd: string, inputPath: string): string {
 		return path.posix.resolve("/", toPosix(trimmed));
 	}
 	return path.posix.resolve(GUEST_WORKSPACE, toPosix(trimmed));
+}
+
+/**
+ * Host paths advertised by the system prompt that live outside the workspace:
+ * user-level skills (`<agentDir>/skills`, `~/.agents/skills`), skills shipped by
+ * installed Pi packages (their npm/git install roots), and the Pi package itself
+ * (README, docs and examples referenced by the instructions). They are mounted
+ * read-only at the SAME guest path so `read` and `bash` work inside the VM while
+ * the sandbox can never modify the host copies.
+ */
+function hostResourceMounts(localCwd: string): Record<string, VirtualProvider> {
+	const home = process.env.HOME ?? homedir();
+	const agentDir = getAgentDir();
+	const candidates = [
+		path.join(agentDir, "skills"),
+		path.join(home, ".agents", "skills"),
+		path.join(agentDir, "npm"),
+		path.join(agentDir, "git"),
+		getPackageDir(),
+	];
+	const mounts: Record<string, VirtualProvider> = {};
+	for (const dir of candidates) {
+		// Paths inside the workspace are already reachable through its mount.
+		if (!existsSync(dir) || isInsideHostPath(localCwd, dir)) continue;
+		mounts[toPosix(path.resolve(dir))] = new ReadonlyProvider(new RealFSProvider(dir));
+	}
+	return mounts;
 }
 
 function createGondolinReadOps(vm: VM, localCwd: string): ReadOperations {
@@ -399,6 +434,7 @@ export default function (pi: ExtensionAPI) {
 	let vm: VM | undefined;
 	let vmStarting: Promise<VM> | undefined;
 	let shellPath = "/bin/sh";
+	let hostMountPaths: string[] = [];
 
 	async function startVm(ctx?: ExtensionContext): Promise<VM> {
 		ctx?.ui.setStatus("gondolin", ctx.ui.theme.fg("accent", `Gondolin: starting ${GUEST_WORKSPACE}`));
@@ -406,12 +442,14 @@ export default function (pi: ExtensionAPI) {
 		// same guest path so the agent only ever sees its own VM's pastes.
 		mkdirSync(PASTE_DIR, { recursive: true, mode: 0o700 });
 		pruneStalePasteDirs();
+		const hostMounts = hostResourceMounts(localCwd);
 		const created = await VM.create({
 			sessionLabel: `pi ${path.basename(localCwd)}`,
 			vfs: {
 				mounts: {
 					[GUEST_WORKSPACE]: new RealFSProvider(localCwd),
 					[PASTE_DIR]: new RealFSProvider(PASTE_DIR),
+					...hostMounts,
 				},
 			},
 		});
@@ -422,7 +460,14 @@ export default function (pi: ExtensionAPI) {
 			"gondolin",
 			ctx.ui.theme.fg("accent", `Gondolin: ${created.id.slice(0, 8)} (${GUEST_WORKSPACE})`),
 		);
-		ctx?.ui.notify(`Gondolin VM ready. ${localCwd} is mounted at ${GUEST_WORKSPACE}.`, "info");
+		hostMountPaths = Object.keys(hostMounts);
+		ctx?.ui.notify(
+			[
+				`Gondolin VM ready. ${localCwd} is mounted at ${GUEST_WORKSPACE}.`,
+				...(hostMountPaths.length > 0 ? [`Read-only host mounts: ${hostMountPaths.join(", ")}`] : []),
+			].join("\n"),
+			"info",
+		);
 		return created;
 	}
 
@@ -462,6 +507,7 @@ export default function (pi: ExtensionAPI) {
 					`Gondolin VM: ${activeVm.id}`,
 					`Host workspace: ${localCwd}`,
 					`Guest workspace: ${GUEST_WORKSPACE}`,
+					...(hostMountPaths.length > 0 ? [`Read-only host mounts: ${hostMountPaths.join(", ")}`] : []),
 					`Shell: ${shellPath}`,
 				].join("\n"),
 				"info",
