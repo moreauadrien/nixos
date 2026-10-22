@@ -4,7 +4,7 @@
  * Vendored from pi's examples/extensions/gondolin (pi 1.0.3) with two local
  * additions:
  *   - this VM's clipboard-paste directory (written to by the paste-image
- *     extension, see ../config/extensions/paste-image.ts) is mounted at the SAME
+ *     extension, see ../package/extensions/paste-image.ts) is mounted at the SAME
  *     guest path so pasted images are readable inside the VM, while other VMs'
  *     paste directories stay invisible (one VM = one pi process, keyed by pid);
  *   - the host paths the system prompt points at but that live outside the
@@ -54,7 +54,7 @@ import {
 const GUEST_WORKSPACE = "/workspace";
 const DEFAULT_GREP_LIMIT = 100;
 
-/** Clipboard-paste root; each pi process owns <root>/<pid>. Keep in sync with config/extensions/paste-image.ts. */
+/** Clipboard-paste root; each pi process owns <root>/<pid>. Keep in sync with package/extensions/paste-image.ts. */
 const PASTE_ROOT = "/tmp/pi-pastes";
 /** This process's paste directory, mounted at the same guest path. */
 const PASTE_DIR = `${PASTE_ROOT}/${process.pid}`;
@@ -130,6 +130,8 @@ function hostResourceMounts(localCwd: string): Record<string, VirtualProvider> {
 		path.join(agentDir, "npm"),
 		path.join(agentDir, "git"),
 		getPackageDir(),
+		// The wrapped package ships skills outside the mutable agent directory.
+		...(process.env.PI_PERSONAL_RESOURCES ? [process.env.PI_PERSONAL_RESOURCES] : []),
 	];
 	const mounts: Record<string, VirtualProvider> = {};
 	for (const dir of candidates) {

@@ -23,8 +23,22 @@
           ${gondolinNodeModules}/node_modules/@earendil-works/gondolin/dist/bin/gondolin.js "$@"
       '';
 
+      personalResources = pkgs.buildNpmPackage {
+        pname = "pi-personal-resources";
+        version = "1.0.0";
+        src = ./package;
+        npmDepsHash = "sha256-JEmwGUcZAeaMTMXR0pDfzctXzV1rRiXEdzo9rqdxbLc=";
+        npmFlags = [ "--legacy-peer-deps" ];
+        npmRebuildFlags = [ "--ignore-scripts" ];
+        dontNpmBuild = true;
+        installPhase = ''
+          mkdir -p $out
+          cp -a package.json extensions skills node_modules $out/
+        '';
+      };
+
       # Vendored copy of pi's gondolin example extension with an extra mount
-      # for pasted clipboard images (see config/extensions/paste-image.ts).
+      # for pasted clipboard images (see package/extensions/paste-image.ts).
       gondolinExtension = pkgs.runCommand "pi-gondolin-extension" { } ''
         mkdir -p $out
         cp ${./gondolin-extension/index.ts} $out/index.ts
@@ -38,7 +52,10 @@
         {
           inherit pkgs;
           package = pkgs.pi-coding-agent;
-          env.GONDOLIN_DEFAULT_IMAGE = imageTag;
+          env = {
+            GONDOLIN_DEFAULT_IMAGE = imageTag;
+            PI_PERSONAL_RESOURCES = "${personalResources}";
+          };
           runtimePkgs = [
             gondolin
             pkgs.nodejs_24
@@ -67,7 +84,7 @@
               fi
               case "$1" in
                 install|remove|uninstall|update|list|config|auth|mcp) ;;
-                *) set -- -e "${gondolinExtension}/index.ts" "$@" ;;
+                *) set -- -e "${gondolinExtension}/index.ts" -e "${personalResources}" "$@" ;;
               esac
             ''
           ];
@@ -80,15 +97,6 @@
     pkgs,
     ...
   }:
-    let
-      inherit (pkgs) lib;
-      configFiles = builtins.listToAttrs (
-        map (file: {
-          name = ".pi/agent/${lib.removePrefix "${toString ./config}/" (toString file)}";
-          value.source = file;
-        }) (lib.filesystem.listFilesRecursive ./config)
-      );
-    in
     {
       virtualisation.podman.enable = true;
       users.users.adrien.extraGroups = [ "kvm" ];
@@ -96,7 +104,7 @@
       hjem.users.adrien = {
         directory = "/home/adrien";
         packages = [ self'.packages.pi pkgs.podman-compose ];
-        files = configFiles // {
+        files = {
           ".config/containers/containers.conf".text = ''
             [engine]
             image_copy_tmp_dir = "storage"
