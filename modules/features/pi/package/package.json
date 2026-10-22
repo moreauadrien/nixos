@@ -1,0 +1,20 @@
+{
+  "name": "pi-personal-resources",
+  "version": "1.0.0",
+  "private": true,
+  "keywords": ["pi-package"],
+  "dependencies": {
+    "@juicesharp/rpiv-ask-user-question": "2.12.0",
+    "pi-subagents": "0.78.0"
+  },
+  "pi": {
+    "extensions": [
+      "./extensions/paste-image.ts",
+      "./extensions/vim-quit.ts",
+      "./node_modules/@juicesharp/rpiv-ask-user-question/index.ts",
+      "./node_modules/pi-subagents/index.js"
+    ],
+    "skills": ["./skills", "./node_modules/pi-subagents/skills"],
+    "prompts": ["./node_modules/pi-subagents/prompts"]
+  }
+}
