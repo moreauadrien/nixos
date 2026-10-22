@@ -34,6 +34,7 @@
     xdg.mime.defaultApplications = {
       "inode/directory" = "org.gnome.Nautilus.desktop";
       "inode/mount-point" = "org.gnome.Nautilus.desktop";
+      "application/pdf" = "org.gnome.Evince.desktop";
     };
 
     # BlueZ daemon: bluetui talks to it over D-Bus (org.bluez).
