@@ -95,7 +95,7 @@
 
       hjem.users.adrien = {
         directory = "/home/adrien";
-        packages = [ self'.packages.pi ];
+        packages = [ self'.packages.pi pkgs.podman-compose ];
         files = configFiles // {
           ".config/containers/containers.conf".text = ''
             [engine]

@@ -24,7 +24,7 @@
       stylua # stylua --lsp (Lua formatting)
       rust-analyzer # rust_analyzer
       rustfmt # Rust formatting (conform.nvim)
-      nixfmt-rfc-style # Nix formatting (conform.nvim, RFC 166 style)
+      nixfmt # Nix formatting (conform.nvim)
       typstyle # Typst formatting (conform.nvim)
     ];
 

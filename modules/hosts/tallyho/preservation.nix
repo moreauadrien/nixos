@@ -75,6 +75,7 @@
 
           directories = [
             "/var/lib/bluetooth"
+            "/var/lib/NetworkManager"
             "/var/lib/systemd/timers"
             "/etc/ssh"
             {
