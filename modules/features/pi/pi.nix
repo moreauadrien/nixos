@@ -33,7 +33,7 @@
         dontNpmBuild = true;
         installPhase = ''
           mkdir -p $out
-          cp -a package.json extensions skills node_modules $out/
+          cp -a package.json extensions skills prompts node_modules $out/
         '';
       };
 

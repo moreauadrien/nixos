@@ -9,12 +9,11 @@
   },
   "pi": {
     "extensions": [
-      "./extensions/paste-image.ts",
-      "./extensions/vim-quit.ts",
+      "./extensions",
       "./node_modules/@juicesharp/rpiv-ask-user-question/index.ts",
       "./node_modules/pi-subagents/index.js"
     ],
     "skills": ["./skills", "./node_modules/pi-subagents/skills"],
-    "prompts": ["./node_modules/pi-subagents/prompts"]
+    "prompts": ["./prompts", "./node_modules/pi-subagents/prompts"]
   }
 }
