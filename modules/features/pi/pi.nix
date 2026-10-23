@@ -37,12 +37,13 @@
         '';
       };
 
-      # Vendored copy of pi's gondolin example extension with an extra mount
-      # for pasted clipboard images (see package/extensions/paste-image.ts).
+      # Vendored Gondolin extension: preserve host paths for Git worktrees,
+      # and mount clipboard images and read-only agent resources.
       gondolinExtension = pkgs.runCommand "gondolin-extension" { } ''
         # Pi displays the parent directory name for index.ts entry points.
         mkdir -p $out/gondolin-extension
         cp ${./gondolin-extension/index.ts} $out/gondolin-extension/index.ts
+        cp ${./gondolin-extension/workspace.ts} $out/gondolin-extension/workspace.ts
         ln -s ${gondolinNodeModules}/node_modules $out/node_modules
       '';
 
