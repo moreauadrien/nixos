@@ -76,6 +76,10 @@
           directories = [
             "/var/lib/bluetooth"
             "/var/lib/NetworkManager"
+            {
+              directory = "/etc/NetworkManager/system-connections";
+              mode = "0700";
+            }
             "/var/lib/systemd/timers"
             "/etc/ssh"
             {
