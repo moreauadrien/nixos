@@ -22,6 +22,7 @@
       voxtype
       virt-manager
       obs-studio
+      vlc
 
       speaker-fix-940xfg
     ];
