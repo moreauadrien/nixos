@@ -178,11 +178,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793029710,
-        "narHash": "sha256-J/0S7+L4mgAnTrALl+WbsWH1DP9WYsZ27QKjpwaYTY4=",
+        "lastModified": 1793047235,
+        "narHash": "sha256-uAWlwS1c6J3Fyv3n6llYyvzGR6tAmHLTq81QKXgjmFQ=",
         "owner": "moreauadrien",
         "repo": "pifzf",
-        "rev": "b1429515af7714cfd800a0f54dd372462d848d60",
+        "rev": "fe2255f0c6a25a41c2cdb8abaab06a90b4a4db6d",
         "type": "github"
       },
       "original": {
