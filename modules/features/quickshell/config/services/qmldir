@@ -1,0 +1,5 @@
+singleton BluetoothService 1.0 BluetoothService.qml
+singleton BluetoothAudio 1.0 BluetoothAudio.qml
+singleton Theme 1.0 Theme.qml
+singleton Time 1.0 Time.qml
+singleton Language 1.0 Language.qml

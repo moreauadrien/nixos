@@ -6,7 +6,6 @@ import QtQuick
 import QtQuick.Layouts
 
 import "../services"
-import "../config.js" as Config
 
 Scope {
     id: root
@@ -25,7 +24,7 @@ Scope {
 
     PanelWindow {
         anchors { top: true; right: true }
-        margins { top: Config.bar.height + 12; right: 12 }
+        margins { top: Theme.barHeight + 12; right: 12 }
 
         implicitWidth: 380
         implicitHeight: Math.max(1, column.implicitHeight)
@@ -48,7 +47,7 @@ Scope {
 
                     Timer {
                         running: card.modelData.urgency !== NotificationUrgency.Critical
-                        interval: Config.notifications.timeout
+                        interval: 5000
                         onTriggered: card.modelData.dismiss()
                     }
 
@@ -56,10 +55,10 @@ Scope {
                     Layout.preferredHeight: 60
                     //Layout.preferredHeight: layout.implicitHeight + 20
                     radius: 8
-                    color: Config.colors.background
+                    color: Theme.colorBackground
 
                     border.width: 3
-                    border.color: modelData.urgency === NotificationUrgency.Critical ? Config.colors.error : Config.colors.info
+                    border.color: modelData.urgency === NotificationUrgency.Critical ? Theme.colorError : Theme.colorInfo
 
                     RowLayout {
                         id: layout
@@ -83,9 +82,9 @@ Scope {
                             Text {
                                 Layout.fillWidth: true
                                 text: card.modelData.summary
-                                color: Config.colors.info
-                                font.family: Config.bar.fontFamily
-                                font.pixelSize: Config.bar.fontSize
+                                color: Theme.colorInfo
+                                font.family: Theme.barFontFamily
+                                font.pixelSize: Theme.barFontSize
                                 font.bold: true
                                 elide: Text.ElideRight
                             }
@@ -94,9 +93,9 @@ Scope {
                                 Layout.fillWidth: true
                                 visible: text !== ""
                                 text: card.modelData.body
-                                color: Config.colors.text
-                                font.family: Config.bar.fontFamily
-                                font.pixelSize: Config.bar.fontSize - 1
+                                color: Theme.colorText
+                                font.family: Theme.barFontFamily
+                                font.pixelSize: Theme.barFontSize - 1
                                 wrapMode: Text.WordWrap
                             }
                         }

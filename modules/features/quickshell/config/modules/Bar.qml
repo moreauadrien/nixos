@@ -1,14 +1,13 @@
 import Quickshell
-import Quickshell.Io
 import QtQuick
 import "../components"
 import "../services"
-import "../config.js" as Config
 
 Scope {
     Variants {
         model: Quickshell.screens
 
+        // qmllint disable uncreatable-type
         PanelWindow {
             required property var modelData
             screen: modelData
@@ -19,8 +18,8 @@ Scope {
                 right: true
             }
 
-            implicitHeight: Config.bar.height
-            color: Config.colors.background
+            implicitHeight: Theme.barHeight
+            color: Theme.colorBackground
 
             WorkspaceIndicator {
                 anchors {
