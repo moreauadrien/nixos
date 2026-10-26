@@ -83,6 +83,7 @@ Text {
         }
         PowerPanel {
             id: panel
+            active: popup.visible
             anchors { top: parent.top; topMargin: 10; left: parent.left; leftMargin: 12 }
             focus: true
             Keys.onEscapePressed: popup.visible = false

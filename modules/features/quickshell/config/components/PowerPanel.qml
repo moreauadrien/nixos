@@ -8,9 +8,21 @@ Item {
     implicitHeight: content.implicitHeight
     property int limit: 0
     property string error: ""
+    property bool active: false
+    property string cpuTemperature: "?"
+    property string coolingProfile: ""
+    property string coolingError: ""
 
     function refresh() {
         if (!reader.running) reader.running = true;
+        if (!coolingReader.running) coolingReader.running = true;
+    }
+
+    function setCoolingProfile(mode) {
+        if (coolingWriter.running) return;
+        coolingError = "";
+        coolingWriter.command = ["sudo", "-n", "/run/current-system/sw/bin/cooling-control", mode];
+        coolingWriter.running = true;
     }
 
     function setLimit(value) {
@@ -35,6 +47,37 @@ Item {
             if (code !== 0) root.error = "Impossible de modifier la limite de charge";
             else root.refresh();
         }
+    }
+
+    Process {
+        id: coolingReader
+        command: ["cooling-control", "status"]
+        stdout: StdioCollector { id: coolingOutput }
+        onExited: code => {
+            if (code !== 0) {
+                root.coolingError = "Profil de refroidissement indisponible";
+                root.coolingProfile = "";
+                root.cpuTemperature = "?";
+                return;
+            }
+            if (root.coolingError === "Profil de refroidissement indisponible") root.coolingError = "";
+            const values = coolingOutput.text.trim().split(/\s+/);
+            root.cpuTemperature = values[0] || "?";
+            root.coolingProfile = values[1] || "";
+        }
+    }
+    Process {
+        id: coolingWriter
+        onExited: code => {
+            if (code !== 0) root.coolingError = "Impossible de changer le profil";
+            else root.refresh();
+        }
+    }
+    Timer {
+        interval: 3000
+        repeat: true
+        running: root.active
+        onTriggered: { if (!coolingReader.running) coolingReader.running = true; }
     }
 
     Column {
@@ -127,6 +170,70 @@ Item {
             }
         }
         Process { id: powerAction }
+
+        Rectangle { width: parent.width; height: 1; color: Theme.colorTextMuted }
+        Text {
+            text: "REFROIDISSEMENT"
+            color: Theme.colorTextSubtle
+            font.family: Theme.barFontFamily
+            font.pixelSize: 11
+            font.letterSpacing: 1.5
+        }
+        Text {
+            text: "CPU : " + root.cpuTemperature + " °C"
+            color: Theme.colorText
+            font.family: Theme.barFontFamily
+            font.pixelSize: 14
+        }
+        Text {
+            text: "Profils du firmware"
+            color: Theme.colorTextSubtle
+            font.family: Theme.barFontFamily
+            font.pixelSize: 11
+        }
+        Row {
+            spacing: 8
+            Repeater {
+                model: [
+                    { name: "low-power", label: "Éco" },
+                    { name: "quiet", label: "Silencieux" },
+                    { name: "balanced", label: "Équilibré" },
+                    { name: "performance", label: "Performance" }
+                ]
+                delegate: Rectangle {
+                    required property var modelData
+                    width: (content.width - 24) / 4
+                    height: 40
+                    radius: 4
+                    color: root.coolingProfile === modelData.name ? Qt.alpha(Theme.colorAccent, 0.18)
+                        : coolingMouse.containsMouse ? Qt.alpha(Theme.colorText, 0.08) : "transparent"
+                    border.width: 1
+                    border.color: root.coolingProfile === modelData.name ? Theme.colorAccent : Theme.colorTextMuted
+                    Text {
+                        anchors.centerIn: parent
+                        text: modelData.label
+                        color: root.coolingProfile === modelData.name ? Theme.colorAccent : Theme.colorText
+                        font.family: Theme.barFontFamily
+                        font.pixelSize: 13
+                    }
+                    MouseArea {
+                        id: coolingMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        enabled: root.coolingProfile !== "" && !coolingWriter.running
+                        cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                        onClicked: root.setCoolingProfile(modelData.name)
+                    }
+                }
+            }
+        }
+        Text {
+            visible: root.coolingError !== ""
+            text: root.coolingError
+            color: Theme.colorError
+            font.family: Theme.barFontFamily
+            font.pixelSize: 11
+        }
 
         Rectangle { width: parent.width; height: 1; color: Theme.colorTextMuted }
         Text {
