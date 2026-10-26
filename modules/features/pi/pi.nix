@@ -107,6 +107,9 @@
         directory = "/home/adrien";
         packages = [ self'.packages.pi pkgs.podman-compose ];
         files = {
+          ".zshrc.d/pi-yolo.zsh".text = ''
+            alias pi-yolo='${pkgs.pi-coding-agent}/bin/pi'
+          '';
           ".config/containers/containers.conf".text = ''
             [engine]
             image_copy_tmp_dir = "storage"
