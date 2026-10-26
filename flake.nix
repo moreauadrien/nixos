@@ -24,6 +24,11 @@
       flake = false;
     };
 
+    pifzf = {
+      url = "github:moreauadrien/pifzf";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     hjem = {
       url = "github:feel-co/hjem";
       inputs.nixpkgs.follows = "nixpkgs";

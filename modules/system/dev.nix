@@ -5,6 +5,7 @@
       neovim
       tmux
       pi
+      pifzf
       shell
       ts-sessionizer
       devenv
