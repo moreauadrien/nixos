@@ -26,7 +26,7 @@ Scope {
         anchors { top: true; right: true }
         margins { top: Theme.barHeight + 12; right: 12 }
 
-        implicitWidth: 380
+        implicitWidth: 424
         implicitHeight: Math.max(1, column.implicitHeight)
         color: "transparent"
 
@@ -52,13 +52,11 @@ Scope {
                     }
 
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 60
-                    //Layout.preferredHeight: layout.implicitHeight + 20
+                    Layout.preferredHeight: Math.max(60, layout.implicitHeight + 20)
                     radius: 8
                     color: Theme.colorBackground
-
-                    border.width: 3
-                    border.color: modelData.urgency === NotificationUrgency.Critical ? Theme.colorError : Theme.colorInfo
+                    border.width: 1
+                    border.color: modelData.urgency === NotificationUrgency.Critical ? Theme.colorError : Theme.colorAccent
 
                     RowLayout {
                         id: layout
@@ -82,9 +80,9 @@ Scope {
                             Text {
                                 Layout.fillWidth: true
                                 text: card.modelData.summary
-                                color: Theme.colorInfo
+                                color: modelData.urgency === NotificationUrgency.Critical ? Theme.colorError : Theme.colorAccent
                                 font.family: Theme.barFontFamily
-                                font.pixelSize: Theme.barFontSize
+                                font.pixelSize: 18
                                 font.bold: true
                                 elide: Text.ElideRight
                             }
@@ -95,7 +93,7 @@ Scope {
                                 text: card.modelData.body
                                 color: Theme.colorText
                                 font.family: Theme.barFontFamily
-                                font.pixelSize: Theme.barFontSize - 1
+                                font.pixelSize: 14
                                 wrapMode: Text.WordWrap
                             }
                         }
