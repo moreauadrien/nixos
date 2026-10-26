@@ -23,19 +23,6 @@
           ${gondolinNodeModules}/node_modules/@earendil-works/gondolin/dist/bin/gondolin.js "$@"
       '';
 
-      personalResources = pkgs.buildNpmPackage {
-        pname = "pi-personal-resources";
-        version = "1.0.0";
-        src = ./package;
-        npmDepsHash = "sha256-JEmwGUcZAeaMTMXR0pDfzctXzV1rRiXEdzo9rqdxbLc=";
-        npmFlags = [ "--legacy-peer-deps" ];
-        npmRebuildFlags = [ "--ignore-scripts" ];
-        dontNpmBuild = true;
-        installPhase = ''
-          mkdir -p $out
-          cp -a package.json extensions skills prompts node_modules $out/
-        '';
-      };
 
       # Vendored Gondolin extension: preserve host paths for Git worktrees,
       # and mount clipboard images and read-only agent resources.
@@ -56,7 +43,6 @@
           package = pkgs.pi-coding-agent;
           env = {
             GONDOLIN_DEFAULT_IMAGE = imageTag;
-            PI_PERSONAL_RESOURCES = "${personalResources}";
           };
           runtimePkgs = [
             gondolin
@@ -86,7 +72,7 @@
               fi
               case "$1" in
                 install|remove|uninstall|update|list|config|auth|mcp) ;;
-                *) set -- -e "${gondolinExtension}/gondolin-extension/index.ts" -e "${personalResources}" "$@" ;;
+                *) set -- -e "${gondolinExtension}/gondolin-extension/index.ts" "$@" ;;
               esac
             ''
           ];
