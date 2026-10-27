@@ -42,6 +42,7 @@ Scope {
                 spacing: 12
 
                 BluetoothWidget {}
+                SoundWidget {}
                 PowerWidget {}
             }
         }
