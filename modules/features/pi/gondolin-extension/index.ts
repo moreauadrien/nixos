@@ -28,6 +28,7 @@ import path from "node:path";
 import { isInsideHostPath, workspaceMountPaths } from "./workspace.ts";
 import { ensureImage } from "./image.ts";
 import { githubNetwork, sanitizeEnv } from "./secrets.ts";
+import { loadGithubAppConfig, startGithubApp, type GithubAppSession } from "./github-app.ts";
 import { ReadonlyProvider, RealFSProvider, VM } from "@earendil-works/gondolin";
 import type { VirtualProvider } from "@earendil-works/gondolin";
 import { getAgentDir, getPackageDir } from "@earendil-works/pi-coding-agent";
@@ -416,6 +417,7 @@ export default function (pi: ExtensionAPI) {
 
 	let vm: VM | undefined;
 	let vmStarting: Promise<VM> | undefined;
+	let githubApp: GithubAppSession | undefined;
 	let shellPath = "/bin/sh";
 	let hostMountPaths: string[] = [];
 	let writableMountPaths: string[] = [];
@@ -432,22 +434,33 @@ export default function (pi: ExtensionAPI) {
 		pruneStalePasteDirs();
 		const hostMounts = hostResourceMounts(localCwd);
 		writableMountPaths = workspaceMountPaths(localCwd);
-		const { httpHooks, env } = githubNetwork(process.env.GH_TOKEN);
-		const created = await VM.create({
-			httpHooks,
-			env,
-			sandbox: { imagePath: image },
-			sessionLabel: `pi ${path.basename(localCwd)}`,
-			vfs: {
-				mounts: {
-					...Object.fromEntries(writableMountPaths.map((dir) => [toPosix(dir), new RealFSProvider(dir)])),
-					[PASTE_DIR]: new RealFSProvider(PASTE_DIR),
-					...hostMounts,
+		const configFile = path.join(process.env.HOME ?? homedir(), ".config/gondolin/github-app.json");
+		const config = loadGithubAppConfig(configFile, [...writableMountPaths, PASTE_DIR, ...Object.keys(hostMounts)]);
+		const auth = config ? await startGithubApp(config, (message) => ctx?.ui.notify(message, "warning")) : undefined;
+		const { httpHooks, env } = auth ?? githubNetwork(process.env.GH_TOKEN);
+		let created: VM | undefined;
+		try {
+			created = await VM.create({
+				httpHooks,
+				env,
+				sandbox: { imagePath: image },
+				sessionLabel: `pi ${path.basename(localCwd)}`,
+				vfs: {
+					mounts: {
+						...Object.fromEntries(writableMountPaths.map((dir) => [toPosix(dir), new RealFSProvider(dir)])),
+						[PASTE_DIR]: new RealFSProvider(PASTE_DIR),
+						...hostMounts,
+					},
 				},
-			},
-		});
-		const bashProbe = await created.exec(["/bin/sh", "-lc", "command -v bash || true"]);
-		shellPath = bashProbe.stdout.trim() || "/bin/sh";
+			});
+			const bashProbe = await created.exec(["/bin/sh", "-lc", "command -v bash || true"]);
+			shellPath = bashProbe.stdout.trim() || "/bin/sh";
+		} catch (error) {
+			await auth?.close();
+			await created?.close();
+			throw error;
+		}
+		githubApp = auth;
 		vm = created;
 		ctx?.ui.setStatus(
 			"gondolin",
@@ -479,6 +492,9 @@ export default function (pi: ExtensionAPI) {
 	});
 
 	pi.on("session_shutdown", async (_event, ctx) => {
+		await vmStarting?.catch(() => {});
+		await githubApp?.close();
+		githubApp = undefined;
 		const activeVm = vm;
 		vm = undefined;
 		vmStarting = undefined;
@@ -489,6 +505,16 @@ export default function (pi: ExtensionAPI) {
 		} finally {
 			ctx.ui.setStatus("gondolin", undefined);
 		}
+	});
+
+	pi.registerCommand("github-status", {
+		description: "Show GitHub authentication mode and token expiry (no secrets)",
+		handler: async (_args, ctx) => {
+			await ensureVm(ctx);
+			ctx.ui.notify(githubApp?.status() ?? (process.env.GH_TOKEN
+				? "GitHub: host GH_TOKEN (no automatic renewal)"
+				: "GitHub: authentication not configured"), "info");
+		},
 	});
 
 	pi.registerCommand("gondolin", {
