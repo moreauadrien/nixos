@@ -16,6 +16,7 @@
       set-window-option -g mode-keys vi
 
       bind a new-pane -x 80% -y 60% -X 10% -Y 20% '${self'.packages.pifzf}/bin/pifzf || { printf "\nPress Enter to close..."; read -r _; }'
+      bind f new-pane -x 80% -y 60% -X 10% -Y 20% '${self'.packages.ts}/bin/ts'
 
       bind -r ^ last-window
       bind -r k select-pane -U
