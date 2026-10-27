@@ -8,7 +8,7 @@
       gondolinNodeModules = pkgs.buildNpmPackage {
         pname = "gondolin-nix-sandbox";
         version = "0.13.0";
-        src = inputs.gondolin-nix-sandbox;
+        src = ./gondolin-extension;
         npmDepsHash = "sha256-7006UZJ1Oeg+9DeQ3BQ0fMeG7CuX80ZF21NjRFNphyk=";
         dontNpmBuild = true;
         npmRebuildFlags = [ "--ignore-scripts" ];
@@ -29,21 +29,15 @@
       gondolinExtension = pkgs.runCommand "gondolin-extension" { } ''
         # Pi displays the parent directory name for index.ts entry points.
         mkdir -p $out/gondolin-extension
-        cp ${./gondolin-extension/index.ts} $out/gondolin-extension/index.ts
-        cp ${./gondolin-extension/workspace.ts} $out/gondolin-extension/workspace.ts
+        cp ${./gondolin-extension}/*.ts ${./gondolin-extension}/*.json ${./gondolin-extension}/*.sh $out/gondolin-extension/
         ln -s ${gondolinNodeModules}/node_modules $out/node_modules
       '';
-
-      imageTag = "gondolin-nix:${builtins.substring 0 12 (builtins.hashString "sha256" (toString inputs.gondolin-nix-sandbox))}";
     in
     {
       packages.pi = inputs.wrapper-modules.lib.wrapPackage [
         {
           inherit pkgs;
           package = pkgs.pi-coding-agent;
-          env = {
-            GONDOLIN_DEFAULT_IMAGE = imageTag;
-          };
           runtimePkgs = [
             gondolin
             pkgs.nodejs_24
@@ -58,18 +52,12 @@
             pkgs.which
             pkgs.git
           ];
-          # The repository image uses Podman, so build it at first launch, outside the Nix build sandbox.
           # pi dispatches subcommands (install, remove, update, list, config, auth, mcp) on
           # argv[0] and rejects unknown flags, so the -e extension flag must not be injected
           # for those invocations. For regular sessions, prepend it to the real arguments.
           runShell = [
             ''
               set -e
-              if ! ${gondolin}/bin/gondolin image inspect "${imageTag}" >/dev/null 2>&1; then
-                ${gondolin}/bin/gondolin build \
-                  --config "${inputs.gondolin-nix-sandbox}/build-config.json" \
-                  --tag "${imageTag}"
-              fi
               case "$1" in
                 install|remove|uninstall|update|list|config|auth|mcp) ;;
                 *) set -- -e "${gondolinExtension}/gondolin-extension/index.ts" "$@" ;;

@@ -1,0 +1,43 @@
+{
+  "arch": "x86_64",
+  "distro": "alpine",
+  "alpine": {
+    "version": "3.23.0",
+    "kernelPackage": "linux-virt",
+    "kernelImage": "vmlinuz-virt",
+    "rootfsPackages": [
+      "linux-virt",
+      "rng-tools",
+      "ca-certificates",
+      "curl",
+      "coreutils",
+      "xz"
+    ],
+    "initramfsPackages": [],
+    "krunfwVersion": "v5.2.1"
+  },
+  "rootfs": {
+    "label": "gondolin-root",
+    "sizeMb": 16384
+  },
+  "container": {
+    "force": true,
+    "image": "docker.io/library/alpine:3.23"
+  },
+  "runtimeDefaults": {
+    "rootfsMode": "cow"
+  },
+  "env": {
+    "PATH": "/opt/nix-profile/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+    "NIX_SSL_CERTFILE": "/etc/ssl/certs/ca-certificates.crt"
+  },
+  "postBuild": {
+    "copy": [
+      {
+        "src": "provision-nix.sh",
+        "dest": "/usr/local/sbin/provision-nix.sh"
+      }
+    ],
+    "commands": ["/bin/sh /usr/local/sbin/provision-nix.sh"]
+  }
+}

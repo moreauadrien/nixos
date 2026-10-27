@@ -1,0 +1,11 @@
+{
+  "name": "gondolin-vm",
+  "private": true,
+  "scripts": {
+    "build-vm": "gondolin build --config build-config.json --tag gondolin-nix:latest",
+    "vm": "gondolin bash --image gondolin-nix:latest"
+  },
+  "dependencies": {
+    "@earendil-works/gondolin": "^0.13.0"
+  }
+}

@@ -56,22 +56,6 @@
         "type": "github"
       }
     },
-    "gondolin-nix-sandbox": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1792070257,
-        "narHash": "sha256-16sfWs7/XVoE3pA9JlqgOYuoj7IYp4ZHNEB7Tod5BOQ=",
-        "owner": "moreauadrien",
-        "repo": "gondolin-nix-sandbox",
-        "rev": "c7d2b8581fd03eb744be6a1c60ab7a4dcc26d6a9",
-        "type": "github"
-      },
-      "original": {
-        "owner": "moreauadrien",
-        "repo": "gondolin-nix-sandbox",
-        "type": "github"
-      }
-    },
     "hjem": {
       "inputs": {
         "nixpkgs": [
@@ -210,7 +194,6 @@
       "inputs": {
         "disko": "disko",
         "flake-parts": "flake-parts",
-        "gondolin-nix-sandbox": "gondolin-nix-sandbox",
         "hjem": "hjem",
         "import-tree": "import-tree",
         "nixpkgs": "nixpkgs",

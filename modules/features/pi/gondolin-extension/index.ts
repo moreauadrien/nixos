@@ -26,6 +26,7 @@ import { existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
 import { isInsideHostPath, workspaceMountPaths } from "./workspace.ts";
+import { ensureImage } from "./image.ts";
 import { ReadonlyProvider, RealFSProvider, VM } from "@earendil-works/gondolin";
 import type { VirtualProvider } from "@earendil-works/gondolin";
 import { getAgentDir, getPackageDir } from "@earendil-works/pi-coding-agent";
@@ -428,6 +429,10 @@ export default function (pi: ExtensionAPI) {
 	let writableMountPaths: string[] = [];
 
 	async function startVm(ctx?: ExtensionContext): Promise<VM> {
+		const image = await ensureImage(__dirname, (log) => {
+			ctx?.ui.setStatus("gondolin", ctx.ui.theme.fg("accent", "Gondolin: building Nix image"));
+			ctx?.ui.notify(`Building Gondolin's Nix image (first launch may take a while). Log: ${log}`, "info");
+		});
 		ctx?.ui.setStatus("gondolin", ctx.ui.theme.fg("accent", `Gondolin: starting ${GUEST_WORKSPACE}`));
 		// Host directory for this VM's pasted clipboard images, mounted at the
 		// same guest path so the agent only ever sees its own VM's pastes.
@@ -436,6 +441,7 @@ export default function (pi: ExtensionAPI) {
 		const hostMounts = hostResourceMounts(localCwd);
 		writableMountPaths = workspaceMountPaths(localCwd);
 		const created = await VM.create({
+			sandbox: { imagePath: image },
 			sessionLabel: `pi ${path.basename(localCwd)}`,
 			vfs: {
 				mounts: {

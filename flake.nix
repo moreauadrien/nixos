@@ -14,11 +14,6 @@
 
     wrapper-modules.url = "github:BirdeeHub/nix-wrapper-modules";
 
-    gondolin-nix-sandbox = {
-      url = "github:moreauadrien/gondolin-nix-sandbox";
-      flake = false;
-    };
-
     pi-src = {
       url = "github:earendil-works/pi/v1.0.3";
       flake = false;
