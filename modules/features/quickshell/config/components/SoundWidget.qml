@@ -25,6 +25,15 @@ Text {
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
         onContainsMouseChanged: tooltip.wantShow = containsMouse
+        onWheel: wheel => {
+            if (!root.available) {
+                wheel.accepted = false;
+                return;
+            }
+            const steps = wheel.angleDelta.y / 120;
+            root.sink.audio.volume = Math.max(0, Math.min(1, root.volume + steps * 0.05));
+            wheel.accepted = true;
+        }
         onClicked: mouse => {
             if (mouse.button === Qt.RightButton) {
                 if (root.available) root.sink.audio.muted = !root.muted;

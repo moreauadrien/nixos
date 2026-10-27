@@ -177,62 +177,26 @@ Item {
                             Item {
                                 id: volumeSlider
                                 readonly property string address: modelData.address.toUpperCase()
-                                readonly property real value: dragging ? dragValue : (BluetoothAudio.volumes[address] ?? 0)
-                                property real dragValue: 0
-                                property bool dragging: false
                                 visible: modelData.connected && BluetoothAudio.combined.includes(address)
                                 width: 142
                                 height: 28
                                 anchors { right: parent.right; rightMargin: 66; verticalCenter: parent.verticalCenter }
-                                function moveTo(x) {
-                                    dragValue = Math.round(Math.max(0, Math.min(100, (x - track.x) * 100 / track.width)));
-                                }
                                 Text {
                                     width: 34
                                     anchors.verticalCenter: parent.verticalCenter
-                                    text: BluetoothAudio.volumes[volumeSlider.address] === undefined ? "--" : Math.round(volumeSlider.value) + "%"
+                                    text: BluetoothAudio.volumes[volumeSlider.address] === undefined ? "--" : Math.round(slider.value) + "%"
                                     color: Theme.colorAccent
                                     font.family: Theme.barFontFamily
                                     font.pixelSize: 11
                                 }
-                                Rectangle {
-                                    id: track
+                                VolumeSlider {
+                                    id: slider
                                     x: 36
                                     width: parent.width - x
-                                    height: 4
-                                    radius: 2
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    color: Theme.colorTextMuted
-                                    Rectangle {
-                                        width: parent.width * volumeSlider.value / 100
-                                        height: parent.height
-                                        radius: parent.radius
-                                        color: Theme.colorAccent
-                                    }
-                                    Rectangle {
-                                        x: parent.width * volumeSlider.value / 100 - width / 2
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        width: 10
-                                        height: 10
-                                        radius: 5
-                                        color: Theme.colorText
-                                    }
-                                }
-                                MouseArea {
-                                    anchors.fill: parent
-                                    cursorShape: Qt.PointingHandCursor
-                                    onPressed: mouse => {
-                                        volumeSlider.dragging = true;
-                                        volumeSlider.moveTo(mouse.x);
-                                    }
-                                    onPositionChanged: mouse => {
-                                        if (volumeSlider.dragging) volumeSlider.moveTo(mouse.x);
-                                    }
-                                    onReleased: {
-                                        BluetoothAudio.setVolume(volumeSlider.address, volumeSlider.dragValue);
-                                        volumeSlider.dragging = false;
-                                    }
-                                    onCanceled: volumeSlider.dragging = false
+                                    height: parent.height
+                                    value: BluetoothAudio.volumes[volumeSlider.address] ?? 0
+                                    Accessible.name: "Volume de " + modelData.name
+                                    onVolumeEdited: percent => BluetoothAudio.setVolume(volumeSlider.address, percent)
                                 }
                             }
                             Rectangle {

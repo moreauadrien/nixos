@@ -142,40 +142,16 @@ Item {
                 }
             }
 
-            Slider {
+            VolumeSlider {
                 id: volume
                 width: section.width - muteButton.width - percentage.width - 20
                 height: 36
                 enabled: section.available
-                from: 0
-                to: 1
-                stepSize: 0.01
-                value: section.available ? section.node.audio.volume : 0
+                muted: section.available && section.node.audio.muted
+                value: section.available ? section.node.audio.volume * 100 : 0
                 Accessible.name: section.output ? "Volume de sortie" : "Volume d’entrée"
-                onMoved: {
-                    if (section.available) section.node.audio.volume = value;
-                }
-                background: Rectangle {
-                    x: volume.leftPadding
-                    y: volume.topPadding + (volume.availableHeight - height) / 2
-                    width: volume.availableWidth
-                    height: 4
-                    radius: 2
-                    color: Theme.colorTextMuted
-                    Rectangle {
-                        width: volume.visualPosition * parent.width
-                        height: parent.height
-                        radius: parent.radius
-                        color: section.available && !section.node.audio.muted ? Theme.colorAccent : Theme.colorTextSubtle
-                    }
-                }
-                handle: Rectangle {
-                    x: volume.leftPadding + volume.visualPosition * (volume.availableWidth - width)
-                    y: volume.topPadding + (volume.availableHeight - height) / 2
-                    width: 12
-                    height: 12
-                    radius: 6
-                    color: volume.activeFocus ? Theme.colorAccent : Theme.colorText
+                onVolumeEdited: percent => {
+                    if (section.available) section.node.audio.volume = percent / 100;
                 }
             }
 
