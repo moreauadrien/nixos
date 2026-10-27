@@ -48,6 +48,7 @@ PATH=/opt/nix-profile/bin:$PATH nix profile install \
   nixpkgs#fd \
   nixpkgs#findutils \
   nixpkgs#gawk \
+  nixpkgs#gh \
   nixpkgs#git \
   nixpkgs#gnugrep \
   nixpkgs#gnused \
