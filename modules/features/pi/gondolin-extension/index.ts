@@ -27,6 +27,7 @@ import { homedir } from "node:os";
 import path from "node:path";
 import { isInsideHostPath, workspaceMountPaths } from "./workspace.ts";
 import { ensureImage } from "./image.ts";
+import { githubNetwork, sanitizeEnv } from "./secrets.ts";
 import { ReadonlyProvider, RealFSProvider, VM } from "@earendil-works/gondolin";
 import type { VirtualProvider } from "@earendil-works/gondolin";
 import { getAgentDir, getPackageDir } from "@earendil-works/pi-coding-agent";
@@ -362,15 +363,6 @@ async function executeGondolinGrep(
 	};
 }
 
-function sanitizeEnv(env: NodeJS.ProcessEnv | undefined): Record<string, string> | undefined {
-	if (!env) return undefined;
-	const result: Record<string, string> = {};
-	for (const [key, value] of Object.entries(env)) {
-		if (typeof value === "string") result[key] = value;
-	}
-	return result;
-}
-
 function createGondolinBashOps(vm: VM, shellPath: string): BashOperations {
 	return {
 		exec: async (command, cwd, { onData, signal, timeout, env }) => {
@@ -440,7 +432,10 @@ export default function (pi: ExtensionAPI) {
 		pruneStalePasteDirs();
 		const hostMounts = hostResourceMounts(localCwd);
 		writableMountPaths = workspaceMountPaths(localCwd);
+		const { httpHooks, env } = githubNetwork(process.env.GH_TOKEN);
 		const created = await VM.create({
+			httpHooks,
+			env,
 			sandbox: { imagePath: image },
 			sessionLabel: `pi ${path.basename(localCwd)}`,
 			vfs: {

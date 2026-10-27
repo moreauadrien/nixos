@@ -17,8 +17,35 @@ the guest image. Pi package-management subcommands do not start or build a VM.
 Edit these local files and rebuild the Pi package to change the sandbox. The
 first subsequent session builds the new image, which may take several minutes.
 
+## GitHub authentication
+
+Set `GH_TOKEN` in the host environment before launching Pi. To avoid putting the
+value in shell history (Bash):
+
+```sh
+read -rs -p 'GitHub token: ' GH_TOKEN; printf '\n'
+export GH_TOKEN
+pi
+unset GH_TOKEN
+```
+
+The extension reads the token on VM startup. Only a placeholder enters the VM;
+Gondolin substitutes the real token in HTTP headers sent to `api.github.com`.
+Pi's bash environment forwarding also strips the real `GH_TOKEN` so it cannot
+overwrite that placeholder. Without `GH_TOKEN`, GitHub authentication is not
+configured. Restart Pi to change tokens.
+
+The agent can exercise the token's permissions even though it cannot read the
+value. Use a short-lived, fine-grained token with minimal permissions. Never put
+the token in the workspace, image configuration or a guest-visible file. This
+protects the token from sandboxed tools, not trusted host-side extensions or
+unsandboxed Pi sessions (`pi-yolo`).
+
+## Tests
+
 Run the lightweight tests from the repository root with Node 24:
 
 ```sh
+(cd modules/features/pi/gondolin-extension && npm ci --ignore-scripts)
 node --test modules/features/pi/gondolin-extension/*.test.ts
 ```
