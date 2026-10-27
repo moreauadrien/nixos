@@ -18,93 +18,103 @@ Scope {
         imageSupported: true
 
         onNotification: n => {
-            n.tracked = true
+            n.tracked = true;
         }
     }
 
-    PanelWindow {
-        anchors { top: true; right: true }
-        margins { top: Theme.barHeight + 12; right: 12 }
+    Variants {
+        model: Quickshell.screens
 
-        implicitWidth: 424
-        implicitHeight: Math.max(1, column.implicitHeight)
-        color: "transparent"
+        PanelWindow {
+            required property var modelData
+            screen: modelData
 
-        exclusionMode: ExclusionMode.Ignore
+            anchors {
+                top: true
+                right: true
+            }
+            margins {
+                top: Theme.barHeight + 12
+                right: 12
+            }
 
+            implicitWidth: 424
+            implicitHeight: Math.max(1, column.implicitHeight)
+            color: "transparent"
 
-        ColumnLayout {
-            id: column
-            width: parent.width
-            spacing: 10
+            exclusionMode: ExclusionMode.Ignore
 
-            Repeater {
-                model: server.trackedNotifications
+            ColumnLayout {
+                id: column
+                width: parent.width
+                spacing: 10
 
-                delegate: Rectangle {
-                    id: card
-                    required property var modelData
+                Repeater {
+                    model: server.trackedNotifications
 
-                    Timer {
-                        running: card.modelData.urgency !== NotificationUrgency.Critical
-                        interval: 5000
-                        onTriggered: card.modelData.dismiss()
-                    }
+                    delegate: Rectangle {
+                        id: card
+                        required property var modelData
 
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: Math.max(60, layout.implicitHeight + 20)
-                    radius: 8
-                    color: Theme.colorBackground
-                    border.width: 1
-                    border.color: modelData.urgency === NotificationUrgency.Critical ? Theme.colorError : Theme.colorAccent
-
-                    RowLayout {
-                        id: layout
-                        anchors.fill: parent
-                        anchors.margins: 10
-                        spacing: 10
-
-                        Image {
-                            Layout.preferredWidth: 36
-                            Layout.preferredHeight: 36
-                            Layout.alignment: Qt.AlignTop
-                            fillMode: Image.PreserveAspectFit
-                            visible: source.toString() !== ""
-                            source: card.modelData.image || card.modelData.appIcon || ""
+                        Timer {
+                            running: card.modelData.urgency !== NotificationUrgency.Critical
+                            interval: 5000
+                            onTriggered: card.modelData.dismiss()
                         }
 
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 2
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: Math.max(60, layout.implicitHeight + 20)
+                        radius: 8
+                        color: Theme.colorBackground
+                        border.width: 1
+                        border.color: modelData.urgency === NotificationUrgency.Critical ? Theme.colorError : Theme.colorAccent
 
-                            Text {
-                                Layout.fillWidth: true
-                                text: card.modelData.summary
-                                color: modelData.urgency === NotificationUrgency.Critical ? Theme.colorError : Theme.colorAccent
-                                font.family: Theme.barFontFamily
-                                font.pixelSize: 18
-                                font.bold: true
-                                elide: Text.ElideRight
+                        RowLayout {
+                            id: layout
+                            anchors.fill: parent
+                            anchors.margins: 10
+                            spacing: 10
+
+                            Image {
+                                Layout.preferredWidth: 36
+                                Layout.preferredHeight: 36
+                                Layout.alignment: Qt.AlignTop
+                                fillMode: Image.PreserveAspectFit
+                                visible: source.toString() !== ""
+                                source: card.modelData.image || card.modelData.appIcon || ""
                             }
 
-                            Text {
+                            ColumnLayout {
                                 Layout.fillWidth: true
-                                visible: text !== ""
-                                text: card.modelData.body
-                                color: Theme.colorText
-                                font.family: Theme.barFontFamily
-                                font.pixelSize: 14
-                                wrapMode: Text.WordWrap
+                                spacing: 2
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: card.modelData.summary
+                                    color: modelData.urgency === NotificationUrgency.Critical ? Theme.colorError : Theme.colorAccent
+                                    font.family: Theme.barFontFamily
+                                    font.pixelSize: 18
+                                    font.bold: true
+                                    elide: Text.ElideRight
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    visible: text !== ""
+                                    text: card.modelData.body
+                                    color: Theme.colorText
+                                    font.family: Theme.barFontFamily
+                                    font.pixelSize: 14
+                                    wrapMode: Text.WordWrap
+                                }
                             }
                         }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: card.modelData.dismiss()
+                        }
                     }
-
-
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: card.modelData.dismiss()
-                    }
-
                 }
             }
         }
