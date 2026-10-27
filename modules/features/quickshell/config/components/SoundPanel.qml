@@ -1,5 +1,6 @@
 pragma ComponentBehavior: Bound
 
+import Quickshell.Io
 import Quickshell.Services.Pipewire
 import QtQuick
 import QtQuick.Controls
@@ -9,6 +10,7 @@ Item {
     id: root
     implicitWidth: 400
     implicitHeight: content.implicitHeight
+    property bool active: false
 
     Flickable {
         anchors.fill: parent
@@ -68,10 +70,40 @@ Item {
         required property bool output
         readonly property PwNode node: output ? Pipewire.defaultAudioSink : Pipewire.defaultAudioSource
         readonly property bool available: node !== null && node.ready && node.audio !== null
-        readonly property var devices: Pipewire.nodes.values.filter(n => n.audio !== null && !n.isStream && n.isSink === output)
-        spacing: 6
+        property var unavailable: ({})
+        readonly property var devices: Pipewire.nodes.values.filter(n => n.audio !== null
+            && !n.isStream && n.isSink === output && !unavailable[n.name])
+        spacing: 4
 
         PwObjectTracker { objects: section.node ? [section.node] : [] }
+
+        // Pipewire's QML API does not expose route availability; keep disconnected ports out of the list.
+        Process {
+            id: routes
+            command: ["pactl", "--format=json", "list", section.output ? "sinks" : "sources"]
+            stdout: StdioCollector { id: routeData }
+            onExited: code => {
+                if (code !== 0) return;
+                try {
+                    const hidden = {};
+                    for (const device of JSON.parse(routeData.text)) {
+                        const ports = device.ports || [];
+                        if (ports.length && ports.every(port => port.availability === "not available"))
+                            hidden[device.name] = true;
+                    }
+                    section.unavailable = hidden;
+                } catch (error) {
+                    console.warn("Cannot read audio routes:", error);
+                }
+            }
+        }
+        Timer {
+            interval: 2000
+            running: root.active
+            repeat: true
+            triggeredOnStart: true
+            onTriggered: { if (!routes.running) routes.running = true; }
+        }
 
         Text {
             text: section.output ? "SORTIE" : "ENTRÉE"
@@ -167,7 +199,7 @@ Item {
                 required property PwNode modelData
                 readonly property bool selected: section.node === modelData
                 width: section.width
-                height: 48
+                height: 34
                 Accessible.name: modelData.description || modelData.name
                 onClicked: {
                     if (section.output) Pipewire.preferredDefaultAudioSink = modelData;
@@ -175,22 +207,21 @@ Item {
                 }
                 background: Rectangle {
                     radius: 4
-                    color: deviceButton.selected ? Qt.alpha(Theme.colorAccent, 0.18)
-                        : deviceButton.hovered ? Qt.alpha(Theme.colorText, 0.08) : "transparent"
-                    border.width: deviceButton.selected || deviceButton.hovered || deviceButton.activeFocus ? 1 : 0
-                    border.color: deviceButton.selected || deviceButton.activeFocus ? Theme.colorAccent : Theme.colorTextMuted
+                    color: deviceButton.hovered ? Qt.alpha(Theme.colorText, 0.06) : "transparent"
+                    border.width: deviceButton.activeFocus ? 1 : 0
+                    border.color: Theme.colorAccent
                 }
                 contentItem: Item {
                     Text {
                         anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
-                        text: deviceButton.selected ? "󰄬" : section.output ? "󰓃" : "󰍬"
+                        text: deviceButton.selected ? "󰄬" : ""
                         color: deviceButton.selected ? Theme.colorAccent : Theme.colorTextSubtle
                         font.family: Theme.barFontFamily
                         font.pixelSize: 16
                     }
                     Text {
                         anchors { left: parent.left; leftMargin: 38; right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter }
-                        text: deviceButton.modelData.description || deviceButton.modelData.nickname || deviceButton.modelData.name
+                        text: deviceButton.modelData.nickname || deviceButton.modelData.description || deviceButton.modelData.name
                         color: deviceButton.selected ? Theme.colorAccent : Theme.colorText
                         font.family: Theme.barFontFamily
                         font.pixelSize: 14

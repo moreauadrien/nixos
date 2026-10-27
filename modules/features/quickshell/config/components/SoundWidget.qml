@@ -83,6 +83,7 @@ Text {
         }
         SoundPanel {
             id: panel
+            active: popup.visible
             anchors.fill: parent
             anchors { topMargin: 10; bottomMargin: 10; leftMargin: 12; rightMargin: 12 }
             focus: true
