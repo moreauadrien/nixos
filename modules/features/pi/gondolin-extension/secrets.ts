@@ -3,7 +3,7 @@ import { createHttpHooks } from "@earendil-works/gondolin";
 export function githubNetwork(token: string | undefined) {
 	return createHttpHooks({
 		secrets: token ? {
-			GH_TOKEN: { hosts: ["api.github.com"], value: token },
+			GH_TOKEN: { hosts: ["api.github.com", "github.com"], value: token },
 		} : {},
 	});
 }

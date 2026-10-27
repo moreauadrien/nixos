@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { githubNetwork, sanitizeEnv } from "./secrets.ts";
 
-test("GitHub token stays behind a placeholder scoped to the GitHub API", async () => {
+test("GitHub token stays behind a placeholder scoped to GitHub API and Git HTTPS", async () => {
 	const token = "test-host-only-token";
 	const { env, httpHooks } = githubNetwork(token);
 	assert.ok(env.GH_TOKEN);
@@ -16,7 +16,12 @@ test("GitHub token stays behind a placeholder scoped to the GitHub API", async (
 	const github = await httpHooks.onRequest!(request("api.github.com"));
 	assert.ok(github instanceof Request);
 	assert.equal(github.headers.get("Authorization"), `Bearer ${token}`);
-	for (const host of ["example.com", "api.github.com.example.com", "github.com"]) {
+	const basic = await httpHooks.onRequest!(new Request("https://github.com/owner/repo.git/info/refs", {
+		headers: { Authorization: `Basic ${Buffer.from(`x-access-token:${env.GH_TOKEN}`).toString("base64")}` },
+	}));
+	assert.ok(basic instanceof Request);
+	assert.equal(basic.headers.get("Authorization"), `Basic ${Buffer.from(`x-access-token:${token}`).toString("base64")}`);
+	for (const host of ["example.com", "api.github.com.example.com", "github.com.example.com"]) {
 		await assert.rejects(async () => httpHooks.onRequest!(request(host)));
 	}
 	// Unauthenticated requests elsewhere remain possible.

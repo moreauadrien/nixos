@@ -30,7 +30,8 @@ unset GH_TOKEN
 ```
 
 The extension reads the token on VM startup. Only a placeholder enters the VM;
-Gondolin substitutes the real token in HTTP headers sent to `api.github.com`.
+Gondolin substitutes the real token in HTTP headers sent to `api.github.com`
+(for the API) and `github.com` (for Git over HTTPS).
 Pi's bash environment forwarding also strips the real `GH_TOKEN` so it cannot
 overwrite that placeholder. Without `GH_TOKEN`, GitHub authentication is not
 configured. Restart Pi to change tokens.
