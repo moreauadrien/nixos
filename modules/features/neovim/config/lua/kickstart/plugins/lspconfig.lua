@@ -153,7 +153,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
 })
 
 -- Enable the following language servers
---  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
+--  Add/remove LSPs here; provide their binaries through NixOS or the project's devenv.
 --  See `:help lsp-config` for information about keys and how to configure
 ---@type table<string, vim.lsp.Config>
 local servers = {
@@ -175,6 +175,8 @@ local servers = {
   stylua = {
     cmd = { 'stylua', '--lsp' },
   },
+
+  jdtls = {}, -- Java language server (provided by the project's devenv)
 
   qmlls = {}, -- Qt QML language server (from kdePackages.qtdeclarative in nixpkgs)
 
