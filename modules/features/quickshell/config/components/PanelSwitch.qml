@@ -27,14 +27,6 @@ Switch {
         color: Theme.colorSurface
 
         Rectangle {
-            anchors.centerIn: parent
-            width: parent.width + 6
-            height: parent.height + 6
-            color: "transparent"
-            border.color: Theme.colorTextSubtle
-            visible: root.activeFocus
-        }
-        Rectangle {
             width: 18
             height: 18
             x: root.active ? parent.width - width - 3 : 3

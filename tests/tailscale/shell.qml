@@ -56,7 +56,7 @@ Scope {
             case 0: {
                 root.check(service.connected, "running state");
                 const track = switchPreview.indicator;
-                const thumb = track.children[1];
+                const thumb = track.children[0];
                 const contrast = (root.luminance(thumb.color) + 0.05) / (root.luminance(track.color) + 0.05);
                 root.check(contrast >= 3, "switch thumb contrast at least 3:1");
                 switchPreview.checked = false;
