@@ -8,7 +8,7 @@ Switch {
     property bool active: false
     signal toggleRequested()
 
-    implicitWidth: 48
+    implicitWidth: 44
     implicitHeight: 32
     padding: 0
     spacing: 0
@@ -22,24 +22,21 @@ Switch {
     background: Item {}
     indicator: Rectangle {
         anchors.centerIn: parent
-        implicitWidth: 48
-        implicitHeight: 28
-        radius: height / 2
-        color: root.active ? Qt.darker(Theme.colorAccent, 1.65) : Theme.colorSurface
+        implicitWidth: 44
+        implicitHeight: 24
+        color: Theme.colorSurface
 
         Rectangle {
             anchors.centerIn: parent
             width: parent.width + 6
             height: parent.height + 6
-            radius: height / 2
             color: "transparent"
-            border.color: Theme.colorAccent
+            border.color: Theme.colorTextSubtle
             visible: root.activeFocus
         }
         Rectangle {
-            width: 22
-            height: 22
-            radius: width / 2
+            width: 18
+            height: 18
             x: root.active ? parent.width - width - 3 : 3
             anchors.verticalCenter: parent.verticalCenter
             color: Theme.colorControlThumb
