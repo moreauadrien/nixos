@@ -1,14 +1,21 @@
+pragma ComponentBehavior: Bound
+
 import Quickshell
+import Quickshell.Wayland
 import QtQuick
 import "../components"
 import "../services"
 
 Scope {
+    id: root
+    property bool stayAwake: false
+
     Variants {
         model: Quickshell.screens
 
         // qmllint disable uncreatable-type
         PanelWindow {
+            id: bar
             required property var modelData
             screen: modelData
 
@@ -29,8 +36,49 @@ Scope {
                 }
             }
 
+            HoverHandler {
+                id: barHover
+            }
+
+            IdleInhibitor {
+                window: bar
+                enabled: root.stayAwake
+            }
+
             ClockWidget {
+                id: clock
                 anchors.centerIn: parent
+            }
+
+            Text {
+                id: coffee
+                anchors {
+                    right: clock.left
+                    rightMargin: 12
+                    verticalCenter: parent.verticalCenter
+                }
+                height: Theme.barHeight
+                verticalAlignment: Text.AlignVCenter
+                text: ""
+                font.family: Theme.barFontFamily
+                font.pixelSize: Theme.barFontSize
+                color: root.stayAwake ? "#ffffff" : Theme.colorTextSubtle
+                opacity: root.stayAwake || barHover.hovered ? 1 : 0
+
+                MouseArea {
+                    id: coffeeMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: root.stayAwake = !root.stayAwake
+                }
+
+                Tooltip {
+                    anchorItem: coffee
+                    screen: bar.screen
+                    text: "Stay awake"
+                    wantShow: coffeeMouse.containsMouse
+                }
             }
 
             Row {
