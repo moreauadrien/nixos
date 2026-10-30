@@ -50,6 +50,11 @@ Scope {
                 panel.submitPassword();
                 root.check(field.text === "" && panel.passwordNetwork !== null, "secret cleared but editor kept during connection");
                 root.check(service.busy && !field.enabled, "connection begins and editing disabled");
+                root.check(field.connecting && field.placeholderText === "Connecting…"
+                    && field.horizontalAlignment === TextInput.AlignHCenter
+                    && field.leftPadding === field.rightPadding, "connecting centered in original input");
+                root.check(!root.findItem(panel, "passwordActions").visible
+                    && !root.findItem(panel, "connectionFeedback").visible, "no actions or duplicate feedback while input connects");
                 root.check(service.connectionMessage === "Connecting to Home: wifi…", "connecting feedback names network");
                 service.scan(); // Ignored while connecting.
                 break;
@@ -78,6 +83,8 @@ Scope {
                 root.check(duplicate.text === "", "connection error not duplicated below list");
                 root.check(feedback.text === service.connectionMessage, "single feedback includes connection error");
                 root.check(panel.passwordNetwork !== null && field.text === "" && field.enabled, "failure reopens empty editable password");
+                root.check(!field.connecting && field.placeholderText !== "Connecting…"
+                    && field.horizontalAlignment === TextInput.AlignLeft, "failure restores normal password input");
                 field.text = "corrected-secret";
                 panel.submitPassword();
                 break;

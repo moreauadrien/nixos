@@ -142,30 +142,38 @@ Item {
                 TextField {
                     id: password
                     objectName: "networkPassword"
+                    readonly property bool connecting: root.passwordNetwork !== null
+                        && NetworkService.connectingNetwork !== null
+                        && root.passwordNetwork.bssid === NetworkService.connectingNetwork.bssid
+                        && root.passwordNetwork.interface === NetworkService.connectingNetwork.interface
                     width: parent.width
                     height: 34
-                    rightPadding: 84
+                    leftPadding: 8
+                    rightPadding: connecting ? leftPadding : 84
+                    horizontalAlignment: connecting ? TextInput.AlignHCenter : TextInput.AlignLeft
                     font.family: Theme.barFontFamily
                     font.pixelSize: echoMode === TextInput.Password && text.length > 0 ? 18 : 13
                     font.letterSpacing: echoMode === TextInput.Password && text.length > 0 ? 4 : 0
                     passwordCharacter: "●"
                     passwordMaskDelay: 0
                     color: Theme.colorText
-                    placeholderText: NetworkService.connectingNetwork ? "Connecting…" : "Password · Enter to connect"
-                    placeholderTextColor: Theme.colorTextSubtle
+                    placeholderText: connecting ? "Connecting…" : "Password · Enter to connect"
+                    placeholderTextColor: connecting ? Theme.colorAccent : Theme.colorTextSubtle
                     echoMode: TextInput.Password
                     inputMethodHints: Qt.ImhSensitiveData | Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase
                     selectByMouse: true
                     enabled: !NetworkService.busy
-                    Accessible.name: "Wi-Fi password"
+                    Accessible.name: connecting ? "Connecting to " + root.passwordNetwork.ssid : "Wi-Fi password"
                     background: Rectangle {
                         radius: 4
                         color: "transparent"
-                        border.color: password.activeFocus ? Theme.colorAccent : Theme.colorTextMuted
+                        border.color: password.activeFocus || password.connecting ? Theme.colorAccent : Theme.colorTextMuted
                     }
                     onAccepted: root.submitPassword()
                     Keys.onEscapePressed: root.cancelPassword()
                     Row {
+                        objectName: "passwordActions"
+                        visible: !password.connecting
                         anchors { right: parent.right; rightMargin: 4; verticalCenter: parent.verticalCenter }
                         IconAction {
                             glyph: password.echoMode === TextInput.Password ? "󰈈" : "󰈉"
@@ -187,26 +195,14 @@ Item {
                 }
             }
 
-            Row {
+            Label {
+                objectName: "connectionFeedback"
                 width: parent.width
-                visible: NetworkService.connectionMessage !== ""
-                spacing: 8
-                BusyIndicator {
-                    width: 20
-                    height: 20
-                    visible: NetworkService.connectingNetwork !== null
-                    running: visible
-                    palette.dark: Theme.colorAccent
-                }
-                Label {
-                    objectName: "connectionFeedback"
-                    width: parent.width - (NetworkService.connectingNetwork ? 28 : 0)
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: NetworkService.connectionMessage
-                    color: NetworkService.error ? Theme.colorError : Theme.colorAccent
-                    wrapMode: Text.Wrap
-                    Accessible.role: Accessible.AlertMessage
-                }
+                visible: NetworkService.connectionMessage !== "" && !password.connecting
+                text: NetworkService.connectionMessage
+                color: NetworkService.error ? Theme.colorError : Theme.colorAccent
+                wrapMode: Text.Wrap
+                Accessible.role: Accessible.AlertMessage
             }
 
             Column {
