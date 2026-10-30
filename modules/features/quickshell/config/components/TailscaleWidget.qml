@@ -5,6 +5,7 @@ import "../services"
 
 TailscaleIcon {
     id: root
+    iconSize: 14
     color: TailscaleService.connected ? Theme.colorText : Theme.colorTextSubtle
     crossed: TailscaleService.available && !TailscaleService.connected
         && TailscaleService.data.BackendState !== "NeedsLogin"
