@@ -63,27 +63,12 @@ Item {
                         }
                     }
                 }
-                Rectangle {
-                    width: 44
-                    height: 24
-                    radius: 12
+                PanelSwitch {
                     visible: BluetoothService.adapter !== null
                     anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-                    color: BluetoothService.powered ? Theme.colorAccent : Theme.colorTextSubtle
-                    Rectangle {
-                        width: 18
-                        height: 18
-                        radius: 9
-                        x: BluetoothService.powered ? parent.width - width - 3 : 3
-                        anchors.verticalCenter: parent.verticalCenter
-                        color: Theme.colorText
-                        Behavior on x { NumberAnimation { duration: 150 } }
-                    }
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: BluetoothService.togglePower()
-                    }
+                    active: BluetoothService.powered
+                    Accessible.name: "Bluetooth power"
+                    onToggleRequested: BluetoothService.togglePower()
                 }
             }
 

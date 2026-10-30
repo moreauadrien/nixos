@@ -76,35 +76,13 @@ Item {
                         font.letterSpacing: 1
                     }
                 }
-                Switch {
-                    id: connectionSwitch
+                PanelSwitch {
                     objectName: "tailscaleSwitch"
                     anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-                    padding: 0
-                    spacing: 0
-                    checked: TailscaleService.connected
+                    active: TailscaleService.connected
                     enabled: TailscaleService.available && !TailscaleService.busy
                     Accessible.name: "Tailscale connection"
-                    onToggled: TailscaleService.toggle()
-                    indicator: Rectangle {
-                        implicitWidth: 44
-                        implicitHeight: 24
-                        radius: 12
-                        opacity: connectionSwitch.enabled ? 1 : 0.4
-                        color: TailscaleService.connected ? Theme.colorAccent : Theme.colorTextSubtle
-                        border.width: connectionSwitch.activeFocus ? 1 : 0
-                        border.color: Theme.colorText
-                        Rectangle {
-                            width: 18
-                            height: 18
-                            radius: 9
-                            x: TailscaleService.connected ? parent.width - width - 3 : 3
-                            anchors.verticalCenter: parent.verticalCenter
-                            color: Theme.colorText
-                            Behavior on x { NumberAnimation { duration: 150 } }
-                        }
-                    }
-                    HoverHandler { cursorShape: Qt.PointingHandCursor }
+                    onToggleRequested: TailscaleService.toggle()
                 }
             }
 

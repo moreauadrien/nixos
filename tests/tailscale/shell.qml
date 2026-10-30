@@ -11,6 +11,18 @@ Scope {
     // Instantiate the real panel as well as the service to catch QML binding errors.
     TailscalePanel { id: panel }
     TailscaleIcon { id: icon }
+    PanelSwitch {
+        id: switchPreview
+        active: true
+        property int requests: 0
+        onToggleRequested: requests++
+    }
+
+    function luminance(color) {
+        const rgb = [color.r, color.g, color.b].map(value =>
+            value <= 0.04045 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4));
+        return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
+    }
 
     function findSwitch(item) {
         if (item.objectName === "tailscaleSwitch") return item;
@@ -43,6 +55,17 @@ Scope {
             switch (root.step++) {
             case 0: {
                 root.check(service.connected, "running state");
+                const track = switchPreview.indicator;
+                const thumb = track.children[1];
+                const contrast = (root.luminance(thumb.color) + 0.05) / (root.luminance(track.color) + 0.05);
+                root.check(contrast >= 3, "switch thumb contrast at least 3:1");
+                switchPreview.checked = false;
+                switchPreview.toggled();
+                root.check(switchPreview.requests === 1 && switchPreview.checked, "switch requests state without overriding service");
+                switchPreview.active = false;
+                root.check(!switchPreview.checked, "shared switch follows off state");
+                switchPreview.active = true;
+                root.check(switchPreview.checked, "shared switch binding survives interaction");
                 const control = root.findSwitch(panel);
                 root.check(control !== null && control.checked && control.enabled, "connected switch");
                 const dots = icon.children.filter(child => child.width === icon.iconSize * 0.24);
