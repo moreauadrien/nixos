@@ -21,12 +21,14 @@ Singleton {
     readonly property color paletteRedBright: "#ff7a93"
     readonly property color paletteWhite: "#787c99"
     readonly property color paletteWhiteBright: "#acb0d0"
+    readonly property color paletteIvory: "#f1f3f9"
     readonly property color paletteYellow: "#e0af68"
     readonly property color paletteYellowBright: "#ff9e64"
 
     // Rôles (à utiliser dans les composants)
     readonly property color colorBackground: paletteBg
     readonly property color colorSurface: paletteBgDark
+    readonly property color colorControlThumb: paletteIvory
 
     readonly property color colorText: paletteFg
     readonly property color colorTextMuted: paletteGray

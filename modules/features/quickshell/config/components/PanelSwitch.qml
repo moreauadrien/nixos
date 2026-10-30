@@ -8,7 +8,7 @@ Switch {
     property bool active: false
     signal toggleRequested()
 
-    implicitWidth: 44
+    implicitWidth: 48
     implicitHeight: 32
     padding: 0
     spacing: 0
@@ -22,11 +22,10 @@ Switch {
     background: Item {}
     indicator: Rectangle {
         anchors.centerIn: parent
-        implicitWidth: 44
-        implicitHeight: 24
+        implicitWidth: 48
+        implicitHeight: 28
         radius: height / 2
-        color: Theme.colorSurface
-        border.color: root.active ? Theme.colorAccent : Theme.colorTextMuted
+        color: root.active ? Qt.darker(Theme.colorAccent, 1.65) : Theme.colorSurface
 
         Rectangle {
             anchors.centerIn: parent
@@ -38,12 +37,12 @@ Switch {
             visible: root.activeFocus
         }
         Rectangle {
-            width: 18
-            height: 18
+            width: 22
+            height: 22
             radius: width / 2
             x: root.active ? parent.width - width - 3 : 3
             anchors.verticalCenter: parent.verticalCenter
-            color: root.active ? Theme.colorAccent : Theme.colorTextSubtle
+            color: Theme.colorControlThumb
             opacity: root.enabled ? 1 : 0.5
             scale: root.down ? 0.9 : 1
             Behavior on x { NumberAnimation { duration: 150; easing.type: Easing.InOutQuad } }
