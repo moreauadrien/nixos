@@ -21,15 +21,19 @@ Singleton {
     readonly property var exitNodes: peers.filter(peer => peer.ExitNodeOption || peer.ExitNode)
     readonly property string exitId: (data.ExitNodeStatus || {}).ID || (peers.find(peer => peer.ExitNode) || {}).ID || ""
     readonly property string status: busy ? "WORKING…" : !available ? "UNAVAILABLE"
-        : connected ? "GUARDING WIRES" : data.BackendState === "NeedsLogin" ? "LOGIN REQUIRED"
+        : connected ? "CONNECTED" : data.BackendState === "NeedsLogin" ? "LOGIN REQUIRED"
         : data.BackendState === "NeedsMachineAuth" ? "AWAITING ADMIN APPROVAL" : "TAILSCALE IS DISCONNECTED"
 
     function name(peer) {
         return ((peer || {}).DNSName || "").split(".")[0] || (peer || {}).HostName || "Unknown";
     }
 
-    function ip(peer) {
-        return ((peer || {}).TailscaleIPs || [])[0] || "";
+    function domain(peer) {
+        return ((peer || {}).DNSName || "").replace(/\.$/, "");
+    }
+
+    function ip(peer, ipv6 = false) {
+        return ((peer || {}).TailscaleIPs || []).find(address => address.includes(":") === ipv6) || "";
     }
 
     function refresh() {
@@ -57,9 +61,8 @@ Singleton {
         run(["set", "--exit-node=" + (id ? ip(peer) : "")]);
     }
 
-    function copyIp(peer) {
-        const address = ip(peer);
-        if (address) Quickshell.execDetached(["wl-copy", "--", address]);
+    function copy(value) {
+        if (value) Quickshell.execDetached(["wl-copy", "--", value]);
     }
 
     onPanelOpenChanged: if (panelOpen) refresh()

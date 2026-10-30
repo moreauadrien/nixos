@@ -9,6 +9,20 @@ Item {
     implicitWidth: 400
     implicitHeight: Math.min(550, content.implicitHeight)
 
+    component CopyOption: MenuItem {
+        required property string label
+        required property string value
+        text: label + " · " + (value || "Unavailable")
+        enabled: value !== ""
+        font.family: Theme.barFontFamily
+        font.pixelSize: 12
+        onTriggered: {
+            TailscaleService.copy(value);
+            copied.text = "Copied " + value;
+            copyTimer.restart();
+        }
+    }
+
     component Label: Text {
         color: Theme.colorText
         font.family: Theme.barFontFamily
@@ -70,6 +84,7 @@ Item {
                     }
                     Label {
                         width: parent.width
+                        visible: !TailscaleService.connected || TailscaleService.busy
                         text: TailscaleService.status
                         color: Theme.colorTextSubtle
                         font.pixelSize: 10
@@ -149,21 +164,23 @@ Item {
                 width: parent.width
                 spacing: 6
                 Label {
-                    text: "MACHINES · CLICK TO COPY IP"
+                    text: "MACHINES"
                     color: Theme.colorTextSubtle
                     font.pixelSize: 11
                     font.letterSpacing: 1
                 }
                 Repeater {
                     model: TailscaleService.connected ? (TailscaleService.data.Self ? [TailscaleService.data.Self] : []).concat(TailscaleService.peers) : []
-                    delegate: Action {
+                    delegate: Rectangle {
                         id: machine
                         required property var modelData
                         width: content.width
                         height: 50
-                        enabled: TailscaleService.ip(modelData) !== ""
-                        Accessible.name: "Copy IP of " + TailscaleService.name(modelData)
-                        contentItem: Column {
+                        radius: 4
+                        color: "transparent"
+                        Column {
+                            anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
+                            width: parent.width - 56
                             spacing: 4
                             Label {
                                 width: parent.width
@@ -173,15 +190,42 @@ Item {
                             }
                             Label {
                                 width: parent.width
-                                text: TailscaleService.ip(machine.modelData) + " · " + (machine.modelData.DNSName || "").replace(/\.$/, "")
+                                text: [TailscaleService.ip(machine.modelData), TailscaleService.domain(machine.modelData)].filter(Boolean).join(" · ")
                                 color: Theme.colorTextSubtle
                                 font.pixelSize: 10
                             }
                         }
-                        onClicked: {
-                            TailscaleService.copyIp(modelData);
-                            copied.text = "Copied " + TailscaleService.ip(modelData);
-                            copyTimer.restart();
+                        Action {
+                            id: copyButton
+                            objectName: "copyMachine"
+                            anchors { right: parent.right; rightMargin: 4; verticalCenter: parent.verticalCenter }
+                            width: 32
+                            height: 32
+                            text: ""
+                            Accessible.name: "Copy address of " + TailscaleService.name(machine.modelData)
+                            onClicked: copyMenu.open()
+
+                            Menu {
+                                id: copyMenu
+                                x: copyButton.width - width
+                                y: copyButton.height
+                                width: 370
+                                palette.window: Theme.colorBackground
+                                palette.base: Theme.colorBackground
+                                palette.text: Theme.colorText
+                                palette.windowText: Theme.colorText
+                                palette.highlight: Theme.colorSurface
+                                palette.highlightedText: Theme.colorText
+                                background: Rectangle {
+                                    color: Theme.colorBackground
+                                    border.color: Theme.colorTextMuted
+                                    radius: 4
+                                }
+                                CopyOption { label: "Name"; value: TailscaleService.name(machine.modelData) }
+                                CopyOption { label: "Domain"; value: TailscaleService.domain(machine.modelData) }
+                                CopyOption { label: "IPv4"; value: TailscaleService.ip(machine.modelData) }
+                                CopyOption { label: "IPv6"; value: TailscaleService.ip(machine.modelData, true) }
+                            }
                         }
                     }
                 }

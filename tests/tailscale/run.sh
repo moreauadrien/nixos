@@ -5,6 +5,7 @@ cd "$(dirname "$0")"
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 export TAILSCALE_TEST_LOG="$tmp/commands"
+export TAILSCALE_TEST_CLIPBOARD="$tmp/clipboard"
 export PATH="$tmp:$PATH"
 : > "$TAILSCALE_TEST_LOG"
 cat > "$tmp/tailscale" <<'MOCK'
@@ -19,7 +20,11 @@ else
     fi
 fi
 MOCK
-chmod +x "$tmp/tailscale"
+cat > "$tmp/wl-copy" <<'MOCK'
+#!/usr/bin/env bash
+printf '%s\n' "$@" >> "$TAILSCALE_TEST_CLIPBOARD"
+MOCK
+chmod +x "$tmp/tailscale" "$tmp/wl-copy"
 mkdir "$tmp/config"
 cp -r ../../modules/features/quickshell/config/{components,services} "$tmp/config/"
 cp shell.qml "$tmp/config/"
@@ -35,3 +40,5 @@ if grep -E 'FAIL:|ReferenceError:|TypeError:|Error:|Unable to assign' "$tmp/outp
 fi
 printf '%s\n' 'set --exit-node=100.64.0.2' 'set --exit-node=' down up fail > "$tmp/expected"
 diff -u "$tmp/expected" "$TAILSCALE_TEST_LOG"
+printf '%s\n' -- bicycle -- bicycle.tailxxx.ts.net -- 100.64.0.4 -- fd7a::4 > "$tmp/expected-clipboard"
+diff -u "$tmp/expected-clipboard" "$TAILSCALE_TEST_CLIPBOARD"

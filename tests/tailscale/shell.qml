@@ -7,6 +7,7 @@ Scope {
     id: root
     property int step: 0
     property int ticks: 0
+    readonly property var copyPeer: ({ HostName: "localhost", DNSName: "bicycle.tailxxx.ts.net.", TailscaleIPs: ["fd7a::4", "100.64.0.4"] })
 
     // Instantiate the real panel as well as the service to catch QML binding errors.
     TailscalePanel { id: panel }
@@ -74,6 +75,13 @@ Scope {
                 root.check(service.peers[0].Online, "online peers first");
                 root.check(service.name(service.peers[0]) === "exit", "MagicDNS name");
                 root.check(service.ip(service.peers[0]) === "100.64.0.2", "IPv4 address");
+                root.check(service.name(root.copyPeer) === "bicycle", "copy short MagicDNS name");
+                root.check(service.domain(root.copyPeer) === "bicycle.tailxxx.ts.net", "copy domain without trailing dot");
+                root.check(service.ip(root.copyPeer) === "100.64.0.4", "IPv4 selected independently of address order");
+                root.check(service.ip(root.copyPeer, true) === "fd7a::4", "copy IPv6");
+                root.check(service.ip({}, true) === "" && service.domain({}) === "", "missing copy values disabled");
+                service.copy("");
+                service.copy(service.name(root.copyPeer));
                 service.selectExit("offline");
                 root.check(!service.busy, "offline exit rejected");
                 service.selectExit("unknown");
@@ -93,12 +101,15 @@ Scope {
                 break;
             }
             case 1:
+                service.copy(service.domain(root.copyPeer));
                 service.selectExit("");
                 break;
             case 2:
+                service.copy(service.ip(root.copyPeer));
                 service.toggle();
                 break;
             case 3:
+                service.copy(service.ip(root.copyPeer, true));
                 service.data = { BackendState: "Stopped" };
                 service.toggle();
                 break;
