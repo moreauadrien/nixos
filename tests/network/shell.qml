@@ -7,7 +7,12 @@ Scope {
     id: root
     property int step: 0
     property int ticks: 0
-    NetworkPanel { id: panel }
+    Window {
+        visible: true
+        width: 400
+        height: 500
+        NetworkPanel { id: panel; anchors.fill: parent }
+    }
     function findItem(item, name) {
         if (item.objectName === name) return item;
         for (const child of item.children || []) {
@@ -38,10 +43,21 @@ Scope {
                 service.data = {wifiEnabled: false};
                 root.check(!service.connected && service.status === "WI-FI OFF", "disconnected state");
                 service.data = saved;
-                panel.requestPassword(service.networks[0]);
+                panel.requestPassword(service.networks[1]);
                 const field = root.findItem(panel, "networkPassword");
                 root.check(field && field.echoMode === TextInput.Password, "password masked initially");
+                root.check(panel.passwordHost && panel.passwordHost.parent.modelData.ssid === "Other",
+                    "password hosted under clicked second network, not list header");
+                panel.passwordHost.parent.forceLayout();
+                root.check(panel.passwordHost.y >= panel.passwordHost.parent.children[0].height,
+                    "password slot follows selected network row");
                 field.text = "discard-me";
+                field.forceActiveFocus();
+                service.data = Object.assign({}, saved, {networks: saved.networks.map(n => Object.assign({}, n, {signal: n.signal - 1}))});
+                root.check(root.findItem(panel, "networkPassword") === field && field.text === "discard-me"
+                    && panel.passwordHost && panel.passwordHost.parent.modelData.ssid === "Other",
+                    "scan refresh preserves shared editor and typed password under same SSID");
+                root.check(field.activeFocus, "scan refresh preserves input focus");
                 panel.cancelPassword();
                 root.check(field.text === "" && panel.passwordNetwork === null, "password cleared on cancel");
                 panel.requestPassword(service.networks[0]);

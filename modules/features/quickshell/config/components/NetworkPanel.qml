@@ -8,8 +8,21 @@ Item {
     implicitWidth: 400
     implicitHeight: Math.min(500, content.implicitHeight)
     property var passwordNetwork: null
+    property Item passwordHost: null
     property bool active: true
 
+    function syncPasswordHost() {
+        passwordHost = null;
+        if (!passwordNetwork) return;
+        for (let i = 0; i < networkRows.count; i++) {
+            const row = networkRows.itemAt(i);
+            if (row && row.modelData.ssid === passwordNetwork.ssid
+                && row.modelData.interface === passwordNetwork.interface) {
+                passwordHost = row.editorSlot;
+                return;
+            }
+        }
+    }
     function cancelPassword() {
         password.clear();
         password.echoMode = TextInput.Password;
@@ -18,8 +31,13 @@ Item {
     function requestPassword(network) {
         cancelPassword();
         passwordNetwork = network;
-        viewport.contentY = 0;
-        password.forceActiveFocus();
+        Qt.callLater(() => {
+            if (!root.active || !root.passwordHost) return;
+            const bottom = editor.mapToItem(content, 0, editor.height).y;
+            if (bottom > viewport.contentY + viewport.height)
+                viewport.contentY = Math.min(bottom - viewport.height, Math.max(0, viewport.contentHeight - viewport.height));
+            if (!NetworkService.busy) password.forceActiveFocus();
+        });
     }
     function submitPassword() {
         if (!passwordNetwork || NetworkService.busy || !password.text) return;
@@ -27,6 +45,7 @@ Item {
         password.clear();
         password.echoMode = TextInput.Password;
     }
+    onPasswordNetworkChanged: syncPasswordHost()
     onActiveChanged: if (!active) cancelPassword()
     onVisibleChanged: if (!visible) cancelPassword()
     Connections {
@@ -35,7 +54,7 @@ Item {
         function onConnectionFinished(network, success) {
             if (!root.active || !root.visible) return;
             if (success) root.cancelPassword();
-            else if (network.security) root.requestPassword(network);
+            else root.requestPassword(network);
         }
     }
 
@@ -65,6 +84,80 @@ Item {
         }
     }
 
+    // Keep one editor alive across scan results, moving it beneath the selected row.
+    Column {
+        id: editor
+        parent: root.passwordHost || root
+        x: 10
+        width: root.width - 20
+        visible: root.passwordNetwork !== null && root.passwordHost !== null
+        spacing: 6
+        TextField {
+            id: password
+            objectName: "networkPassword"
+            readonly property bool connecting: root.passwordNetwork !== null
+                && NetworkService.connectingNetwork !== null
+                && root.passwordNetwork.interface === NetworkService.connectingNetwork.interface
+                && root.passwordNetwork.ssid === NetworkService.connectingNetwork.ssid
+            visible: connecting || !!(root.passwordNetwork && root.passwordNetwork.security)
+            width: parent.width
+            height: 34
+            leftPadding: 8
+            rightPadding: connecting ? leftPadding : 84
+            horizontalAlignment: connecting ? TextInput.AlignHCenter : TextInput.AlignLeft
+            font.family: Theme.barFontFamily
+            font.pixelSize: echoMode === TextInput.Password && text.length > 0 ? 18 : 13
+            font.letterSpacing: echoMode === TextInput.Password && text.length > 0 ? 4 : 0
+            passwordCharacter: "●"
+            passwordMaskDelay: 0
+            color: Theme.colorText
+            placeholderText: connecting ? "Connecting…" : "Password · Enter to connect"
+            placeholderTextColor: connecting ? Theme.colorAccent : Theme.colorTextSubtle
+            echoMode: TextInput.Password
+            inputMethodHints: Qt.ImhSensitiveData | Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase
+            selectByMouse: true
+            enabled: !NetworkService.busy
+            Accessible.name: connecting ? "Connecting to " + root.passwordNetwork.ssid : "Wi-Fi password"
+            background: Rectangle {
+                radius: 4
+                color: "transparent"
+                border.color: password.activeFocus || password.connecting ? Theme.colorAccent : Theme.colorTextMuted
+            }
+            onAccepted: root.submitPassword()
+            Keys.onEscapePressed: root.cancelPassword()
+            Row {
+                objectName: "passwordActions"
+                visible: !password.connecting
+                anchors { right: parent.right; rightMargin: 4; verticalCenter: parent.verticalCenter }
+                IconAction {
+                    glyph: password.echoMode === TextInput.Password ? "󰈈" : "󰈉"
+                    Accessible.name: "Show or hide password"
+                    onClicked: password.echoMode = password.echoMode === TextInput.Password ? TextInput.Normal : TextInput.Password
+                }
+                IconAction {
+                    glyph: "󰄬"
+                    enabled: password.text.length > 0
+                    Accessible.name: "Connect to Wi-Fi"
+                    onClicked: root.submitPassword()
+                }
+                IconAction {
+                    glyph: "󰅖"
+                    Accessible.name: "Cancel"
+                    onClicked: root.cancelPassword()
+                }
+            }
+        }
+        Label {
+            objectName: "connectionFeedback"
+            width: parent.width
+            visible: NetworkService.connectionMessage !== "" && !password.connecting
+            text: NetworkService.connectionMessage
+            color: NetworkService.error ? Theme.colorError : Theme.colorAccent
+            wrapMode: Text.Wrap
+            Accessible.role: Accessible.AlertMessage
+        }
+    }
+
     Flickable {
         id: viewport
         anchors.fill: parent
@@ -75,7 +168,6 @@ Item {
             id: content
             width: root.width
             spacing: 12
-
             PanelHeader {
                 width: parent.width
                 icon: NetworkService.icon
@@ -90,7 +182,6 @@ Item {
                 }
             }
             Rectangle { width: parent.width; height: 1; color: Theme.colorTextMuted }
-
             Column {
                 width: parent.width
                 spacing: 4
@@ -113,7 +204,6 @@ Item {
                     }
                 }
             }
-
             Row {
                 width: parent.width
                 Label {
@@ -129,114 +219,57 @@ Item {
                     onClicked: NetworkService.scan()
                 }
             }
-
-            Column {
-                width: parent.width
-                visible: root.passwordNetwork !== null
-                spacing: 6
-                Label {
-                    width: parent.width
-                    text: "Password for " + (root.passwordNetwork ? root.passwordNetwork.ssid : "")
-                    elide: Text.ElideRight
-                }
-                TextField {
-                    id: password
-                    objectName: "networkPassword"
-                    readonly property bool connecting: root.passwordNetwork !== null
-                        && NetworkService.connectingNetwork !== null
-                        && root.passwordNetwork.bssid === NetworkService.connectingNetwork.bssid
-                        && root.passwordNetwork.interface === NetworkService.connectingNetwork.interface
-                    width: parent.width
-                    height: 34
-                    leftPadding: 8
-                    rightPadding: connecting ? leftPadding : 84
-                    horizontalAlignment: connecting ? TextInput.AlignHCenter : TextInput.AlignLeft
-                    font.family: Theme.barFontFamily
-                    font.pixelSize: echoMode === TextInput.Password && text.length > 0 ? 18 : 13
-                    font.letterSpacing: echoMode === TextInput.Password && text.length > 0 ? 4 : 0
-                    passwordCharacter: "●"
-                    passwordMaskDelay: 0
-                    color: Theme.colorText
-                    placeholderText: connecting ? "Connecting…" : "Password · Enter to connect"
-                    placeholderTextColor: connecting ? Theme.colorAccent : Theme.colorTextSubtle
-                    echoMode: TextInput.Password
-                    inputMethodHints: Qt.ImhSensitiveData | Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase
-                    selectByMouse: true
-                    enabled: !NetworkService.busy
-                    Accessible.name: connecting ? "Connecting to " + root.passwordNetwork.ssid : "Wi-Fi password"
-                    background: Rectangle {
-                        radius: 4
-                        color: "transparent"
-                        border.color: password.activeFocus || password.connecting ? Theme.colorAccent : Theme.colorTextMuted
-                    }
-                    onAccepted: root.submitPassword()
-                    Keys.onEscapePressed: root.cancelPassword()
-                    Row {
-                        objectName: "passwordActions"
-                        visible: !password.connecting
-                        anchors { right: parent.right; rightMargin: 4; verticalCenter: parent.verticalCenter }
-                        IconAction {
-                            glyph: password.echoMode === TextInput.Password ? "󰈈" : "󰈉"
-                            Accessible.name: "Show or hide password"
-                            onClicked: password.echoMode = password.echoMode === TextInput.Password ? TextInput.Normal : TextInput.Password
-                        }
-                        IconAction {
-                            glyph: "󰄬"
-                            enabled: password.text.length > 0
-                            Accessible.name: "Connect to Wi-Fi"
-                            onClicked: root.submitPassword()
-                        }
-                        IconAction {
-                            glyph: "󰅖"
-                            Accessible.name: "Cancel"
-                            onClicked: root.cancelPassword()
-                        }
-                    }
-                }
-            }
-
-            Label {
-                objectName: "connectionFeedback"
-                width: parent.width
-                visible: NetworkService.connectionMessage !== "" && !password.connecting
-                text: NetworkService.connectionMessage
-                color: NetworkService.error ? Theme.colorError : Theme.colorAccent
-                wrapMode: Text.Wrap
-                Accessible.role: Accessible.AlertMessage
-            }
-
             Column {
                 width: parent.width
                 spacing: 4
                 Repeater {
+                    id: networkRows
                     model: NetworkService.wifiEnabled ? NetworkService.networks : []
-                    delegate: PanelRow {
-                        id: networkRow
+                    onItemAdded: root.syncPasswordHost()
+                    onItemRemoved: (index, item) => {
+                        if (root.passwordHost === item.editorSlot) root.passwordHost = null;
+                    }
+                    delegate: Column {
+                        id: entry
                         required property var modelData
+                        property alias editorSlot: slot
                         width: content.width
-                        glyph: selected ? "󰤨" : "󰤥"
-                        title: modelData.ssid
-                        subtitle: NetworkService.connectingNetwork && NetworkService.connectingNetwork.bssid === modelData.bssid
-                            ? "Connecting…" : selected ? "Connected" : modelData.known ? "Saved" : ""
-                        detail: (modelData.security ? "  " : "") + modelData.signal + "%"
-                        selected: !!modelData.active
-                        enabled: NetworkService.available && !NetworkService.busy
-                        onClicked: {
-                            root.cancelPassword();
-                            if (selected) NetworkService.disconnect(modelData.interface);
-                            else if (modelData.security && !modelData.known) root.requestPassword(modelData);
-                            else NetworkService.connect(modelData);
-                        }
-                        actions: IconAction {
-                            visible: !!networkRow.modelData.known
-                            glyph: "󰅖"
-                            Accessible.name: "Forget " + networkRow.title
+                        spacing: 4
+                        PanelRow {
+                            id: networkRow
+                            width: parent.width
+                            glyph: selected ? "󰤨" : "󰤥"
+                            title: entry.modelData.ssid
+                            subtitle: selected ? "Connected" : entry.modelData.known ? "Saved" : ""
+                            detail: (entry.modelData.security ? "  " : "") + entry.modelData.signal + "%"
+                            selected: !!entry.modelData.active
+                            enabled: NetworkService.available && !NetworkService.busy
                             onClicked: {
                                 root.cancelPassword();
-                                NetworkService.forget(networkRow.modelData.uuid);
+                                if (selected) NetworkService.disconnect(entry.modelData.interface);
+                                else {
+                                    root.requestPassword(entry.modelData);
+                                    if (!entry.modelData.security || entry.modelData.known)
+                                        NetworkService.connect(entry.modelData);
+                                }
                             }
+                            actions: IconAction {
+                                visible: !!entry.modelData.known
+                                glyph: "󰅖"
+                                Accessible.name: "Forget " + networkRow.title
+                                onClicked: {
+                                    root.cancelPassword();
+                                    NetworkService.forget(entry.modelData.uuid);
+                                }
+                            }
+                            onPressAndHold: if (entry.modelData.security && !selected) root.requestPassword(entry.modelData)
                         }
-                        onPressAndHold: if (modelData.security && !selected) root.requestPassword(modelData)
+                        Item {
+                            id: slot
+                            width: parent.width
+                            visible: root.passwordHost === slot
+                            height: visible ? editor.implicitHeight + 4 : 0
+                        }
                     }
                 }
                 Label {
@@ -249,7 +282,7 @@ Item {
                 width: parent.width
                 visible: text !== ""
                 objectName: "networkError"
-                text: [NetworkService.connectionMessage ? "" : NetworkService.error,
+                text: [root.passwordHost ? "" : NetworkService.error,
                     NetworkService.statusError].filter(Boolean).join("\n")
                 color: Theme.colorError
                 wrapMode: Text.Wrap

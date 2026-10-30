@@ -34,7 +34,7 @@ mkdir "$tmp/config"
 cp -r ../../modules/features/quickshell/config/{components,services} "$tmp/config/"
 cp shell.qml "$tmp/config/"
 unset WAYLAND_DISPLAY
-QT_QPA_PLATFORM=offscreen quickshell --no-color -p "$tmp/config/shell.qml" > "$tmp/output" 2>&1 || {
+QT_QUICK_BACKEND=software QT_QPA_PLATFORM=offscreen quickshell --no-color -p "$tmp/config/shell.qml" > "$tmp/output" 2>&1 || {
     tail -100 "$tmp/output"
     exit 1
 }
