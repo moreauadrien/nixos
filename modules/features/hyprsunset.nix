@@ -2,17 +2,14 @@
 {
   flake.nixosModules.hyprsunset = { pkgs, ... } : {
     hjem.users.adrien.files.".config/hypr/hyprsunset.conf".text = ''
-      max-gamma = 150
-
       profile {
-          time = 7:30
+          time = 08:00
           identity = true
       }
 
       profile {
-          time = 21:00
-          temperature = 5500
-          gamma = 0.8
+          time = 22:00
+          temperature = 4500
       }
     '';
 

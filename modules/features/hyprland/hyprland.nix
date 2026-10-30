@@ -7,6 +7,7 @@
       wallpaper
       hyprpaper
       hypridle
+      hyprsunset
       hyprlock
     ];
 
