@@ -52,7 +52,7 @@ Item {
                 TailscaleIcon {
                     iconSize: 24
                     anchors { left: parent.left; verticalCenter: parent.verticalCenter }
-                    color: TailscaleService.connected ? Theme.colorAccent : Theme.colorTextSubtle
+                    color: TailscaleService.connected ? Theme.colorText : Theme.colorTextSubtle
                     crossed: TailscaleService.available && !TailscaleService.connected
                         && TailscaleService.data.BackendState !== "NeedsLogin"
                 }

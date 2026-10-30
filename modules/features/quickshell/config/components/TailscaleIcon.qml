@@ -5,7 +5,7 @@ import "../services"
 Item {
     id: root
     property real iconSize: Theme.barFontSize
-    property color color: Theme.colorAccent
+    property color color: Theme.colorText
     property bool crossed: false
     implicitWidth: iconSize
     implicitHeight: iconSize
