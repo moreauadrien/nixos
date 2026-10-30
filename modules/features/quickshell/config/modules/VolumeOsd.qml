@@ -14,20 +14,28 @@ Scope {
     readonly property real volume: available ? sink.audio.volume : 0
     readonly property bool muted: available && sink.audio.muted
 
-    onSinkChanged: hideTimer.stop()
-    onAvailableChanged: hideTimer.stop()
+    property bool shown: false
+
+    function show() {
+        shown = true;
+        hideTimer.restart();
+    }
+
+    onSinkChanged: { shown = false; hideTimer.stop(); }
+    onAvailableChanged: { shown = false; hideTimer.stop(); }
 
     PwObjectTracker { objects: root.sink ? [root.sink] : [] }
 
     Connections {
         target: root.available ? root.sink.audio : null
-        function onVolumesChanged() { hideTimer.restart(); }
-        function onMutedChanged() { hideTimer.restart(); }
+        function onVolumesChanged() { root.show(); }
+        function onMutedChanged() { root.show(); }
     }
 
     Timer {
         id: hideTimer
         interval: 1500
+        onTriggered: root.shown = false
     }
 
     Variants {
@@ -37,7 +45,7 @@ Scope {
         PanelWindow {
             required property var modelData
             screen: modelData
-            visible: root.available && hideTimer.running
+            visible: root.available && root.shown
             anchors.bottom: true
             // QMargins fields are not exposed to qmllint.
             // qmllint disable missing-property
