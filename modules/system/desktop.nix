@@ -16,7 +16,6 @@
       audio
       quickshell
       ghostty
-      alacritty
       foot
       librewolf
       tailscale
