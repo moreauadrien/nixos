@@ -42,10 +42,10 @@ Scope {
                     top: parent.top
                     bottom: parent.bottom
                 }
-                width: clock.x * Theme.barStayAwakeRevealFraction
+                width: clock.x * Theme.barExtraIconsRevealFraction
 
                 HoverHandler {
-                    id: coffeeRevealHover
+                    id: extraIconsHover
                 }
             }
 
@@ -72,7 +72,7 @@ Scope {
                 font.family: Theme.barFontFamily
                 font.pixelSize: Theme.barSmallIconSize
                 color: root.stayAwake ? "#ffffff" : Theme.colorTextSubtle
-                opacity: root.stayAwake || coffeeRevealHover.hovered ? 1 : 0
+                opacity: root.stayAwake || extraIconsHover.hovered ? 1 : 0
 
                 MouseArea {
                     id: coffeeMouse
