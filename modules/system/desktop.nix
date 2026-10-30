@@ -17,6 +17,7 @@
       quickshell
       ghostty
       alacritty
+      foot
       librewolf
       tailscale
       voxtype
