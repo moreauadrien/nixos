@@ -36,8 +36,17 @@ Scope {
                 }
             }
 
-            HoverHandler {
-                id: barHover
+            Item {
+                anchors {
+                    right: clock.left
+                    top: parent.top
+                    bottom: parent.bottom
+                }
+                width: clock.x * Theme.barStayAwakeRevealFraction
+
+                HoverHandler {
+                    id: coffeeRevealHover
+                }
             }
 
             IdleInhibitor {
@@ -63,7 +72,7 @@ Scope {
                 font.family: Theme.barFontFamily
                 font.pixelSize: Theme.barSmallIconSize
                 color: root.stayAwake ? "#ffffff" : Theme.colorTextSubtle
-                opacity: root.stayAwake || barHover.hovered ? 1 : 0
+                opacity: root.stayAwake || coffeeRevealHover.hovered ? 1 : 0
 
                 MouseArea {
                     id: coffeeMouse

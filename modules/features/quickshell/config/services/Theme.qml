@@ -55,5 +55,6 @@ Singleton {
     readonly property int barFontWeight: 400
     readonly property int barFontSize: 16
     readonly property int barSmallIconSize: 12
+    readonly property real barStayAwakeRevealFraction: 1 / 3
     readonly property int barHeight: 30
 }
