@@ -12,7 +12,8 @@ Item {
     component CopyOption: MenuItem {
         required property string label
         required property string value
-        text: label + " · " + (value || "Unavailable")
+        text: value || "Unavailable"
+        Accessible.name: label + ": " + (value || "Unavailable")
         enabled: value !== ""
         font.family: Theme.barFontFamily
         font.pixelSize: 12
