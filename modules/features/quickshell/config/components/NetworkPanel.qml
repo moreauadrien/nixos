@@ -8,6 +8,7 @@ Item {
     implicitWidth: 400
     implicitHeight: Math.min(500, content.implicitHeight)
     property var passwordNetwork: null
+    property bool active: true
 
     function cancelPassword() {
         password.clear();
@@ -23,12 +24,19 @@ Item {
     function submitPassword() {
         if (!passwordNetwork || NetworkService.busy || !password.text) return;
         NetworkService.connect(passwordNetwork, password.text);
-        cancelPassword();
+        password.clear();
+        password.echoMode = TextInput.Password;
     }
+    onActiveChanged: if (!active) cancelPassword()
     onVisibleChanged: if (!visible) cancelPassword()
     Connections {
         target: NetworkService
         function onWifiEnabledChanged() { if (!NetworkService.wifiEnabled) root.cancelPassword(); }
+        function onConnectionFinished(network, success) {
+            if (!root.active || !root.visible) return;
+            if (success) root.cancelPassword();
+            else if (network.security) root.requestPassword(network);
+        }
     }
 
     component Label: Text {
@@ -122,6 +130,28 @@ Item {
                 }
             }
 
+            Row {
+                width: parent.width
+                visible: NetworkService.connectionMessage !== ""
+                spacing: 8
+                BusyIndicator {
+                    width: 20
+                    height: 20
+                    visible: NetworkService.connectingNetwork !== null
+                    running: visible
+                    palette.dark: Theme.colorAccent
+                }
+                Label {
+                    objectName: "connectionFeedback"
+                    width: parent.width - (NetworkService.connectingNetwork ? 28 : 0)
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: NetworkService.connectionMessage
+                    color: NetworkService.error ? Theme.colorError : Theme.colorAccent
+                    wrapMode: Text.Wrap
+                    Accessible.role: Accessible.AlertMessage
+                }
+            }
+
             Column {
                 width: parent.width
                 visible: root.passwordNetwork !== null
@@ -138,9 +168,12 @@ Item {
                     height: 34
                     rightPadding: 84
                     font.family: Theme.barFontFamily
-                    font.pixelSize: 13
+                    font.pixelSize: echoMode === TextInput.Password && text.length > 0 ? 18 : 13
+                    font.letterSpacing: echoMode === TextInput.Password && text.length > 0 ? 4 : 0
+                    passwordCharacter: "●"
+                    passwordMaskDelay: 0
                     color: Theme.colorText
-                    placeholderText: "Password · Enter to connect"
+                    placeholderText: NetworkService.connectingNetwork ? "Connecting…" : "Password · Enter to connect"
                     placeholderTextColor: Theme.colorTextSubtle
                     echoMode: TextInput.Password
                     inputMethodHints: Qt.ImhSensitiveData | Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase
@@ -187,7 +220,8 @@ Item {
                         width: content.width
                         glyph: selected ? "󰤨" : "󰤥"
                         title: modelData.ssid
-                        subtitle: selected ? "Connected" : modelData.known ? "Saved" : ""
+                        subtitle: NetworkService.connectingNetwork && NetworkService.connectingNetwork.bssid === modelData.bssid
+                            ? "Connecting…" : selected ? "Connected" : modelData.known ? "Saved" : ""
                         detail: (modelData.security ? "  " : "") + modelData.signal + "%"
                         selected: !!modelData.active
                         enabled: NetworkService.available && !NetworkService.busy

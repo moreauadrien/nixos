@@ -71,6 +71,7 @@ Text {
         }
         NetworkPanel {
             id: panel
+            active: popup.visible
             width: implicitWidth
             height: implicitHeight
             anchors { top: parent.top; topMargin: 10; left: parent.left; leftMargin: 12 }

@@ -46,13 +46,18 @@ Scope {
                 root.check(field.text === "" && panel.passwordNetwork === null, "password cleared on cancel");
                 panel.requestPassword(service.networks[0]);
                 field.text = "test-secret";
+                root.check(field.font.pixelSize === 18 && field.font.letterSpacing === 4 && field.passwordCharacter === "●", "large spaced password dots");
                 panel.submitPassword();
-                root.check(field.text === "" && panel.passwordNetwork === null, "password cleared on submit");
-                root.check(service.busy, "connection begins");
+                root.check(field.text === "" && panel.passwordNetwork !== null, "secret cleared but editor kept during connection");
+                root.check(service.busy && !field.enabled, "connection begins and editing disabled");
+                root.check(service.connectionMessage === "Connecting to Home: wifi…", "connecting feedback names network");
                 service.scan(); // Ignored while connecting.
                 break;
             }
-            case 1: service.run({action: "wired", interface: "eth0"}); break;
+            case 1:
+                root.check(panel.passwordNetwork === null && service.connectionMessage === "Connected to Home: wifi", "success feedback and editor dismissed");
+                service.run({action: "wired", interface: "eth0"});
+                break;
             case 2: service.disconnect("wlan0"); break;
             case 3: service.forget("wifi-uuid"); break;
             case 4: service.run({action: "fail"}); break;
@@ -62,6 +67,23 @@ Scope {
                 service.connect(service.networks[0]);
                 break;
             case 6:
+                service.connect(service.networks[0], "wrong-secret");
+                break;
+            case 7: {
+                const field = root.findItem(panel, "networkPassword");
+                root.check(service.error !== "" && service.connectionMessage.includes("Try again"), "failed connection feedback");
+                root.check(panel.passwordNetwork !== null && field.text === "" && field.enabled, "failure reopens empty editable password");
+                field.text = "corrected-secret";
+                panel.submitPassword();
+                break;
+            }
+            case 8:
+                root.check(service.error === "" && panel.passwordNetwork === null, "retry succeeds and clears error");
+                service.connect(service.networks[0], "wrong-secret");
+                panel.active = false;
+                break;
+            case 9:
+                root.check(panel.passwordNetwork === null, "failure does not reopen hidden panel password");
                 console.log("PASS: Network service and panel");
                 Qt.quit();
             }

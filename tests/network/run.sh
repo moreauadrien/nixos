@@ -16,6 +16,11 @@ status)
 action)
     IFS= read -r request
     printf '%s\n' "$request" >> "$NETWORK_TEST_LOG"
+    if [[ "$request" == *'"password":"wrong-secret"'* ]]; then
+        sleep 0.2
+        printf '%s\n' '{"ok":false,"error":"Connection failed"}'
+        exit 1
+    fi
     if [[ "$request" == *'"action":"fail"'* ]]; then
         printf '%s\n' '{"ok":false,"error":"Permission denied"}'
         exit 1
@@ -36,9 +41,10 @@ QT_QPA_PLATFORM=offscreen quickshell --no-color -p "$tmp/config/shell.qml" > "$t
 tail -100 "$tmp/output"
 grep -q 'PASS: Network service and panel' "$tmp/output"
 if grep -E 'FAIL:|ReferenceError:|TypeError:|Error:|Unable to assign' "$tmp/output"; then exit 1; fi
-[ "$(wc -l < "$NETWORK_TEST_LOG")" -eq 6 ]
-! tail -1 "$NETWORK_TEST_LOG" | grep -q '"password"'
+[ "$(wc -l < "$NETWORK_TEST_LOG")" -eq 9 ]
+! head -6 "$NETWORK_TEST_LOG" | tail -1 | grep -q '"password"'
+grep -q '"password":"corrected-secret"' "$NETWORK_TEST_LOG"
 grep -q '"action":"connect".*"password":"test-secret"' "$NETWORK_TEST_LOG"
 grep -q '"action":"wired","interface":"eth0"' "$NETWORK_TEST_LOG"
 grep -q '"action":"disconnect","interface":"wlan0"' "$NETWORK_TEST_LOG"
-! grep -q 'test-secret' "$tmp/output"
+! grep -E 'test-secret|wrong-secret|corrected-secret' "$tmp/output"

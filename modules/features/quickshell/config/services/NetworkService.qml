@@ -11,6 +11,9 @@ Singleton {
     property int openPanels: 0
     property string error: ""
     property string statusError: ""
+    property var connectingNetwork: null
+    property string connectionMessage: ""
+    signal connectionFinished(var network, bool success)
     readonly property var active: data.active || ({})
     readonly property bool connected: !!active.interface
     readonly property bool wifiEnabled: !!data.wifiEnabled
@@ -20,7 +23,7 @@ Singleton {
         .filter((network, index, all) => all.findIndex(n => n.ssid === network.ssid
             && n.interface === network.interface && n.security === network.security) === index)
     readonly property string icon: connected ? (active.type === "ethernet" ? "󰈀" : "󰖩") : "󰖪"
-    readonly property string status: busy ? "WORKING…" : !available ? "UNAVAILABLE"
+    readonly property string status: connectingNetwork ? "CONNECTING…" : busy ? "WORKING…" : !available ? "UNAVAILABLE"
         : connected ? (active.type === "ethernet" ? "WIRED CONNECTION" : "CONNECTED")
         : wifiEnabled ? "DISCONNECTED" : "WI-FI OFF"
 
@@ -30,13 +33,15 @@ Singleton {
         const request = {action: "connect", bssid: network.bssid, interface: network.interface,
             uuid: network.uuid || ""};
         if (password) request.password = password;
-        run(request);
+        run(request, network);
     }
     function disconnect(iface) { run({action: "disconnect", interface: iface}); }
     function forget(uuid) { run({action: "forget", uuid: uuid}); }
-    function run(request) {
+    function run(request, network = null) {
         if (busy || !available) return;
         error = "";
+        connectingNetwork = network;
+        connectionMessage = network ? "Connecting to " + network.ssid + "…" : "";
         busy = true;
         action.payload = JSON.stringify(request);
         action.running = true;
@@ -77,7 +82,9 @@ Singleton {
         stdinEnabled: true
         property string payload: ""
         property string output: ""
+        property bool timedOut: false
         onStarted: {
+            timedOut = false;
             output = "";
             write(payload + "\n");
             payload = "";
@@ -89,17 +96,26 @@ Singleton {
             actionTimeout.stop();
             payload = "";
             stdinEnabled = true;
-            root.busy = false;
             try {
                 const result = JSON.parse(output);
                 if (code !== 0 || !result.ok) root.error = result.error || "Network operation failed";
             } catch (e) { root.error = "Network operation failed"; }
+            if (timedOut) root.error = "Connection timed out. Check the password and signal, then try again.";
+            const network = root.connectingNetwork;
+            root.connectingNetwork = null;
+            root.busy = false;
+            if (network) {
+                const success = root.error === "";
+                root.connectionMessage = success ? "Connected to " + network.ssid
+                    : "Could not connect to " + network.ssid + ". Try again.";
+                root.connectionFinished(network, success);
+            }
             root.refresh();
         }
     }
     Timer {
         id: actionTimeout
         interval: 120000
-        onTriggered: { action.running = false; root.error = "Network operation timed out"; }
+        onTriggered: { action.timedOut = true; action.running = false; }
     }
 }
