@@ -111,6 +111,8 @@
                   ".cache/gondolin"
                   ".config/hyprmoncfg"
                   ".config/librewolf"
+                  ".config/JetBrains"
+                  ".local/share/JetBrains"
                   ".ssh"
                   ".pi"
                 ];

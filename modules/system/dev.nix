@@ -3,6 +3,7 @@
   flake.nixosModules.dev = { pkgs, ... }: {
     imports = with self.nixosModules; [
       neovim
+      intellij-idea
       tmux
       pi
       pifzf
