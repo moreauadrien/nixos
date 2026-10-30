@@ -1,6 +1,6 @@
 # Neovim editor: binary, companion tools and the config from ./config.
 {
-  flake.nixosModules.neovim = { lib, pkgs, ... }: {
+  flake.nixosModules.neovim = { config, lib, pkgs, ... }: {
     programs.neovim = {
       enable = true;
       vimAlias = true;
@@ -9,6 +9,16 @@
 
 
     environment.systemPackages = with pkgs; [
+      # Keep nvim.desktop's identity and MIME types, but bypass GLib's terminal
+      # lookup by launching Alacritty directly. Higher priority replaces only the
+      # wrapper's desktop entry, not Neovim itself.
+      (lib.hiPrio (runCommand "neovim-desktop" {} ''
+        mkdir -p $out/share/applications
+        substitute ${config.programs.neovim.finalPackage}/share/applications/nvim.desktop \
+          $out/share/applications/nvim.desktop \
+          --replace-fail 'Exec=nvim %F' 'Exec=${alacritty}/bin/alacritty -e ${config.programs.neovim.finalPackage}/bin/nvim -- %F' \
+          --replace-fail 'Terminal=true' 'Terminal=false'
+      ''))
       git
       gnumake
       unzip
