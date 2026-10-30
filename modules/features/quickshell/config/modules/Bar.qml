@@ -72,7 +72,7 @@ Scope {
                 font.family: Theme.barFontFamily
                 font.pixelSize: Theme.barSmallIconSize
                 color: root.stayAwake ? "#ffffff" : Theme.colorTextSubtle
-                opacity: root.stayAwake || extraIconsHover.hovered ? 1 : 0
+                opacity: root.stayAwake || extraIconsHover.hovered || coffeeMouse.containsMouse ? 1 : 0
 
                 MouseArea {
                     id: coffeeMouse
