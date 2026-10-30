@@ -107,7 +107,8 @@ Singleton {
             if (network) {
                 const success = root.error === "";
                 root.connectionMessage = success ? "Connected to " + network.ssid
-                    : "Could not connect to " + network.ssid + ". Try again.";
+                    : "Could not connect to " + network.ssid + ".\n" + root.error
+                        + (network.security ? " Retype the password to retry." : " Try again.");
                 root.connectionFinished(network, success);
             }
             root.refresh();

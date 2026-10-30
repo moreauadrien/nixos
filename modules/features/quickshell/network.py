@@ -15,16 +15,30 @@ def run(args, *, input=None, timeout=25, check=True):
     try:
         result = subprocess.run(args, input=input, text=True, capture_output=True,
                                 timeout=timeout, env={**os.environ, "LC_ALL": "C"})
-    except (OSError, subprocess.TimeoutExpired):
-        raise NetworkError("Network command unavailable or timed out") from None
+    except subprocess.TimeoutExpired:
+        raise NetworkError("Network command timed out. Check that the access point is available.") from None
+    except OSError:
+        raise NetworkError("NetworkManager command unavailable") from None
     if check and result.returncode:
-        # Never relay nmcli's stderr: it can contain credentials supplied by stdin.
-        raise NetworkError("NetworkManager command failed (check connection and permissions)")
+        # Only fixed messages: nmcli's raw output may contain a supplied secret.
+        failure = result.stderr.lower()
+        if "not authorized" in failure or "permission denied" in failure:
+            message = "NetworkManager denied permission for this operation."
+        elif "secrets were required" in failure or "no secrets" in failure:
+            message = "A Wi-Fi password is required or was rejected."
+        else:
+            message = {
+                3: "The access point did not respond in time. Check that it is available.",
+                4: "Connection failed. Check the password, signal and access point.",
+                8: "NetworkManager is not running.",
+                10: "The network is no longer available. Scan and try again.",
+            }.get(result.returncode, "NetworkManager could not complete this operation.")
+        raise NetworkError(message)
     return result
 
 
-def nm(*args, **kwargs):
-    return run(["nmcli", "--wait", "20", *args], **kwargs).stdout.rstrip("\n")
+def nm(*args, wait=20, **kwargs):
+    return run(["nmcli", "--wait", str(wait), *args], timeout=wait + 5, **kwargs).stdout.rstrip("\n")
 
 
 def split_row(line):
@@ -149,14 +163,14 @@ def action(request):
             if password is not None:
                 # nmcli passwd-file accepts setting.property:secret lines. /dev/stdin
                 # is the subprocess pipe, never a credential file on disk.
-                nm(*args, "passwd-file", "/dev/stdin", input="802-11-wireless-security.psk:" + password + "\n")
+                nm(*args, "passwd-file", "/dev/stdin", input="802-11-wireless-security.psk:" + password + "\n", wait=90)
             else:
-                nm(*args)
+                nm(*args, wait=90)
         else:
             nm("--ask", "device", "wifi", "connect", bssid, "ifname", interface,
-               input=(password + "\n") if password is not None else "")
+               input=(password + "\n") if password is not None else "", wait=90)
     elif name == "wired":
-        nm("device", "connect", required(request, "interface"))
+        nm("device", "connect", required(request, "interface"), wait=90)
     elif name == "disconnect":
         nm("device", "disconnect", required(request, "interface"))
     elif name == "forget":

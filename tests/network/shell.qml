@@ -71,7 +71,12 @@ Scope {
                 break;
             case 7: {
                 const field = root.findItem(panel, "networkPassword");
-                root.check(service.error !== "" && service.connectionMessage.includes("Try again"), "failed connection feedback");
+                root.check(service.error !== "" && service.connectionMessage.includes(service.error)
+                    && service.connectionMessage.includes("Retype the password"), "actionable failed connection feedback");
+                const feedback = root.findItem(panel, "connectionFeedback");
+                const duplicate = root.findItem(panel, "networkError");
+                root.check(duplicate.text === "", "connection error not duplicated below list");
+                root.check(feedback.text === service.connectionMessage, "single feedback includes connection error");
                 root.check(panel.passwordNetwork !== null && field.text === "" && field.enabled, "failure reopens empty editable password");
                 field.text = "corrected-secret";
                 panel.submitPassword();

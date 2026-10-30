@@ -130,28 +130,6 @@ Item {
                 }
             }
 
-            Row {
-                width: parent.width
-                visible: NetworkService.connectionMessage !== ""
-                spacing: 8
-                BusyIndicator {
-                    width: 20
-                    height: 20
-                    visible: NetworkService.connectingNetwork !== null
-                    running: visible
-                    palette.dark: Theme.colorAccent
-                }
-                Label {
-                    objectName: "connectionFeedback"
-                    width: parent.width - (NetworkService.connectingNetwork ? 28 : 0)
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: NetworkService.connectionMessage
-                    color: NetworkService.error ? Theme.colorError : Theme.colorAccent
-                    wrapMode: Text.Wrap
-                    Accessible.role: Accessible.AlertMessage
-                }
-            }
-
             Column {
                 width: parent.width
                 visible: root.passwordNetwork !== null
@@ -209,6 +187,28 @@ Item {
                 }
             }
 
+            Row {
+                width: parent.width
+                visible: NetworkService.connectionMessage !== ""
+                spacing: 8
+                BusyIndicator {
+                    width: 20
+                    height: 20
+                    visible: NetworkService.connectingNetwork !== null
+                    running: visible
+                    palette.dark: Theme.colorAccent
+                }
+                Label {
+                    objectName: "connectionFeedback"
+                    width: parent.width - (NetworkService.connectingNetwork ? 28 : 0)
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: NetworkService.connectionMessage
+                    color: NetworkService.error ? Theme.colorError : Theme.colorAccent
+                    wrapMode: Text.Wrap
+                    Accessible.role: Accessible.AlertMessage
+                }
+            }
+
             Column {
                 width: parent.width
                 spacing: 4
@@ -252,7 +252,9 @@ Item {
             Label {
                 width: parent.width
                 visible: text !== ""
-                text: [NetworkService.error, NetworkService.statusError].filter(Boolean).join("\n")
+                objectName: "networkError"
+                text: [NetworkService.connectionMessage ? "" : NetworkService.error,
+                    NetworkService.statusError].filter(Boolean).join("\n")
                 color: Theme.colorError
                 wrapMode: Text.Wrap
                 Accessible.role: Accessible.AlertMessage

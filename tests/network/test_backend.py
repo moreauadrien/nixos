@@ -103,13 +103,15 @@ class BackendTest(unittest.TestCase):
         self.assertEqual(kwargs["input"], secret + "\n")
         self.assertIn("--ask", args[0])
         self.assertNotIn("shell", kwargs)
+        self.assertEqual(args[0][1:3], ["--wait", "90"])
+        self.assertEqual(kwargs["timeout"], 95)
 
     def test_saved_profile_reused_by_ssid(self):
         with patch.object(backend, "profiles", return_value={"real ssid": "saved-uuid"}), \
                 patch.object(backend, "rows", return_value=[["real ssid", "AA:BB:CC:DD:EE:FF"]]), \
                 patch.object(backend, "nm") as nm:
             backend.action({"action": "connect", "interface": "wlan0", "bssid": "AA:BB:CC:DD:EE:FF"})
-        nm.assert_called_once_with("connection", "up", "uuid", "saved-uuid", "ifname", "wlan0", "ap", "AA:BB:CC:DD:EE:FF")
+        nm.assert_called_once_with("connection", "up", "uuid", "saved-uuid", "ifname", "wlan0", "ap", "AA:BB:CC:DD:EE:FF", wait=90)
 
     def test_saved_profile_password_retry_uses_stdin(self):
         secret = 'replacement:password\\with"chars'
@@ -121,6 +123,8 @@ class BackendTest(unittest.TestCase):
         self.assertIn("saved", args[0])
         self.assertNotIn(secret, str(args))
         self.assertEqual(kwargs["input"], "802-11-wireless-security.psk:" + secret + "\n")
+        self.assertEqual(args[0][1:3], ["--wait", "90"])
+        self.assertEqual(kwargs["timeout"], 95)
 
     def test_newline_password_rejected_before_subprocess(self):
         with patch.object(backend.subprocess, "run") as run:
@@ -139,7 +143,7 @@ class BackendTest(unittest.TestCase):
         for request, command in cases:
             with patch.object(backend, "nm") as nm:
                 backend.action(request)
-                nm.assert_called_once_with(*command)
+                nm.assert_called_once_with(*command, **({"wait": 90} if request["action"] == "wired" else {}))
 
     def test_wired_rejects_invalid_interface_before_subprocess(self):
         with patch.object(backend.subprocess, "run") as run:
@@ -168,6 +172,21 @@ class BackendTest(unittest.TestCase):
             self.assertEqual(backend.main(), 1)
         self.assertFalse(json.loads(output.getvalue())["ok"])
         self.assertNotIn("super-secret", output.getvalue())
+
+    def test_safe_actionable_errors(self):
+        cases = [(3, "secret detail", "did not respond in time"),
+                 (4, "secret detail", "Check the password, signal"),
+                 (8, "secret detail", "not running"),
+                 (10, "secret detail", "no longer available"),
+                 (4, "Secrets were required, but not provided: secret", "password is required"),
+                 (4, "Not authorized: secret", "denied permission")]
+        for code, stderr, message in cases:
+            with self.subTest(code=code, stderr=stderr), \
+                    patch.object(backend.subprocess, "run", return_value=completed("secret", code, stderr)):
+                with self.assertRaises(backend.NetworkError) as caught:
+                    backend.nm("connection", "up", "uuid", "p")
+                self.assertIn(message, str(caught.exception))
+                self.assertNotIn("secret", str(caught.exception))
 
     def test_timeout_is_sanitized(self):
         with patch.object(backend.subprocess, "run", side_effect=subprocess.TimeoutExpired("secret", 25)):
