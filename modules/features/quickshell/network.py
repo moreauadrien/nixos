@@ -1,19 +1,10 @@
 """Small NetworkManager CLI adapter. All output is JSON; secrets only travel on stdin."""
 
-import ipaddress
 import json
 import os
-from pathlib import Path
 import re
 import subprocess
 import sys
-
-
-DNS_PRESETS = {
-    "auto": "",
-    "cloudflare": "1.1.1.1 1.0.0.1 2606:4700:4700::1111 2606:4700:4700::1001",
-    "google": "8.8.8.8 8.8.4.4 2001:4860:4860::8888 2001:4860:4860::8844",
-}
 
 
 class NetworkError(Exception):
@@ -83,67 +74,34 @@ def profiles():
     return known
 
 
-def counter(interface, name):
-    if not re.fullmatch(r"[A-Za-z0-9_.:-]+", interface):
-        return 0
-    try:
-        return int(Path(f"/sys/class/net/{interface}/statistics/{name}_bytes").read_text())
-    except (OSError, ValueError):
-        return 0
-
-
-def dns_mode(profile):
-    servers = {str(ipaddress.ip_address(value))
-               for key in ("ipv4.dns", "ipv6.dns") for field in profile.get(key, [])
-               for value in re.split(r"[\s,;]+", field) if value and value != "--"}
-    ignored = [first(profile, f"ipv{version}.ignore-auto-dns", "no") == "yes" for version in (4, 6)]
-    if not any(ignored) and not servers:
-        return "auto"
-    if all(ignored):
-        for mode in ("cloudflare", "google"):
-            if servers == set(DNS_PRESETS[mode].split()):
-                return mode
-    return "custom"
-
-
 def status():
-    snapshot = {"available": False, "wifiEnabled": False, "wifiBand": "auto", "devices": [],
+    snapshot = {"available": False, "wifiEnabled": False, "devices": [],
                 "networks": [], "active": None}
     try:
         snapshot["wifiEnabled"] = nm("radio", "wifi") == "enabled"
         known = profiles()
         candidates = []
         for interface, kind, state, connection in rows("DEVICE,TYPE,STATE,CONNECTION", "device", "status"):
-            data = properties("GENERAL.CON-UUID,IP4.ADDRESS,IP4.GATEWAY,IP4.DNS,IP6.ADDRESS,IP6.GATEWAY,IP6.DNS",
-                              "device", "show", interface)
+            if kind not in ("wifi", "ethernet"):
+                continue
+            data = properties("GENERAL.CON-UUID", "device", "show", interface)
             uuid = first(data, "GENERAL.CON-UUID")
             snapshot["devices"].append({"interface": interface, "type": kind,
                                         "state": state, "connection": connection if connection != "--" else "",
                                         "uuid": uuid})
             if state != "connected" or not uuid:
                 continue
-            defaults = properties("GENERAL.DEFAULT,GENERAL.DEFAULT6,ipv4.ignore-auto-dns,ipv4.dns,ipv6.ignore-auto-dns,ipv6.dns",
-                                  "connection", "show", "uuid", uuid)
-            band = "auto"
-            if kind == "wifi":
-                band = first(properties("802-11-wireless.band", "connection", "show", "uuid", uuid),
-                             "802-11-wireless.band", "auto")
-                snapshot["wifiBand"] = band if band in ("bg", "a") else "auto"
-            active = {"interface": interface, "type": kind, "name": connection, "uuid": uuid,
-                      "ip": first(data, "IP4.ADDRESS", first(data, "IP6.ADDRESS")),
-                      "gateway": first(data, "IP4.GATEWAY", first(data, "IP6.GATEWAY")),
-                      "dns": [v for key in ("IP4.DNS", "IP6.DNS") for v in data.get(key, []) if v and v != "--"],
-                      "band": band if band in ("bg", "a") else "auto", "dnsMode": dns_mode(defaults),
-                      "rxBytes": counter(interface, "rx"), "txBytes": counter(interface, "tx")}
+            defaults = properties("GENERAL.DEFAULT,GENERAL.DEFAULT6", "connection", "show", "uuid", uuid)
+            active = {"interface": interface, "type": kind, "name": connection, "uuid": uuid}
             default = any(first(defaults, key) == "yes" for key in ("GENERAL.DEFAULT", "GENERAL.DEFAULT6"))
             candidates.append(((default, kind == "ethernet"), active))
         if candidates:
             snapshot["active"] = max(candidates, key=lambda item: item[0])[1]
-        for ssid, bssid, signal, security, frequency, active, interface in rows(
-                "SSID,BSSID,SIGNAL,SECURITY,FREQ,IN-USE,DEVICE", "device", "wifi", "list", "--rescan", "no"):
+        for ssid, bssid, signal, security, active, interface in rows(
+                "SSID,BSSID,SIGNAL,SECURITY,IN-USE,DEVICE", "device", "wifi", "list", "--rescan", "no"):
             snapshot["networks"].append({"ssid": ssid, "bssid": bssid, "signal": int(signal or 0),
                                          "security": security if security != "--" else "",
-                                         "frequency": int(frequency.split()[0]) if frequency else 0, "active": active == "*",
+                                         "active": active == "*",
                                          "known": ssid in known, "uuid": known.get(ssid, ""), "interface": interface})
         snapshot["available"] = True
     except (NetworkError, ValueError) as error:
@@ -156,16 +114,6 @@ def required(request, key):
     if not isinstance(value, str) or not value or value.startswith("-") or any(c in value for c in "\n\r\x00"):
         raise NetworkError(f"Invalid {key}")
     return value
-
-
-def apply(uuid):
-    devices = rows("UUID,DEVICE", "connection", "show", "--active")
-    for active_uuid, interface in devices:
-        if active_uuid == uuid and interface and interface != "--":
-            try:
-                nm("device", "reapply", interface)
-            except NetworkError:
-                nm("connection", "up", "uuid", uuid, "ifname", interface)
 
 
 def action(request):
@@ -207,56 +155,15 @@ def action(request):
         else:
             nm("--ask", "device", "wifi", "connect", bssid, "ifname", interface,
                input=(password + "\n") if password is not None else "")
+    elif name == "wired":
+        nm("device", "connect", required(request, "interface"))
     elif name == "disconnect":
         nm("device", "disconnect", required(request, "interface"))
     elif name == "forget":
         nm("connection", "delete", "uuid", required(request, "uuid"))
-    elif name == "dns":
-        uuid = required(request, "uuid")
-        mode = request.get("mode")
-        if mode not in (*DNS_PRESETS, "custom"):
-            raise NetworkError("Invalid DNS mode")
-        servers = request.get("servers", "") if mode == "custom" else DNS_PRESETS[mode]
-        if not isinstance(servers, str):
-            raise NetworkError("Invalid DNS servers")
-        try:
-            addresses = [ipaddress.ip_address(value) for value in re.split(r"[\s,;]+", servers.strip()) if value]
-        except ValueError:
-            raise NetworkError("Invalid DNS address") from None
-        if any(getattr(ip, "scope_id", None) for ip in addresses):
-            raise NetworkError("Scoped DNS addresses are not supported")
-        if mode == "custom" and not addresses:
-            raise NetworkError("Custom DNS requires an address")
-        args = ["connection", "modify", "uuid", uuid]
-        for version in (4, 6):
-            args += [f"ipv{version}.ignore-auto-dns", "no" if mode == "auto" else "yes",
-                     f"ipv{version}.dns", ",".join(str(ip) for ip in addresses if ip.version == version)]
-        nm(*args)
-        apply(uuid)
-    elif name == "band":
-        uuid = required(request, "uuid")
-        band = request.get("band")
-        if band not in ("auto", "bg", "a"):
-            raise NetworkError("Invalid Wi-Fi band")
-        # Band selection needs a new association, not just device reapply.
-        nm("connection", "modify", "uuid", uuid, "802-11-wireless.band", "" if band == "auto" else band)
-        for active_uuid, interface in rows("UUID,DEVICE", "connection", "show", "--active"):
-            if active_uuid == uuid:
-                nm("connection", "up", "uuid", uuid, "ifname", interface)
     else:
         raise NetworkError("Unknown action")
     return {"ok": True}
-
-
-def probe(interface=None):
-    args = ["ping", "-n", "-c", "3", "-W", "2", "-w", "7"]
-    if interface is not None:
-        args += ["-I", required({"interface": interface}, "interface")]
-    result = run([*args, "1.1.1.1"], timeout=9, check=False)
-    loss = re.search(r"([\d.]+)% packet loss", result.stdout)
-    timing = re.search(r"= [\d.]+/([\d.]+)/", result.stdout)
-    return {"pingMs": float(timing[1]) if timing else None,
-            "packetLoss": float(loss[1]) if loss else 100.0}
 
 
 def main():
@@ -266,10 +173,8 @@ def main():
             result = status()
         elif command == ["action"]:
             result = action(json.load(sys.stdin))
-        elif command and command[0] == "probe" and len(command) <= 2:
-            result = probe(command[1] if len(command) == 2 else None)
         else:
-            raise NetworkError("Usage: network-control status|action|probe [interface]")
+            raise NetworkError("Usage: network-control status|action")
     except (NetworkError, ValueError, TypeError):
         # Parse errors can embed arbitrary request text, including passwords.
         error = sys.exc_info()[1]

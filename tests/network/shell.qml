@@ -30,9 +30,8 @@ Scope {
             switch (root.step++) {
             case 0: {
                 root.check(service.connected && service.active.type === "ethernet", "wired default route");
-                root.check(service.wifiEnabled && service.wifiProfile === "wifi-uuid", "simultaneous wifi");
+                root.check(service.wifiEnabled && service.ethernet.length === 1 && service.networks[0].active, "simultaneous wifi and ethernet");
                 root.check(service.networks[0].active, "active network sorted first");
-                root.check(service.formatBytes(2048) === "2.0 KiB", "byte formatting");
                 const saved = service.data;
                 service.data = {wifiEnabled: false, active: saved.active};
                 root.check(service.connected, "wifi off does not disconnect ethernet");
@@ -53,8 +52,8 @@ Scope {
                 service.scan(); // Ignored while connecting.
                 break;
             }
-            case 1: service.setDns("custom", "1.1.1.1 2606:4700:4700::1111"); break;
-            case 2: service.setBand("a"); break;
+            case 1: service.run({action: "wired", interface: "eth0"}); break;
+            case 2: service.disconnect("wlan0"); break;
             case 3: service.forget("wifi-uuid"); break;
             case 4: service.run({action: "fail"}); break;
             case 5:

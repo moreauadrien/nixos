@@ -6,14 +6,15 @@ bash tests/network/run.sh
 nix build .#network-control --no-link
 ```
 
-Backend tests mock NetworkManager: no live connections or DNS settings change.
-The QML test runs the real panel and service offscreen against a mock helper.
+Backend tests mock NetworkManager; no live connections change. The QML test
+runs the panel and service offscreen against a mock helper.
 `nix run .#network-control -- status` is a read-only live smoke check.
 
-The panel supports visible personal/open Wi-Fi networks and existing profiles.
-Hidden SSID and enterprise identity/certificate provisioning are not included.
-DNS changes persist in the selected default connection profile; VPN DNS can take
-priority. Band changes reassociate Wi-Fi and can briefly interrupt traffic.
-Traffic totals are kernel interface counters; latency/loss probes target 1.1.1.1
-only while the panel is open. Wi-Fi passwords travel to the helper on stdin,
-never in command-line arguments or temporary credential files.
+Only Wi-Fi and Ethernet are managed: toggle Wi-Fi, scan, connect, disconnect,
+and forget saved Wi-Fi profiles. The `wired` action connects an Ethernet
+interface. Both interfaces can remain connected; the default route determines
+the active connection, with Ethernet preferred on a tie.
+
+Visible personal/open Wi-Fi networks and existing profiles are supported;
+hidden SSID and enterprise provisioning are not included. Passwords, including
+saved-profile retries, travel only on stdin, never in arguments or files.

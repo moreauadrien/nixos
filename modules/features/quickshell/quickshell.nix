@@ -3,7 +3,7 @@
   perSystem = { pkgs, ... }: {
     packages.network-control = pkgs.writeShellApplication {
       name = "network-control";
-      runtimeInputs = [ pkgs.networkmanager pkgs.iputils ];
+      runtimeInputs = [ pkgs.networkmanager ];
       text = ''
         exec ${pkgs.python3}/bin/python3 ${./network.py} "$@"
       '';

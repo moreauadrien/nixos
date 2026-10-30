@@ -23,39 +23,11 @@ Item {
             width: root.width
             spacing: 12
 
-            Item {
+            PanelHeader {
                 width: parent.width
-                height: 54
-                Row {
-                    anchors.left: parent.left
-                    anchors.verticalCenter: parent.verticalCenter
-                    spacing: 12
-                    Text {
-                        text: "󰕾"
-                        color: Theme.colorAccent
-                        font.family: Theme.barFontFamily
-                        font.pixelSize: 24
-                        anchors.verticalCenter: parent.verticalCenter
-                    }
-                    Column {
-                        anchors.verticalCenter: parent.verticalCenter
-                        spacing: 2
-                        Text {
-                            text: "Son"
-                            color: Theme.colorAccent
-                            font.family: Theme.barFontFamily
-                            font.pixelSize: 18
-                            font.bold: true
-                        }
-                        Text {
-                            text: "PÉRIPHÉRIQUES AUDIO"
-                            color: Theme.colorTextSubtle
-                            font.family: Theme.barFontFamily
-                            font.pixelSize: 11
-                            font.letterSpacing: 1
-                        }
-                    }
-                }
+                icon: "󰕾"
+                title: "Son"
+                subtitle: "PÉRIPHÉRIQUES AUDIO"
             }
 
             Rectangle { width: parent.width; height: 1; color: Theme.colorTextMuted }
@@ -170,39 +142,15 @@ Item {
 
         Repeater {
             model: section.devices
-            delegate: AbstractButton {
-                id: deviceButton
+            delegate: PanelRow {
                 required property PwNode modelData
-                readonly property bool selected: section.node === modelData
+                selected: section.node === modelData
                 width: section.width
-                height: 34
-                Accessible.name: modelData.description || modelData.name
+                glyph: selected ? "󰄬" : ""
+                title: modelData.nickname || modelData.description || modelData.name
                 onClicked: {
                     if (section.output) Pipewire.preferredDefaultAudioSink = modelData;
                     else Pipewire.preferredDefaultAudioSource = modelData;
-                }
-                background: Rectangle {
-                    radius: 4
-                    color: deviceButton.hovered ? Qt.alpha(Theme.colorText, 0.06) : "transparent"
-                    border.width: deviceButton.activeFocus ? 1 : 0
-                    border.color: Theme.colorAccent
-                }
-                contentItem: Item {
-                    Text {
-                        anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
-                        text: deviceButton.selected ? "󰄬" : ""
-                        color: deviceButton.selected ? Theme.colorAccent : Theme.colorTextSubtle
-                        font.family: Theme.barFontFamily
-                        font.pixelSize: 16
-                    }
-                    Text {
-                        anchors { left: parent.left; leftMargin: 38; right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter }
-                        text: deviceButton.modelData.nickname || deviceButton.modelData.description || deviceButton.modelData.name
-                        color: deviceButton.selected ? Theme.colorAccent : Theme.colorText
-                        font.family: Theme.barFontFamily
-                        font.pixelSize: 14
-                        elide: Text.ElideRight
-                    }
                 }
             }
         }
