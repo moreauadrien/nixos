@@ -9,8 +9,6 @@ Text {
     color: NetworkService.connected ? Theme.colorText : Theme.colorTextSubtle
     font.family: Theme.barFontFamily
     font.pixelSize: Theme.barFontSize
-    height: Theme.barHeight
-    verticalAlignment: Text.AlignVCenter
     Accessible.name: "Network: " + NetworkService.status
     SequentialAnimation on opacity {
         running: NetworkService.busy
