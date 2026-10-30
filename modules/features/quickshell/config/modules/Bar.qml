@@ -98,6 +98,7 @@ Scope {
                 }
                 spacing: 12
 
+                TailscaleWidget {}
                 SoundWidget {}
                 BluetoothWidget {}
                 PowerWidget {}

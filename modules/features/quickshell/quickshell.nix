@@ -46,7 +46,7 @@
       esac
     '';
   in {
-    environment.systemPackages = [ pkgs.quickshell pkgs.libnotify chargeLimit coolingControl ];
+    environment.systemPackages = [ pkgs.quickshell pkgs.libnotify pkgs.tailscale pkgs.wl-clipboard chargeLimit coolingControl ];
 
     # Only charge thresholds and firmware-approved cooling profiles may be written without a password.
     security.sudo.extraRules = [{

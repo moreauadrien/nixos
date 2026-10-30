@@ -1,3 +1,4 @@
+singleton TailscaleService 1.0 TailscaleService.qml
 singleton BluetoothService 1.0 BluetoothService.qml
 singleton BluetoothAudio 1.0 BluetoothAudio.qml
 singleton Theme 1.0 Theme.qml
