@@ -25,10 +25,10 @@ Scope {
         return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
     }
 
-    function findSwitch(item) {
-        if (item.objectName === "tailscaleSwitch") return item;
+    function findItem(item, objectName) {
+        if (item.objectName === objectName) return item;
         for (const child of item.children || []) {
-            const found = findSwitch(child);
+            const found = findItem(child, objectName);
             if (found) return found;
         }
         return null;
@@ -67,7 +67,9 @@ Scope {
                 root.check(!switchPreview.checked, "shared switch follows off state");
                 switchPreview.active = true;
                 root.check(switchPreview.checked, "shared switch binding survives interaction");
-                const control = root.findSwitch(panel);
+                const picker = root.findItem(panel, "exitNodePicker");
+                root.check(picker.background.color.a === 0 && picker.background.border.width === 0, "exit picker has no idle selection frame");
+                const control = root.findItem(panel, "tailscaleSwitch");
                 root.check(control !== null && control.checked && control.enabled, "connected switch");
                 const dots = icon.children.filter(child => child.width === icon.iconSize * 0.24);
                 root.check(dots.length === 9 && dots.filter(dot => dot.opacity === 1).length === 4, "Tailscale dot grid");

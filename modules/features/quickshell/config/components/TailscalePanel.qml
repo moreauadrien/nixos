@@ -123,7 +123,28 @@ Item {
                 }
                 ComboBox {
                     id: exitPicker
+                    objectName: "exitNodePicker"
                     width: parent.width
+                    implicitHeight: 32
+                    leftPadding: 8
+                    rightPadding: 28
+                    contentItem: Label {
+                        text: exitPicker.displayText
+                        verticalAlignment: Text.AlignVCenter
+                        color: TailscaleService.exitId ? Theme.colorText : Theme.colorTextSubtle
+                        opacity: exitPicker.enabled ? 1 : 0.5
+                    }
+                    indicator: Label {
+                        anchors { right: parent.right; rightMargin: 8; verticalCenter: parent.verticalCenter }
+                        text: "󰍝"
+                        color: Theme.colorTextSubtle
+                    }
+                    background: Rectangle {
+                        radius: 4
+                        border.width: 0
+                        color: exitPicker.hovered || exitPicker.activeFocus || exitPicker.popup.visible
+                            ? Qt.alpha(Theme.colorText, 0.06) : "transparent"
+                    }
                     enabled: !TailscaleService.busy
                     model: [{ ID: "", label: "None — direct connection" }].concat(
                         TailscaleService.exitNodes.map(peer => ({ ID: peer.ID,
@@ -137,8 +158,8 @@ Item {
                     palette.base: Theme.colorBackground
                     palette.text: Theme.colorText
                     palette.buttonText: Theme.colorText
-                    palette.highlight: Theme.colorAccent
-                    palette.highlightedText: Theme.colorBackground
+                    palette.highlight: Theme.colorSurface
+                    palette.highlightedText: Theme.colorText
                     Accessible.name: "Exit node"
                     delegate: ItemDelegate {
                         required property var modelData
