@@ -3,6 +3,20 @@
   flake.nixosModules.foot = { pkgs, ... }: {
     environment.systemPackages = [ pkgs.foot ];
 
+    # Hide auxiliary launchers while keeping the client/server commands available.
+    hjem.users.adrien.files.".local/share/applications/footclient.desktop".text = ''
+      [Desktop Entry]
+      Type=Application
+      Name=Foot Client
+      Hidden=true
+    '';
+    hjem.users.adrien.files.".local/share/applications/foot-server.desktop".text = ''
+      [Desktop Entry]
+      Type=Application
+      Name=Foot Server
+      Hidden=true
+    '';
+
     hjem.users.adrien.files.".config/foot/foot.ini".text = ''
       [main]
       font=JetBrainsMono Nerd Font:size=17
