@@ -46,13 +46,12 @@ Item {
         password.echoMode = TextInput.Password;
     }
     onPasswordNetworkChanged: syncPasswordHost()
-    onActiveChanged: if (!active) cancelPassword()
-    onVisibleChanged: if (!visible) cancelPassword()
+    onActiveChanged: if (!active && !NetworkService.connectingNetwork) cancelPassword()
+    onVisibleChanged: if (!visible && !NetworkService.connectingNetwork) cancelPassword()
     Connections {
         target: NetworkService
         function onWifiEnabledChanged() { if (!NetworkService.wifiEnabled) root.cancelPassword(); }
         function onConnectionFinished(network, success) {
-            if (!root.active || !root.visible) return;
             if (success) root.cancelPassword();
             else root.requestPassword(network);
         }
@@ -160,6 +159,7 @@ Item {
 
     Flickable {
         id: viewport
+        objectName: "networkViewport"
         anchors.fill: parent
         contentHeight: content.implicitHeight
         clip: true

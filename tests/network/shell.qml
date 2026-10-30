@@ -12,6 +12,7 @@ Scope {
         width: 400
         height: 500
         NetworkPanel { id: panel; anchors.fill: parent }
+        Item { id: otherFocus }
     }
     function findItem(item, name) {
         if (item.objectName === name) return item;
@@ -73,10 +74,25 @@ Scope {
                     && !root.findItem(panel, "connectionFeedback").visible, "no actions or duplicate feedback while input connects");
                 root.check(service.connectionMessage === "Connecting to Home: wifi…", "connecting feedback names network");
                 service.scan(); // Ignored while connecting.
+                const host = panel.passwordHost;
+                const viewport = root.findItem(panel, "networkViewport");
+                const scroll = viewport.contentY;
+                panel.active = false;
+                panel.visible = false;
+                root.check(panel.passwordHost === host && panel.passwordNetwork !== null && field.text === "",
+                    "closing retains pending network and editor without secret");
+                panel.visible = true;
+                panel.active = true;
+                root.check(panel.passwordHost === host && field.connecting && viewport.contentY === scroll,
+                    "reopening restores connecting field under same row and scroll position");
+                panel.active = false;
+                panel.visible = false;
                 break;
             }
             case 1:
-                root.check(panel.passwordNetwork === null && service.connectionMessage === "Connected to Home: wifi", "success feedback and editor dismissed");
+                root.check(panel.passwordNetwork === null && service.connectionMessage === "Connected to Home: wifi", "success while hidden clears connecting editor");
+                panel.visible = true;
+                panel.active = true;
                 service.run({action: "wired", interface: "eth0"});
                 break;
             case 2: service.disconnect("wlan0"); break;
@@ -107,11 +123,21 @@ Scope {
             }
             case 8:
                 root.check(service.error === "" && panel.passwordNetwork === null, "retry succeeds and clears error");
+                panel.requestPassword(service.networks[0]);
                 service.connect(service.networks[0], "wrong-secret");
                 panel.active = false;
+                panel.visible = false;
+                otherFocus.forceActiveFocus();
                 break;
             case 9:
-                root.check(panel.passwordNetwork === null, "failure does not reopen hidden panel password");
+                root.check(panel.passwordNetwork !== null && !panel.active && !panel.visible,
+                    "failure while hidden keeps retry state without opening panel");
+                const field = root.findItem(panel, "networkPassword");
+                root.check(field.text === "" && otherFocus.activeFocus, "hidden retry contains no secret and does not steal focus");
+                panel.visible = true;
+                panel.active = true;
+                root.check(panel.passwordHost !== null && field.enabled && !field.connecting
+                    && service.connectionMessage.includes("Retype the password"), "reopening after failure restores editable retry and error");
                 console.log("PASS: Network service and panel");
                 Qt.quit();
             }

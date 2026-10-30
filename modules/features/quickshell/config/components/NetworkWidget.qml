@@ -58,10 +58,7 @@ Text {
         margins.right: 8
         implicitWidth: 424
         implicitHeight: panel.implicitHeight + 20
-        onVisibleChanged: {
-            NetworkService.openPanels += visible ? 1 : -1;
-            if (!visible) panel.cancelPassword();
-        }
+        onVisibleChanged: NetworkService.openPanels += visible ? 1 : -1
         Component.onDestruction: if (visible) NetworkService.openPanels--
         Rectangle {
             anchors.fill: parent
