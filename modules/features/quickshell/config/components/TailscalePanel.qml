@@ -86,9 +86,6 @@ Item {
                     }
                     Label {
                         width: parent.width
-                        // Reserve the status line so the hostname never moves during actions.
-                        opacity: !TailscaleService.connected || TailscaleService.busy ? 1 : 0
-                        Accessible.ignored: opacity === 0
                         text: TailscaleService.status
                         color: Theme.colorTextSubtle
                         font.pixelSize: 10
