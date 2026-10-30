@@ -6,7 +6,7 @@ import QtQuick
 
 Singleton {
     id: root
-    property string language: "en_US"
+    property string language: "fr_FR"
 
     readonly property var locale: {
         Qt.locale(root.language);
