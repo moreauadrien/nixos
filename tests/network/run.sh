@@ -32,7 +32,8 @@ MOCK
 chmod +x "$tmp/network-control"
 mkdir "$tmp/config"
 cp -r ../../modules/features/quickshell/config/{components,services} "$tmp/config/"
-cp shell.qml "$tmp/config/"
+cp shell.qml icons.qml "$tmp/config/"
+waylandDisplay=${WAYLAND_DISPLAY:-}
 unset WAYLAND_DISPLAY
 QT_QUICK_BACKEND=software QT_QPA_PLATFORM=offscreen quickshell --no-color -p "$tmp/config/shell.qml" > "$tmp/output" 2>&1 || {
     tail -100 "$tmp/output"
@@ -48,3 +49,13 @@ grep -q '"action":"connect".*"password":"test-secret"' "$NETWORK_TEST_LOG"
 grep -q '"action":"wired","interface":"eth0"' "$NETWORK_TEST_LOG"
 grep -q '"action":"disconnect","interface":"wlan0"' "$NETWORK_TEST_LOG"
 ! grep -E 'test-secret|wrong-secret|corrected-secret' "$tmp/output"
+# PanelWindow needs a compositor; use the same mock backend for the real bar icon.
+if [[ -n "$waylandDisplay" ]]; then
+    WAYLAND_DISPLAY="$waylandDisplay" QT_QPA_PLATFORM=wayland quickshell --no-color -p "$tmp/config/icons.qml" > "$tmp/icons-output" 2>&1 || {
+        tail -100 "$tmp/icons-output"
+        exit 1
+    }
+    tail -100 "$tmp/icons-output"
+    grep -q 'PASS: Network icon color and opacity' "$tmp/icons-output"
+    if grep -E 'FAIL:|ReferenceError:|TypeError:|Error:|Unable to assign' "$tmp/icons-output"; then exit 1; fi
+fi

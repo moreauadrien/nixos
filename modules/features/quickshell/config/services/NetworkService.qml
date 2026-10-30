@@ -22,11 +22,16 @@ Singleton {
         Number(b.active) - Number(a.active) || Number(b.known) - Number(a.known) || b.signal - a.signal)
         .filter((network, index, all) => all.findIndex(n => n.ssid === network.ssid
             && n.interface === network.interface && n.security === network.security) === index)
-    readonly property string icon: connected ? (active.type === "ethernet" ? "󰈀" : "󰖩") : "󰖪"
+    readonly property string icon: !connected ? "󰤮" : active.type === "ethernet" ? "󰈀"
+        : wifiIcon(((data.networks || []).find(n => n.active && n.interface === active.interface) || {}).signal || 0)
     readonly property string status: connectingNetwork ? "CONNECTING…" : busy ? "WORKING…" : !available ? "UNAVAILABLE"
         : connected ? (active.type === "ethernet" ? "WIRED CONNECTION" : "CONNECTED")
         : wifiEnabled ? "DISCONNECTED" : "WI-FI OFF"
 
+    function wifiIcon(signal) {
+        const icons = ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"];
+        return icons[Math.max(0, Math.min(4, Math.ceil(signal / 20) - 1))];
+    }
     function refresh() { if (!query.running && !busy) query.running = true; }
     function scan() { run({action: "scan"}); }
     function connect(network, password = "") {

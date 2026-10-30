@@ -238,7 +238,7 @@ Item {
                         PanelRow {
                             id: networkRow
                             width: parent.width
-                            glyph: selected ? "󰤨" : "󰤥"
+                            glyph: NetworkService.wifiIcon(entry.modelData.signal)
                             title: entry.modelData.ssid
                             subtitle: selected ? "Connected" : entry.modelData.known ? "Saved" : ""
                             detail: (entry.modelData.security ? "  " : "") + entry.modelData.signal + "%"

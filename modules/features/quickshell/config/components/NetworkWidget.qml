@@ -12,6 +12,7 @@ Text {
     Accessible.name: "Network: " + NetworkService.status
     SequentialAnimation on opacity {
         running: NetworkService.busy
+        onRunningChanged: if (!running) root.opacity = 1
         loops: Animation.Infinite
         NumberAnimation { from: 1; to: 0.35; duration: 600 }
         NumberAnimation { from: 0.35; to: 1; duration: 600 }

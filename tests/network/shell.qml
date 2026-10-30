@@ -39,10 +39,16 @@ Scope {
                 root.check(service.wifiEnabled && service.ethernet.length === 1 && service.networks[0].active, "simultaneous wifi and ethernet");
                 root.check(service.networks[0].active, "active network sorted first");
                 const saved = service.data;
+                for (const [signal, glyph] of [[0, "󰤯"], [20, "󰤯"], [21, "󰤟"], [40, "󰤟"],
+                    [41, "󰤢"], [60, "󰤢"], [61, "󰤥"], [80, "󰤥"], [81, "󰤨"], [100, "󰤨"]])
+                    root.check(service.wifiIcon(signal) === glyph, "Omarchy Wi-Fi signal icon " + signal);
+                service.data = Object.assign({}, saved, {active: {interface: "wlan0", type: "wifi"}});
+                root.check(service.icon === "󰤢", "bar Wi-Fi icon uses connected access point signal");
                 service.data = {wifiEnabled: false, active: saved.active};
+                root.check(service.icon === "󰈀", "wired icon independent of Wi-Fi power");
                 root.check(service.connected, "wifi off does not disconnect ethernet");
                 service.data = {wifiEnabled: false};
-                root.check(!service.connected && service.status === "WI-FI OFF", "disconnected state");
+                root.check(!service.connected && service.status === "WI-FI OFF" && service.icon === "󰤮", "disconnected state and Omarchy icon");
                 service.data = saved;
                 panel.requestPassword(service.networks[1]);
                 const field = root.findItem(panel, "networkPassword");
