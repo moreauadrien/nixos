@@ -96,7 +96,10 @@ Scope {
                 root.check(!service.connected && service.exitNodes.length === 0, "stopped state and missing peers");
                 root.check(!control.checked, "disconnected switch");
                 service.data = saved;
+                const hostname = root.findItem(panel, "tailscaleHostname");
+                const titleY = hostname.mapToItem(panel, 0, 0).y;
                 service.selectExit("online");
+                root.check(hostname.mapToItem(panel, 0, 0).y === titleY, "hostname stays fixed while working");
                 root.check(service.busy, "exit selection starts command");
                 root.check(!control.enabled, "switch disabled during commands");
                 service.selectExit(""); // Must be ignored while the first command runs.

@@ -78,6 +78,7 @@ Item {
                     spacing: 4
                     Label {
                         width: parent.width
+                        objectName: "tailscaleHostname"
                         text: TailscaleService.hostname
                         color: Theme.colorAccent
                         font.pixelSize: 18
@@ -85,7 +86,9 @@ Item {
                     }
                     Label {
                         width: parent.width
-                        visible: !TailscaleService.connected || TailscaleService.busy
+                        // Reserve the status line so the hostname never moves during actions.
+                        opacity: !TailscaleService.connected || TailscaleService.busy ? 1 : 0
+                        Accessible.ignored: opacity === 0
                         text: TailscaleService.status
                         color: Theme.colorTextSubtle
                         font.pixelSize: 10
