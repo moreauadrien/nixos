@@ -61,7 +61,7 @@ Scope {
                 verticalAlignment: Text.AlignVCenter
                 text: ""
                 font.family: Theme.barFontFamily
-                font.pixelSize: Theme.barFontSize
+                font.pixelSize: 12
                 color: root.stayAwake ? "#ffffff" : Theme.colorTextSubtle
                 opacity: root.stayAwake || barHover.hovered ? 1 : 0
 
