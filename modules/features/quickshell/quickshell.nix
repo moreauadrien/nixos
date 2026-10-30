@@ -1,6 +1,16 @@
 # Quickshell bar: binary + its config (self-contained feature).
-{ ... }: {
-  flake.nixosModules.quickshell = { pkgs, ... }: let
+{ moduleWithSystem, ... }: {
+  perSystem = { pkgs, ... }: {
+    packages.network-control = pkgs.writeShellApplication {
+      name = "network-control";
+      runtimeInputs = [ pkgs.networkmanager ];
+      text = ''
+        exec ${pkgs.python3}/bin/python3 ${./network.py} "$@"
+      '';
+    };
+  };
+
+  flake.nixosModules.quickshell = moduleWithSystem ({ self', pkgs, ... }: let
     chargeLimit = pkgs.writeShellScriptBin "charge-limit" ''
       set -eu
       [ "$#" -eq 1 ] || exit 2
@@ -46,7 +56,7 @@
       esac
     '';
   in {
-    environment.systemPackages = [ pkgs.quickshell pkgs.libnotify pkgs.tailscale pkgs.wl-clipboard chargeLimit coolingControl ];
+    environment.systemPackages = [ pkgs.quickshell pkgs.libnotify pkgs.tailscale pkgs.wl-clipboard chargeLimit coolingControl self'.packages.network-control ];
 
     # Only charge thresholds and firmware-approved cooling profiles may be written without a password.
     security.sudo.extraRules = [{
@@ -70,5 +80,5 @@
     };
 
     hjem.users.adrien.files.".config/quickshell".source = ./config;
-  };
+  });
 }

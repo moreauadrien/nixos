@@ -30,42 +30,13 @@ Item {
             width: root.width
             spacing: 12
 
-            Item {
+            PanelHeader {
                 width: parent.width
-                height: 54
-                Row {
-                    anchors.left: parent.left
-                    anchors.verticalCenter: parent.verticalCenter
-                    spacing: 12
-                    Text {
-                        text: "󰂯"
-                        color: Theme.colorAccent
-                        font.family: Theme.barFontFamily
-                        font.pixelSize: 24
-                        anchors.verticalCenter: parent.verticalCenter
-                    }
-                    Column {
-                        anchors.verticalCenter: parent.verticalCenter
-                        spacing: 2
-                        Text {
-                            text: "Bluetooth"
-                            color: Theme.colorAccent
-                            font.family: Theme.barFontFamily
-                            font.pixelSize: 18
-                            font.bold: true
-                        }
-                        Text {
-                            text: BluetoothService.status
-                            color: Theme.colorTextSubtle
-                            font.family: Theme.barFontFamily
-                            font.pixelSize: 11
-                            font.letterSpacing: 1
-                        }
-                    }
-                }
-                PanelSwitch {
+                icon: "󰂯"
+                title: "Bluetooth"
+                subtitle: BluetoothService.status
+                actions: PanelSwitch {
                     visible: BluetoothService.adapter !== null
-                    anchors { right: parent.right; verticalCenter: parent.verticalCenter }
                     active: BluetoothService.powered
                     Accessible.name: "Bluetooth power"
                     onToggleRequested: BluetoothService.togglePower()

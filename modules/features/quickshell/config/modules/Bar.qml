@@ -102,6 +102,7 @@ Scope {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.verticalCenterOffset: -1
                 }
+                NetworkWidget {}
                 SoundWidget {}
                 BluetoothWidget {}
                 PowerWidget {}

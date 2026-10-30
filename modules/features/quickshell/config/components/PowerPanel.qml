@@ -85,39 +85,11 @@ Item {
         width: root.width
         spacing: 12
 
-        Item {
+        PanelHeader {
             width: parent.width
-            height: 54
-            Row {
-                anchors.left: parent.left
-                anchors.verticalCenter: parent.verticalCenter
-                spacing: 12
-                Text {
-                    text: "󰐥"
-                    color: Theme.colorAccent
-                    font.family: Theme.barFontFamily
-                    font.pixelSize: 24
-                    anchors.verticalCenter: parent.verticalCenter
-                }
-                Column {
-                    anchors.verticalCenter: parent.verticalCenter
-                    spacing: 2
-                    Text {
-                        text: "Power"
-                        color: Theme.colorAccent
-                        font.family: Theme.barFontFamily
-                        font.pixelSize: 18
-                        font.bold: true
-                    }
-                    Text {
-                        text: "SYSTEM CONTROLS"
-                        color: Theme.colorTextSubtle
-                        font.family: Theme.barFontFamily
-                        font.pixelSize: 11
-                        font.letterSpacing: 1
-                    }
-                }
-            }
+            icon: "󰐥"
+            title: "Power"
+            subtitle: "SYSTEM CONTROLS"
         }
 
         Rectangle { width: parent.width; height: 1; color: Theme.colorTextMuted }
