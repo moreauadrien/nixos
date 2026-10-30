@@ -3,12 +3,11 @@ import Quickshell.Wayland
 import QtQuick
 import "../services"
 
-Text {
+TailscaleIcon {
     id: root
-    text: "󰖂"
     color: TailscaleService.connected ? Theme.colorAccent : Theme.colorTextSubtle
-    font.family: Theme.barFontFamily
-    font.pixelSize: Theme.barFontSize
+    crossed: TailscaleService.available && !TailscaleService.connected
+        && TailscaleService.data.BackendState !== "NeedsLogin"
 
     MouseArea {
         id: mouse

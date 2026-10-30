@@ -9,7 +9,17 @@ Scope {
     property int ticks: 0
 
     // Instantiate the real panel as well as the service to catch QML binding errors.
-    TailscalePanel { }
+    TailscalePanel { id: panel }
+    TailscaleIcon { id: icon }
+
+    function findSwitch(item) {
+        if (item.objectName === "tailscaleSwitch") return item;
+        for (const child of item.children || []) {
+            const found = findSwitch(child);
+            if (found) return found;
+        }
+        return null;
+    }
 
     function check(condition, message) {
         if (!condition) {
@@ -33,6 +43,10 @@ Scope {
             switch (root.step++) {
             case 0: {
                 root.check(service.connected, "running state");
+                const control = root.findSwitch(panel);
+                root.check(control !== null && control.checked && control.enabled, "connected switch");
+                const dots = icon.children.filter(child => child.width === icon.iconSize * 0.24);
+                root.check(dots.length === 9 && dots.filter(dot => dot.opacity === 1).length === 4, "Tailscale dot grid");
                 root.check(service.exitNodes.length === 2, "only exit-capable peers");
                 root.check(service.peers[0].Online, "online peers first");
                 root.check(service.name(service.peers[0]) === "exit", "MagicDNS name");
@@ -47,9 +61,11 @@ Scope {
                 root.check(service.authUrl !== "", "browser login available");
                 service.data = { BackendState: "Stopped" };
                 root.check(!service.connected && service.exitNodes.length === 0, "stopped state and missing peers");
+                root.check(!control.checked, "disconnected switch");
                 service.data = saved;
                 service.selectExit("online");
                 root.check(service.busy, "exit selection starts command");
+                root.check(!control.enabled, "switch disabled during commands");
                 service.selectExit(""); // Must be ignored while the first command runs.
                 break;
             }

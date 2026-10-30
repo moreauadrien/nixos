@@ -49,13 +49,21 @@ Item {
             Item {
                 width: parent.width
                 height: 54
+                TailscaleIcon {
+                    iconSize: 24
+                    anchors { left: parent.left; verticalCenter: parent.verticalCenter }
+                    color: TailscaleService.connected ? Theme.colorAccent : Theme.colorTextSubtle
+                    crossed: TailscaleService.available && !TailscaleService.connected
+                        && TailscaleService.data.BackendState !== "NeedsLogin"
+                }
                 Column {
-                    width: parent.width - 110
+                    x: 36
+                    width: parent.width - x - 56
                     anchors.verticalCenter: parent.verticalCenter
                     spacing: 4
                     Label {
                         width: parent.width
-                        text: "󰖂  " + TailscaleService.hostname
+                        text: TailscaleService.hostname
                         color: Theme.colorAccent
                         font.pixelSize: 18
                         font.bold: true
@@ -68,12 +76,35 @@ Item {
                         font.letterSpacing: 1
                     }
                 }
-                Action {
+                Switch {
+                    id: connectionSwitch
+                    objectName: "tailscaleSwitch"
                     anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-                    width: 100
-                    text: TailscaleService.busy ? "Working…" : TailscaleService.connected ? "Disconnect" : "Connect"
+                    padding: 0
+                    spacing: 0
+                    checked: TailscaleService.connected
                     enabled: TailscaleService.available && !TailscaleService.busy
-                    onClicked: TailscaleService.toggle()
+                    Accessible.name: "Tailscale connection"
+                    onToggled: TailscaleService.toggle()
+                    indicator: Rectangle {
+                        implicitWidth: 44
+                        implicitHeight: 24
+                        radius: 12
+                        opacity: connectionSwitch.enabled ? 1 : 0.4
+                        color: TailscaleService.connected ? Theme.colorAccent : Theme.colorTextSubtle
+                        border.width: connectionSwitch.activeFocus ? 1 : 0
+                        border.color: Theme.colorText
+                        Rectangle {
+                            width: 18
+                            height: 18
+                            radius: 9
+                            x: TailscaleService.connected ? parent.width - width - 3 : 3
+                            anchors.verticalCenter: parent.verticalCenter
+                            color: Theme.colorText
+                            Behavior on x { NumberAnimation { duration: 150 } }
+                        }
+                    }
+                    HoverHandler { cursorShape: Qt.PointingHandCursor }
                 }
             }
 
