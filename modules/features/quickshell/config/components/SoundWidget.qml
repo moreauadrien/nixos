@@ -53,7 +53,7 @@ Text {
     Tooltip {
         id: tooltip
         anchorItem: root
-        text: !root.available ? "Aucune sortie audio" : root.muted ? "Son coupé" : Math.round(root.volume * 100) + " %"
+        text: !root.available ? "No audio output" : root.muted ? "Muted" : Math.round(root.volume * 100) + "%"
     }
 
     PanelWindow {

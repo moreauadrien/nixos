@@ -151,7 +151,7 @@ Item {
                                     width: parent.width - x
                                     height: parent.height
                                     value: BluetoothAudio.volumes[volumeSlider.address] ?? 0
-                                    Accessible.name: "Volume de " + modelData.name
+                                    Accessible.name: "Volume for " + modelData.name
                                     onVolumeEdited: percent => BluetoothAudio.setVolume(volumeSlider.address, percent)
                                 }
                             }

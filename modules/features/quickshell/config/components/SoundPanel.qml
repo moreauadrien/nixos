@@ -26,8 +26,8 @@ Item {
             PanelHeader {
                 width: parent.width
                 icon: "󰕾"
-                title: "Son"
-                subtitle: "PÉRIPHÉRIQUES AUDIO"
+                title: "Sound"
+                subtitle: "AUDIO DEVICES"
             }
 
             Rectangle { width: parent.width; height: 1; color: Theme.colorTextMuted }
@@ -78,7 +78,7 @@ Item {
         }
 
         Text {
-            text: section.output ? "SORTIE" : "ENTRÉE"
+            text: section.output ? "OUTPUT" : "INPUT"
             color: Theme.colorTextSubtle
             font.family: Theme.barFontFamily
             font.pixelSize: 11
@@ -94,7 +94,7 @@ Item {
                 width: 32
                 height: 36
                 enabled: section.available
-                Accessible.name: section.output ? "Couper la sortie audio" : "Couper le microphone"
+                Accessible.name: section.output ? "Mute output" : "Mute microphone"
                 checkable: true
                 checked: section.available && section.node.audio.muted
                 onClicked: section.node.audio.muted = !section.node.audio.muted
@@ -121,7 +121,7 @@ Item {
                 enabled: section.available
                 muted: section.available && section.node.audio.muted
                 value: section.available ? section.node.audio.volume * 100 : 0
-                Accessible.name: section.output ? "Volume de sortie" : "Volume d’entrée"
+                Accessible.name: section.output ? "Output volume" : "Input volume"
                 onVolumeEdited: percent => {
                     if (section.available) section.node.audio.volume = percent / 100;
                 }
@@ -131,7 +131,7 @@ Item {
                 id: percentage
                 width: 44
                 height: 36
-                text: section.available ? Math.round(section.node.audio.volume * 100) + " %" : "--"
+                text: section.available ? Math.round(section.node.audio.volume * 100) + "%" : "--"
                 color: Theme.colorAccent
                 font.family: Theme.barFontFamily
                 font.pixelSize: 12
@@ -157,7 +157,7 @@ Item {
 
         Text {
             visible: section.devices.length === 0
-            text: section.output ? "Aucune sortie audio" : "Aucune entrée audio"
+            text: section.output ? "No audio output" : "No audio input"
             color: Theme.colorTextSubtle
             font.family: Theme.barFontFamily
             font.pixelSize: 13

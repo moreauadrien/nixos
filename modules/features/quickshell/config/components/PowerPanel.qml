@@ -38,13 +38,13 @@ Item {
         stdout: StdioCollector { id: output }
         onExited: code => {
             root.limit = code === 0 ? Number(output.text.trim()) : 0;
-            root.error = code === 0 ? "" : "Limite de charge indisponible";
+            root.error = code === 0 ? "" : "Charge limit unavailable";
         }
     }
     Process {
         id: writer
         onExited: code => {
-            if (code !== 0) root.error = "Impossible de modifier la limite de charge";
+            if (code !== 0) root.error = "Unable to change charge limit";
             else root.refresh();
         }
     }
@@ -55,12 +55,12 @@ Item {
         stdout: StdioCollector { id: coolingOutput }
         onExited: code => {
             if (code !== 0) {
-                root.coolingError = "Profil de refroidissement indisponible";
+                root.coolingError = "Cooling profile unavailable";
                 root.coolingProfile = "";
                 root.cpuTemperature = "?";
                 return;
             }
-            if (root.coolingError === "Profil de refroidissement indisponible") root.coolingError = "";
+            if (root.coolingError === "Cooling profile unavailable") root.coolingError = "";
             const values = coolingOutput.text.trim().split(/\s+/);
             root.cpuTemperature = values[0] || "?";
             root.coolingProfile = values[1] || "";
@@ -69,7 +69,7 @@ Item {
     Process {
         id: coolingWriter
         onExited: code => {
-            if (code !== 0) root.coolingError = "Impossible de changer le profil";
+            if (code !== 0) root.coolingError = "Unable to change cooling profile";
             else root.refresh();
         }
     }
@@ -94,7 +94,7 @@ Item {
 
         Rectangle { width: parent.width; height: 1; color: Theme.colorTextMuted }
         Text {
-            text: "ALIMENTATION"
+            text: "POWER"
             color: Theme.colorTextSubtle
             font.family: Theme.barFontFamily
             font.pixelSize: 11
@@ -102,8 +102,8 @@ Item {
         }
         Repeater {
             model: [
-                { icon: "󰐥", title: "Éteindre", action: "poweroff" },
-                { icon: "󰜉", title: "Redémarrer", action: "reboot" }
+                { icon: "󰐥", title: "Shut down", action: "poweroff" },
+                { icon: "󰜉", title: "Restart", action: "reboot" }
             ]
             delegate: Rectangle {
                 required property var modelData
@@ -145,20 +145,20 @@ Item {
 
         Rectangle { width: parent.width; height: 1; color: Theme.colorTextMuted }
         Text {
-            text: "REFROIDISSEMENT"
+            text: "COOLING"
             color: Theme.colorTextSubtle
             font.family: Theme.barFontFamily
             font.pixelSize: 11
             font.letterSpacing: 1.5
         }
         Text {
-            text: "CPU : " + root.cpuTemperature + " °C"
+            text: "CPU: " + root.cpuTemperature + " °C"
             color: Theme.colorText
             font.family: Theme.barFontFamily
             font.pixelSize: 14
         }
         Text {
-            text: "Profils du firmware"
+            text: "Firmware profiles"
             color: Theme.colorTextSubtle
             font.family: Theme.barFontFamily
             font.pixelSize: 11
@@ -167,9 +167,9 @@ Item {
             spacing: 8
             Repeater {
                 model: [
-                    { name: "low-power", label: "Éco" },
-                    { name: "quiet", label: "Silencieux" },
-                    { name: "balanced", label: "Équilibré" },
+                    { name: "low-power", label: "Low power" },
+                    { name: "quiet", label: "Quiet" },
+                    { name: "balanced", label: "Balanced" },
                     { name: "performance", label: "Performance" }
                 ]
                 delegate: Rectangle {
@@ -209,14 +209,14 @@ Item {
 
         Rectangle { width: parent.width; height: 1; color: Theme.colorTextMuted }
         Text {
-            text: "LIMITE DE CHARGE"
+            text: "CHARGE LIMIT"
             color: Theme.colorTextSubtle
             font.family: Theme.barFontFamily
             font.pixelSize: 11
             font.letterSpacing: 1.5
         }
         Text {
-            text: "Jusqu'au prochain redémarrage (80 % par défaut)"
+            text: "Until next reboot (80% by default)"
             color: Theme.colorTextSubtle
             font.family: Theme.barFontFamily
             font.pixelSize: 11
@@ -236,7 +236,7 @@ Item {
                     border.color: root.limit === modelData ? Theme.colorAccent : Theme.colorTextMuted
                     Text {
                         anchors.centerIn: parent
-                        text: modelData + " %"
+                        text: modelData + "%"
                         color: root.limit === modelData ? Theme.colorAccent : Theme.colorText
                         font.family: Theme.barFontFamily
                         font.pixelSize: 14
