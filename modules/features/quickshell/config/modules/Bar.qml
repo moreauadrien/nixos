@@ -98,7 +98,10 @@ Scope {
                 }
                 spacing: 12
 
-                TailscaleWidget { anchors.verticalCenter: parent.verticalCenter }
+                TailscaleWidget {
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: -1
+                }
                 SoundWidget {}
                 BluetoothWidget {}
                 PowerWidget {}
