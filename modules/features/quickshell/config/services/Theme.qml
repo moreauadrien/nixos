@@ -54,5 +54,6 @@ Singleton {
     readonly property string barFontFamily: "JetBrainsMono Nerd Font"
     readonly property int barFontWeight: 400
     readonly property int barFontSize: 16
+    readonly property int barSmallIconSize: 12
     readonly property int barHeight: 30
 }
