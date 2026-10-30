@@ -4,4 +4,5 @@ import "modules"
 Scope {
     Bar {}
     Notifications {}
+    VolumeOsd {}
 }
