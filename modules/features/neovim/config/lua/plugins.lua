@@ -1,7 +1,5 @@
 -- Load plugin modules in order.
 
-vim.pack.add { 'https://github.com/christoomey/vim-tmux-navigator' }
-
 require 'kickstart.plugins.guess-indent'
 require 'kickstart.plugins.gitsigns'
 require 'kickstart.plugins.which-key'
