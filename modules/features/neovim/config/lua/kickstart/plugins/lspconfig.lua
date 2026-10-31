@@ -176,7 +176,21 @@ local servers = {
     cmd = { 'stylua', '--lsp' },
   },
 
-  jdtls = {}, -- Java language server (provided by the project's devenv)
+  jdtls = {
+    -- A separate workspace per project prevents JDTLS metadata collisions.
+    cmd = function(dispatchers, config)
+      local paths = require 'java-debug-paths'
+      local workspace = vim.fn.stdpath 'cache' .. '/jdtls/' .. vim.fn.sha256(config.root_dir or vim.fn.getcwd())
+      return vim.lsp.rpc.start({ paths.jdtls, '-data', workspace }, dispatchers)
+    end,
+    init_options = {
+      bundles = require('java-debug-paths').bundles,
+      extendedClientCapabilities = require 'jdtls.capabilities',
+    },
+    settings = {
+      java = require 'kickstart.java-runtime',
+    },
+  },
 
   qmlls = {}, -- Qt QML language server (from kdePackages.qtdeclarative in nixpkgs)
 
