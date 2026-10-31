@@ -1,7 +1,8 @@
 # Tmux terminal multiplexer: binary + config (inlined, single file).
 { moduleWithSystem, ... }: {
-  flake.nixosModules.tmux = moduleWithSystem ({ self', ... }: {
+  flake.nixosModules.tmux = moduleWithSystem ({ self', pkgs, ... }: {
     programs.tmux.enable = true;
+    programs.tmux.plugins = [ pkgs.tmuxPlugins.vim-tmux-navigator ];
 
     hjem.users.adrien.files.".tmux.conf".text = ''
       set -g default-terminal "tmux-256color"
