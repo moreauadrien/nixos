@@ -34,8 +34,13 @@ Wait for JDTLS to finish importing/building the project, then:
 | `Space d q` | Terminate the session |
 
 Each project has its own JDTLS workspace under Neovim's cache directory.
-Use `:JdtUpdateDebugConfig` to refresh main-class discovery if needed.
-Use `:checkhealth vim.lsp`, `:JdtShowLogs` and `:DapShowLog` for troubleshooting.
+Maven projects are recognized by `pom.xml`, even without `mvnw` or `.git`.
+If discovery fails, check `:checkhealth vim.lsp`: JDTLS must have a root directory,
+not `nil`. Restart Neovim after updating the root-detection configuration.
+Use `:checkhealth vim.lsp` and `:DapShowLog` for troubleshooting.
+Open the LSP log with `:lua vim.cmd.edit(vim.lsp.log.get_filename())`.
+The `:Jdt*` commands are not registered by this configuration, which starts
+JDTLS through `vim.lsp.enable` rather than `jdtls.start_or_attach`.
 Projects requiring several JDKs simultaneously need additional entries in
 `settings.java.configuration.runtimes` in `lspconfig.lua`; automatic detection
 registers only the JDK selected by `JAVA_HOME`.

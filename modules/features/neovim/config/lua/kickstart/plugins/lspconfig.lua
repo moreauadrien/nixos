@@ -177,6 +177,8 @@ local servers = {
   },
 
   jdtls = {
+    -- Maven projects do not necessarily include a wrapper or Git metadata.
+    root_markers = { '.git', 'gradlew', 'mvnw', 'pom.xml' },
     -- A separate workspace per project prevents JDTLS metadata collisions.
     cmd = function(dispatchers, config)
       local paths = require 'java-debug-paths'
