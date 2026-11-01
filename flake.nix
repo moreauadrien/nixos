@@ -24,6 +24,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    workmux = {
+      url = "github:raine/workmux";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     hjem = {
       url = "github:feel-co/hjem";
       inputs.nixpkgs.follows = "nixpkgs";
