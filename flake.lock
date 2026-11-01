@@ -202,6 +202,7 @@
         "preservation": "preservation",
         "samsung-fixes": "samsung-fixes",
         "voxtype": "voxtype",
+        "workmux": "workmux",
         "wrapper-modules": "wrapper-modules"
       }
     },
@@ -256,6 +257,26 @@
         "owner": "peteonrails",
         "ref": "v1.1.0",
         "repo": "voxtype",
+        "type": "github"
+      }
+    },
+    "workmux": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793443682,
+        "narHash": "sha256-DJn1cpSL/P4InQuU+oEusf68nezA1NgBBsGu4XujQEM=",
+        "owner": "raine",
+        "repo": "workmux",
+        "rev": "b0caf23be53c9967190b3ee8fe2437a9e4bd0f1e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "raine",
+        "repo": "workmux",
         "type": "github"
       }
     },

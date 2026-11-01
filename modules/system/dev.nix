@@ -5,6 +5,7 @@
       neovim
       intellij-idea
       tmux
+      workmux
       pi
       pifzf
       shell
