@@ -9,6 +9,7 @@
       pifzf
       shell
       ts-sessionizer
+      sesh
       devenv
       direnv
     ];
