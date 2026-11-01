@@ -143,6 +143,7 @@ Scope {
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
+                    onEntered: bar.extraIconsRevealed = true
                     onClicked: root.stayAwake = !root.stayAwake
                 }
 
@@ -175,6 +176,7 @@ Scope {
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
+                    onEntered: bar.extraIconsRevealed = true
                     onClicked: {
                         if (!root.nightModeAvailable || nightModeReader.running || nightModeWriter.running) return;
                         nightModeWriter.command = root.nightMode
