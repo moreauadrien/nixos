@@ -135,7 +135,7 @@ Scope {
                 text: ""
                 font.family: Theme.barFontFamily
                 font.pixelSize: Theme.barSmallIconSize
-                color: root.stayAwake ? "#ffffff" : Theme.colorTextSubtle
+                color: root.stayAwake ? Theme.colorText : Theme.colorTextSubtle
                 visible: root.stayAwake || bar.extraIconsRevealed
 
                 MouseArea {
@@ -168,7 +168,7 @@ Scope {
                 rotation: -20
                 font.family: Theme.barFontFamily
                 font.pixelSize: Theme.barSmallIconSize
-                color: root.nightMode ? "#ffffff" : Theme.colorTextSubtle
+                color: root.nightMode ? Theme.colorText : Theme.colorTextSubtle
                 visible: root.nightMode || bar.extraIconsRevealed
 
                 MouseArea {
