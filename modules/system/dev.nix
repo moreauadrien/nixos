@@ -8,6 +8,7 @@
       pi
       pifzf
       shell
+      zoxide
       ts-sessionizer
       sesh
       devenv
