@@ -20,7 +20,7 @@
 
       bind-key "J" run-shell "${pkgs.sesh}/bin/sesh connect \"$( \
         ${pkgs.sesh}/bin/sesh list -i | ${pkgs.fzf}/bin/fzf-tmux -p 55%,60% \
-          --no-sort --border-label ' sesh ' --prompt '⚡  ' \
+          --ansi --no-sort --border-label ' sesh ' --prompt '⚡  ' \
           --header '  ^a all ^t tmux ^x zoxide ^g config ^d tmux kill ^f find' \
           --bind 'tab:down,btab:up' \
           --bind 'ctrl-a:change-prompt(⚡  )+reload(${pkgs.sesh}/bin/sesh list -i)' \
