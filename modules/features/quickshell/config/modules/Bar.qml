@@ -95,7 +95,7 @@ Scope {
             Text {
                 id: coffee
                 anchors {
-                    right: clock.left
+                    right: root.nightMode && !root.stayAwake ? moon.left : clock.left
                     rightMargin: 12
                     verticalCenter: parent.verticalCenter
                 }
@@ -105,7 +105,7 @@ Scope {
                 font.family: Theme.barFontFamily
                 font.pixelSize: Theme.barSmallIconSize
                 color: root.stayAwake ? "#ffffff" : Theme.colorTextSubtle
-                opacity: root.stayAwake || extraIconsHover.hovered || coffeeMouse.containsMouse ? 1 : 0
+                visible: root.stayAwake || extraIconsHover.hovered || coffeeMouse.containsMouse
 
                 MouseArea {
                     id: coffeeMouse
@@ -126,17 +126,17 @@ Scope {
             Text {
                 id: moon
                 anchors {
-                    right: coffee.left
+                    right: root.nightMode && !root.stayAwake ? clock.left : coffee.left
                     rightMargin: 12
                     verticalCenter: parent.verticalCenter
                 }
                 height: Theme.barHeight
                 verticalAlignment: Text.AlignVCenter
-                text: ""
+                text: "󰔎"
                 font.family: Theme.barFontFamily
                 font.pixelSize: Theme.barSmallIconSize
                 color: root.nightMode ? "#ffffff" : Theme.colorTextSubtle
-                opacity: root.nightMode || extraIconsHover.hovered || moonMouse.containsMouse ? 1 : 0
+                visible: root.nightMode || extraIconsHover.hovered || moonMouse.containsMouse
 
                 MouseArea {
                     id: moonMouse
@@ -155,8 +155,7 @@ Scope {
                 Tooltip {
                     anchorItem: moon
                     screen: bar.screen
-                    text: !root.nightModeAvailable ? "Night mode unavailable"
-                        : root.nightMode ? "Night mode: on" : "Night mode: off"
+                    text: "Night mode"
                     wantShow: moonMouse.containsMouse
                 }
             }
