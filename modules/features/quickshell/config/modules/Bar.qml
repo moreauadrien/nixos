@@ -132,8 +132,8 @@ Scope {
                 }
                 height: Theme.barHeight
                 verticalAlignment: Text.AlignVCenter
-                text: "󰽧"
-                rotation: 20
+                text: "󰽥"
+                rotation: -20
                 font.family: Theme.barFontFamily
                 font.pixelSize: Theme.barSmallIconSize
                 color: root.nightMode ? "#ffffff" : Theme.colorTextSubtle
