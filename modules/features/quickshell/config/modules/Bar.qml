@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 
 import Quickshell
 import Quickshell.Wayland
+import Quickshell.Io
 import QtQuick
 import "../components"
 import "../services"
@@ -9,6 +10,38 @@ import "../services"
 Scope {
     id: root
     property bool stayAwake: false
+    property bool nightMode: false
+    property bool nightModeAvailable: false
+
+    Process {
+        id: nightModeReader
+        command: ["hyprctl", "hyprsunset", "identity", "get"]
+        stdout: StdioCollector { id: nightModeOutput }
+        onExited: code => {
+            const value = nightModeOutput.text.trim();
+            root.nightModeAvailable = code === 0 && (value === "true" || value === "false");
+            root.nightMode = root.nightModeAvailable && value === "false";
+        }
+    }
+
+    Process {
+        id: nightModeWriter
+        onExited: code => {
+            if (code !== 0) console.warn("Unable to change night mode");
+            nightModeReader.running = true;
+        }
+    }
+
+    Timer {
+        interval: 5000
+        running: true
+        repeat: true
+        triggeredOnStart: true
+        onTriggered: {
+            if (!nightModeReader.running && !nightModeWriter.running)
+                nightModeReader.running = true;
+        }
+    }
 
     Variants {
         model: Quickshell.screens
@@ -87,6 +120,44 @@ Scope {
                     screen: bar.screen
                     text: "Stay awake"
                     wantShow: coffeeMouse.containsMouse
+                }
+            }
+
+            Text {
+                id: moon
+                anchors {
+                    right: coffee.left
+                    rightMargin: 12
+                    verticalCenter: parent.verticalCenter
+                }
+                height: Theme.barHeight
+                verticalAlignment: Text.AlignVCenter
+                text: ""
+                font.family: Theme.barFontFamily
+                font.pixelSize: Theme.barSmallIconSize
+                color: root.nightMode ? "#ffffff" : Theme.colorTextSubtle
+                opacity: root.nightMode || extraIconsHover.hovered || moonMouse.containsMouse ? 1 : 0
+
+                MouseArea {
+                    id: moonMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        if (!root.nightModeAvailable || nightModeReader.running || nightModeWriter.running) return;
+                        nightModeWriter.command = root.nightMode
+                            ? ["hyprctl", "hyprsunset", "identity"]
+                            : ["hyprctl", "hyprsunset", "temperature", "4500"];
+                        nightModeWriter.running = true;
+                    }
+                }
+
+                Tooltip {
+                    anchorItem: moon
+                    screen: bar.screen
+                    text: !root.nightModeAvailable ? "Night mode unavailable"
+                        : root.nightMode ? "Night mode: on" : "Night mode: off"
+                    wantShow: moonMouse.containsMouse
                 }
             }
 
