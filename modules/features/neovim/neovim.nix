@@ -34,6 +34,7 @@
       stylua # stylua --lsp (Lua formatting)
       rust-analyzer # rust_analyzer
       rustfmt # Rust formatting (conform.nvim)
+      jdt-language-server # Java LSP, including the Java debug bundle below
       nixfmt # Nix formatting (conform.nvim)
       typstyle # Typst formatting (conform.nvim)
     ];
@@ -67,6 +68,14 @@
       in
         lib.listToAttrs (lib.mapAttrsToList
           (rel: source: lib.nameValuePair ".config/nvim/${rel}" { inherit source; })
-          configFiles);
+          configFiles) // {
+          # Keep the debug bundle in the Nix closure without installing VS Code.
+          ".config/nvim/lua/java-debug-paths.lua".text = ''
+            return {
+              jdtls = '${lib.getExe pkgs.jdt-language-server}',
+              bundles = vim.fn.glob('${pkgs.vscode-extensions.vscjava.vscode-java-debug}/share/vscode/extensions/vscjava.vscode-java-debug/server/com.microsoft.java.debug.plugin-*.jar', false, true),
+            }
+          '';
+        };
   };
 }
