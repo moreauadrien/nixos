@@ -1,6 +1,21 @@
-{ moduleWithSystem, ... }: {
+{ moduleWithSystem, lib, ... }: {
   flake.nixosModules.sesh = moduleWithSystem ({ self', pkgs, ... }: {
     environment.systemPackages = [ pkgs.sesh self'.packages.sesh-picker ];
+
+    hjem.users.adrien.files.".config/sesh/sesh.toml".source =
+      (pkgs.formats.toml {}).generate "sesh.toml" {
+        session = [{
+          name = "nixos config";
+          path = "~/nixos";
+          startup_command = lib.concatStringsSep " && " [
+            "${pkgs.tmux}/bin/tmux rename-window -t 'nixos config:' work"
+            "${pkgs.tmux}/bin/tmux split-window -d -h -t 'nixos config:work.1' -c ~/nixos -p 50"
+            "${pkgs.tmux}/bin/tmux split-window -d -v -t 'nixos config:work.2' -c ~/nixos"
+            "${pkgs.tmux}/bin/tmux send-keys -t 'nixos config:work.2' '${self'.packages.touffu}/bin/touffu' C-m"
+            "${self'.packages.pi}/bin/pi"
+          ];
+        }];
+      };
 
     hjem.users.adrien.files.".zshrc.d/sesh.zsh".text = ''
       bindkey -s ^f "${self'.packages.sesh-picker}/bin/sesh-picker\n"
