@@ -52,6 +52,20 @@ Scope {
             required property var modelData
             screen: modelData
 
+            property bool extraIconsRevealed: false
+            property bool moonClosestOnEntry: false
+            readonly property bool moonClosest: barHover.hovered
+                ? moonClosestOnEntry : root.nightMode && !root.stayAwake
+
+            // Keep positions and revealed icons stable until the pointer leaves the bar.
+            HoverHandler {
+                id: barHover
+                onHoveredChanged: {
+                    if (hovered) bar.moonClosestOnEntry = root.nightMode && !root.stayAwake;
+                    else bar.extraIconsRevealed = false;
+                }
+            }
+
             anchors {
                 top: true
                 left: true
@@ -79,6 +93,9 @@ Scope {
 
                 HoverHandler {
                     id: extraIconsHover
+                    onHoveredChanged: {
+                        if (hovered) bar.extraIconsRevealed = true;
+                    }
                 }
             }
 
@@ -95,7 +112,7 @@ Scope {
             Text {
                 id: coffee
                 anchors {
-                    right: root.nightMode && !root.stayAwake ? moon.left : clock.left
+                    right: bar.moonClosest ? moon.left : clock.left
                     rightMargin: 12
                     verticalCenter: parent.verticalCenter
                 }
@@ -105,7 +122,7 @@ Scope {
                 font.family: Theme.barFontFamily
                 font.pixelSize: Theme.barSmallIconSize
                 color: root.stayAwake ? "#ffffff" : Theme.colorTextSubtle
-                visible: root.stayAwake || extraIconsHover.hovered || coffeeMouse.containsMouse
+                visible: root.stayAwake || bar.extraIconsRevealed
 
                 MouseArea {
                     id: coffeeMouse
@@ -126,7 +143,7 @@ Scope {
             Text {
                 id: moon
                 anchors {
-                    right: root.nightMode && !root.stayAwake ? clock.left : coffee.left
+                    right: bar.moonClosest ? clock.left : coffee.left
                     rightMargin: 12
                     verticalCenter: parent.verticalCenter
                 }
@@ -137,7 +154,7 @@ Scope {
                 font.family: Theme.barFontFamily
                 font.pixelSize: Theme.barSmallIconSize
                 color: root.nightMode ? "#ffffff" : Theme.colorTextSubtle
-                visible: root.nightMode || extraIconsHover.hovered || moonMouse.containsMouse
+                visible: root.nightMode || bar.extraIconsRevealed
 
                 MouseArea {
                     id: moonMouse
