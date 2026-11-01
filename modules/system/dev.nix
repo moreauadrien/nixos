@@ -9,7 +9,6 @@
       pifzf
       shell
       zoxide
-      ts-sessionizer
       sesh
       devenv
       direnv
