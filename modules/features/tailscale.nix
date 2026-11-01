@@ -1,15 +1,11 @@
-# Tailscale mesh VPN, controlled by the Quickshell widget or tray GUI.
+# Tailscale mesh VPN, controlled by the Quickshell widget.
 { ... }: {
-  flake.nixosModules.tailscale = { pkgs, ... }: {
+  flake.nixosModules.tailscale = { ... }: {
     services.tailscale = {
       enable = true;
       useRoutingFeatures = "client";
       # Let the desktop user control Tailscale through its local API, without sudo.
       extraSetFlags = [ "--operator=adrien" ];
     };
-
-    environment.systemPackages = with pkgs; [
-      trayscale
-    ];
   };
 }
