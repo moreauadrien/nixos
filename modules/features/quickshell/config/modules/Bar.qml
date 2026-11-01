@@ -53,16 +53,30 @@ Scope {
             screen: modelData
 
             property bool extraIconsRevealed: false
-            property bool moonClosestOnEntry: false
-            readonly property bool moonClosest: barHover.hovered
-                ? moonClosestOnEntry : root.nightMode && !root.stayAwake
+            property bool moonClosest: false
+
+            function syncIndicatorOrder() {
+                if (barHover.hovered) return;
+                // Compact a lone active icon, but preserve the order when both are active.
+                if (root.nightMode && !root.stayAwake) moonClosest = true;
+                else if (root.stayAwake && !root.nightMode) moonClosest = false;
+            }
+
+            Component.onCompleted: syncIndicatorOrder()
+            Connections {
+                target: root
+                function onNightModeChanged() { bar.syncIndicatorOrder(); }
+                function onStayAwakeChanged() { bar.syncIndicatorOrder(); }
+            }
 
             // Keep positions and revealed icons stable until the pointer leaves the bar.
             HoverHandler {
                 id: barHover
                 onHoveredChanged: {
-                    if (hovered) bar.moonClosestOnEntry = root.nightMode && !root.stayAwake;
-                    else bar.extraIconsRevealed = false;
+                    if (!hovered) {
+                        bar.extraIconsRevealed = false;
+                        bar.syncIndicatorOrder();
+                    }
                 }
             }
 
