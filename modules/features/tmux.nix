@@ -15,7 +15,8 @@
       set-option -g renumber-windows on
       set-window-option -g mode-keys vi
 
-      bind a new-pane -x 80% -y 60% -X 10% -Y 20% '${self'.packages.pifzf}/bin/pifzf || { printf "\nPress Enter to close..."; read -r _; }'
+      bind a display-popup -w 80% -h 60% -E "workmux dashboard"
+      bind b run-shell "workmux sidebar"
       bind-key "f" run-shell "${self'.packages.sesh-picker}/bin/sesh-picker"
 
       bind -r ^ last-window
