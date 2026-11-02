@@ -3,7 +3,7 @@
     hjem.users.adrien = {
       packages = [ pkgs.zoxide ];
       files.".zshrc.d/zoxide.zsh".text = ''
-        eval "$(${pkgs.zoxide}/bin/zoxide init zsh)"
+        eval "$(${pkgs.zoxide}/bin/zoxide init --cmd cd zsh)"
       '';
     };
   };

@@ -15,7 +15,7 @@
       set-option -g renumber-windows on
       set-window-option -g mode-keys vi
 
-      bind a display-popup -w 80% -h 60% -E "workmux dashboard"
+      bind a display-popup -w 100% -h 100% -E "workmux dashboard"
       bind b run-shell "workmux sidebar"
       bind-key "f" run-shell "${self'.packages.sesh-picker}/bin/sesh-picker"
 
