@@ -5,7 +5,7 @@
     hjem.users.adrien.files.".config/sesh/sesh.toml".source =
       (pkgs.formats.toml {}).generate "sesh.toml" {
         session = [{
-          name = "nixos config";
+          name = "nixos";
           path = "~/nixos";
           startup_command = lib.concatStringsSep " && " [
             "${pkgs.tmux}/bin/tmux rename-window -t 'nixos config:' work"
