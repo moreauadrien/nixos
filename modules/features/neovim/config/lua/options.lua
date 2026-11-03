@@ -75,8 +75,8 @@ vim.o.inccommand = 'split'
 -- Show which line your cursor is on
 vim.o.cursorline = true
 
--- Minimal number of screen lines to keep above and below the cursor.
-vim.o.scrolloff = 10
+-- Keep the cursor vertically centered, except near the start/end of the file.
+vim.o.scrolloff = 999
 
 -- Border for every floating window (LSP hover, signature help, diagnostics, ...)
 --  See `:help 'winborder'`
