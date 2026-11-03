@@ -75,8 +75,17 @@ vim.o.inccommand = 'split'
 -- Show which line your cursor is on
 vim.o.cursorline = true
 
--- Keep the cursor vertically centered, except near the start/end of the file.
-vim.o.scrolloff = 999
+-- Center with zz rather than scrolloff so EOF can have empty space below it.
+-- Neovim cannot display empty space above the first line.
+vim.o.scrolloff = 0
+vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI', 'BufWinEnter', 'WinResized' }, {
+  group = vim.api.nvim_create_augroup('CenteredCursor', { clear = true }),
+  callback = function()
+    if vim.bo.buftype == '' and vim.api.nvim_win_get_config(0).relative == '' then
+      vim.cmd 'normal! zz'
+    end
+  end,
+})
 
 -- Border for every floating window (LSP hover, signature help, diagnostics, ...)
 --  See `:help 'winborder'`
