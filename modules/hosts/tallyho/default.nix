@@ -16,7 +16,6 @@
       self.nixosModules.dev
 
       # Features
-      self.nixosModules.chipwhisperer
       self.nixosModules.plymouth
       self.nixosModules.touffu
       self.nixosModules.elephant
