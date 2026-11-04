@@ -22,6 +22,9 @@
       font=JetBrainsMono Nerd Font:size=17
       pad=0x0
 
+      [bell]
+      system=no
+
       [colors-dark]
       background=1a1b26
       foreground=a9b1d6
