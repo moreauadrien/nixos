@@ -19,11 +19,6 @@
       flake = false;
     };
 
-    pifzf = {
-      url = "github:moreauadrien/pifzf";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     workmux = {
       url = "github:raine/workmux";
       inputs.nixpkgs.follows = "nixpkgs";

@@ -155,26 +155,6 @@
         "type": "github"
       }
     },
-    "pifzf": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1793047235,
-        "narHash": "sha256-uAWlwS1c6J3Fyv3n6llYyvzGR6tAmHLTq81QKXgjmFQ=",
-        "owner": "moreauadrien",
-        "repo": "pifzf",
-        "rev": "fe2255f0c6a25a41c2cdb8abaab06a90b4a4db6d",
-        "type": "github"
-      },
-      "original": {
-        "owner": "moreauadrien",
-        "repo": "pifzf",
-        "type": "github"
-      }
-    },
     "preservation": {
       "locked": {
         "lastModified": 1792953443,
@@ -198,7 +178,6 @@
         "import-tree": "import-tree",
         "nixpkgs": "nixpkgs",
         "pi-src": "pi-src",
-        "pifzf": "pifzf",
         "preservation": "preservation",
         "samsung-fixes": "samsung-fixes",
         "voxtype": "voxtype",
