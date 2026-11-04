@@ -1,4 +1,4 @@
-# Hypridle idle daemon (locks screen, dpms off).
+# Hypridle idle daemon (locks screen, dpms off, suspend).
 { ... }: {
   flake.nixosModules.hypridle = {pkgs, ...} : {
     hjem.users.adrien.files.".config/hypr/hypridle.conf".text = ''
@@ -18,6 +18,11 @@
           timeout = 600                                            # 10min
           on-timeout = hyprctl dispatch dpms off                   # screen off when timeout has passed
           on-resume = hyprctl dispatch dpms on && brightnessctl -r # screen on when activity is detected
+      }
+
+      listener {
+          timeout = 900                   # 15min of inactivity
+          on-timeout = systemctl suspend
       }
     '';
 
