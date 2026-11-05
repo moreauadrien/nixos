@@ -82,7 +82,10 @@ vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI', 'BufWinEnter', 'Win
   group = vim.api.nvim_create_augroup('CenteredCursor', { clear = true }),
   callback = function()
     if vim.bo.buftype == '' and vim.api.nvim_win_get_config(0).relative == '' then
+      -- Normal commands clamp the Insert-mode cursor before the last character.
+      local cursor = vim.api.nvim_win_get_cursor(0)
       vim.cmd 'normal! zz'
+      vim.api.nvim_win_set_cursor(0, cursor)
     end
   end,
 })
