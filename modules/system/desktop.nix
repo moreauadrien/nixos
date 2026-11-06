@@ -14,6 +14,7 @@
       gtk-theme
       desktop-tools
       audio
+      printing
       quickshell
       ghostty
       foot
