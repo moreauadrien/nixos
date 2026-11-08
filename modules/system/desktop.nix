@@ -24,6 +24,8 @@
       virt-manager
       obs-studio
       vlc
+      orca-slicer
+      freecad
 
       speaker-fix-940xfg
     ];
