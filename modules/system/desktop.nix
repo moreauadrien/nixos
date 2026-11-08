@@ -25,6 +25,7 @@
       obs-studio
       vlc
       orca-slicer
+      elegoo-slicer
       freecad
 
       speaker-fix-940xfg
