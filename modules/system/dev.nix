@@ -13,6 +13,9 @@
       direnv
     ];
 
-    environment.systemPackages = [ pkgs.fd pkgs.ripgrep];
+    environment.systemPackages = [
+      pkgs.fd
+      pkgs.ripgrep
+    ];
   };
 }

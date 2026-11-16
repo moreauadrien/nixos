@@ -1,5 +1,7 @@
 {
   flake.nixosModules.printing = { pkgs, ... }: {
+    environment.systemPackages = [ pkgs.simple-scan ];
+
     services.avahi = {
       enable = true;
       nssmdns4 = true;
