@@ -4,7 +4,9 @@
     system = "x86_64-linux";
     modules = [
       inputs.nixos-wsl.nixosModules.default
+      inputs.hjem.nixosModules.default
       self.nixosModules.orbitConfiguration
+      self.nixosModules.dev
     ];
   };
 }

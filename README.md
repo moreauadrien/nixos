@@ -8,7 +8,8 @@ For an existing x86_64 NixOS-WSL installation, run from this repository:
 sudo nixos-rebuild switch --flake .#orbit
 ```
 
-This host keeps `nixos` as the default WSL user and uses state version `26.05`.
+This host uses `adrien` as the default WSL user, includes the `dev` profile,
+and keeps state version `26.05`.
 It does not import the desktop, disk layout, or boot configuration from `tallyho`.
 
 ## Installer (automated)

@@ -1,21 +1,10 @@
 { ... }: {
-  flake.nixosModules.orbitConfiguration = { pkgs, ... }: {
+  flake.nixosModules.orbitConfiguration = {
     networking.hostName = "orbit";
 
     wsl.enable = true;
-    wsl.defaultUser = "nixos";
+    wsl.defaultUser = "adrien";
 
-    nixpkgs.config.allowUnfree = true;
-
-    environment.systemPackages = with pkgs; [
-      neovim
-      tmux
-      git
-      cursor-cli
-      wget
-    ];
-
-    programs.nix-ld.enable = true;
     nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
     system.stateVersion = "26.05";
