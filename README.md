@@ -1,5 +1,16 @@
 sudo loadkeys fr
 
+## WSL host: orbit
+
+For an existing x86_64 NixOS-WSL installation, run from this repository:
+
+```sh
+sudo nixos-rebuild switch --flake .#orbit
+```
+
+This host keeps `nixos` as the default WSL user and uses state version `26.05`.
+It does not import the desktop, disk layout, or boot configuration from `tallyho`.
+
 ## Installer (automated)
 
 From the NixOS installer ISO (with your SSH key loaded for repo access):
