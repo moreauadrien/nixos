@@ -30,6 +30,8 @@
  bindkey "\eO5D" backward-word
 
  setopt HIST_IGNORE_SPACE # use a space to hide a command from history
+ # The persistent history file is a mount point and cannot be replaced by rename.
+ unsetopt HIST_SAVE_BY_COPY
  source ${pkgs.fzf}/share/fzf/key-bindings.zsh
  for f in ~/.zshrc.d/*.zsh(N); do source "$f"; done
 	'';
